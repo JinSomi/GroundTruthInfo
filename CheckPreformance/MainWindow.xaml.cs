@@ -61,8 +61,10 @@ namespace CheckPreformance
     {
         Bump,
         Chipping,
-        Dent,
         CoatingOff,
+        Stain,
+        Color,
+        Crack,
         Scratch,
         Ect
     }
