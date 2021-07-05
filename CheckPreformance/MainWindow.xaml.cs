@@ -59,13 +59,14 @@ namespace CheckPreformance
 
     public enum Defect_Classification
     {
-        Bump,
+        Bump=0,
         Chipping,
         CoatingOff,
         Stain,
         Color,
         Crack,
         Scratch,
+        Dust,
         Ect
     }
 
@@ -167,13 +168,12 @@ namespace CheckPreformance
 
             originalHeight = this.Height;
 
+            int DC_num = System.Enum.GetValues(typeof(Defect_Classification)).Length;
+            for (int i = 0; i < DC_num; i++)
+            {
+                cmb_DC.Items.Add((Defect_Classification)i);
+            }
 
-            cmb_DC.Items.Add(Defect_Classification.Bump);
-            cmb_DC.Items.Add(Defect_Classification.Chipping);
-            cmb_DC.Items.Add(Defect_Classification.CoatingOff);
-            cmb_DC.Items.Add(Defect_Classification.Dent);
-            cmb_DC.Items.Add(Defect_Classification.Scratch);
-            cmb_DC.Items.Add(Defect_Classification.Ect);
 
            // Halcon_Window.MouseLeftButtonDown+= HWindowControl1_HMouseDown;
             Halcon_Window.HMouseDown += HWindowControl1_HMouseDown;
@@ -312,7 +312,14 @@ namespace CheckPreformance
                         temp.ImageName_df_defect = string.Format("{0}DF{1}_Marking.bmp", name, corner);
                         temp.ImageName_co_defect = string.Format("{0}CO{1}_Marking.bmp", name, corner);
 
-                        GetDatResult_Mic(ref temp);
+                        //if (temp.datName.Replace("dat", "txt").Exists)
+                        //{
+
+                        //}
+                        //else
+                        {
+                            GetDatResult_Mic(ref temp);
+                        }
                         infos.Add(temp);
                     }
 
@@ -392,7 +399,12 @@ namespace CheckPreformance
                         Convert_Image_Mac(infos[Current_i].CH0, infos[Current_i].CH1, infos[Current_i].CH2, infos[Current_i].CH3);
                     }
                     DrawDefects(infos[Current_i]);
-                   
+
+                    foreach (ResultInfo image_ in infos)
+                    {
+                        cmb_ImgList.Items.Add(image_.datName.Name);
+                    }
+
                     UpdateWindow(0);
                 }
                 catch
@@ -1108,23 +1120,30 @@ namespace CheckPreformance
             Button click_btn = sender as Button;
             int befor_i = Current_i;
             int noDefect = 0;
-            if (click_btn.Name == "Prev_Btn")
+            if (click_btn != null)
             {
-                Current_i--;
-                if (Current_i < 0)
+                if (click_btn.Name == "Prev_Btn")
                 {
-                    Current_i = 0;
-                    MessageBox.Show("첫번째 이미지");
+                    Current_i--;
+                    if (Current_i < 0)
+                    {
+                        Current_i = 0;
+                        MessageBox.Show("첫번째 이미지");
+                    }
+                }
+                else
+                {
+                    Current_i++;
+                    if (Current_i > infos.Count - 1)
+                    {
+                        Current_i = infos.Count - 1;
+                        MessageBox.Show("마지막 이미지");
+                    }
                 }
             }
             else
             {
-                Current_i++;
-                if (Current_i > infos.Count - 1)
-                {
-                    Current_i = infos.Count - 1;
-                    MessageBox.Show("마지막 이미지");
-                }
+                Current_i = cmb_ImgList.SelectedIndex;
             }
             try
             {
@@ -2049,7 +2068,7 @@ namespace CheckPreformance
                     string Defect_h = string.Format("Defect{0}_HEIGHT", i);
                     string Defect_a = string.Format("Defect{0}_ANGLE", i);
 
-                    string True_Defect = string.Format("Blob{0}_TrueDefect", i);
+                    string True_Defect = string.Format("Defect{0}_TrueDefect", i);
 
                     string Classification=string.Format("Defect{0}_Classification", i);
 
@@ -2059,18 +2078,19 @@ namespace CheckPreformance
                     grt.SetString("ImageResult", Defect_w, Defects.True_Defects[i].width.ToString("F3"));
                     grt.SetString("ImageResult", Defect_h, Defects.True_Defects[i].height.ToString("F3"));
                     grt.SetString("ImageResult", Defect_a, Defects.True_Defects[i].angle.ToString("F3"));
+                    grt.SetString("ImageResult", True_Defect, "1.000");
                     grt.SetString("ImageResult", Classification, Defects.True_Defects[i].Name.ToString());
 
                 }
-                if (Defects.Under_Defects.Count == 0)
+                if (Defects.Under_Defects == null)
                 {
-                
-                   string Defect_centerx = string.Format("Under_Defect{0}_CENTER_X", "0");
-                   string Defect_centery = string.Format("Under_Defect{0}_CENTER_Y", "0");
-                   string Defect_w = string.Format("Under_Defect{0}_WIDTH", "0");
-                   string Defect_h = string.Format("Under_Defect{0}_HEIGHT", "0");
-                   string Defect_a = string.Format("Under_Defect{0}_ANGLE", "0");
+                    string Defect_centerx = string.Format("Under_Defect{0}_CENTER_X", "0");
+                    string Defect_centery = string.Format("Under_Defect{0}_CENTER_Y", "0");
+                    string Defect_w = string.Format("Under_Defect{0}_WIDTH", "0");
+                    string Defect_h = string.Format("Under_Defect{0}_HEIGHT", "0");
+                    string Defect_a = string.Format("Under_Defect{0}_ANGLE", "0");
                     string Classification = string.Format("Under_Defect{0}_Classification", "0");
+                    string True_Defect = string.Format("Defect{0}_TrueDefect", "0");
 
 
                     grt.SetString("ImageResult", Defect_centerx, "0.000");
@@ -2078,7 +2098,58 @@ namespace CheckPreformance
                     grt.SetString("ImageResult", Defect_w, "0.000");
                     grt.SetString("ImageResult", Defect_h, "0.000");
                     grt.SetString("ImageResult", Defect_a, "0.000");
+                    grt.SetString("ImageResult", True_Defect, "0.000");
                     grt.SetString("ImageResult", Classification, "Zero");
+
+                }
+                if (Defects.Under_Defects != null)
+                {
+                    if (Defects.Under_Defects.Count == 0)
+                    {
+
+                        string Defect_centerx = string.Format("Under_Defect{0}_CENTER_X", "0");
+                        string Defect_centery = string.Format("Under_Defect{0}_CENTER_Y", "0");
+                        string Defect_w = string.Format("Under_Defect{0}_WIDTH", "0");
+                        string Defect_h = string.Format("Under_Defect{0}_HEIGHT", "0");
+                        string Defect_a = string.Format("Under_Defect{0}_ANGLE", "0");
+                        string Classification = string.Format("Under_Defect{0}_Classification", "0");
+                        string True_Defect = string.Format("Defect{0}_TrueDefect", "0");
+
+
+                        grt.SetString("ImageResult", Defect_centerx, "0.000");
+                        grt.SetString("ImageResult", Defect_centery, "0.000");
+                        grt.SetString("ImageResult", Defect_w, "0.000");
+                        grt.SetString("ImageResult", Defect_h, "0.000");
+                        grt.SetString("ImageResult", Defect_a, "0.000");
+                        grt.SetString("ImageResult", True_Defect, "0.000");
+                        grt.SetString("ImageResult", Classification, "Zero");
+                    }
+                }
+
+                if (Defects.False_Defects.Count>0)
+                {
+
+                    for (int i = 0; i < Defects.False_Defects.Count; i++)
+                    {
+                        int j = Defects.True_Defects.Count + i;
+                        string Defect_centerx = string.Format("Defect{0}_CENTER_X", j);
+                        string Defect_centery = string.Format("Defect{0}_CENTER_Y", j);
+                        string Defect_w = string.Format("Defect{0}_WIDTH", j);
+                        string Defect_h = string.Format("Defect{0}_HEIGHT", j);
+                        string Defect_a = string.Format("Defect{0}_ANGLE", j);
+                        string Classification = string.Format("Defect{0}_Classification", j);
+                        string True_Defect = string.Format("Defect{0}_TrueDefect", j);
+
+
+                        grt.SetString("ImageResult", Defect_centerx, Defects.False_Defects[i].cenx.ToString("F3"));
+                        grt.SetString("ImageResult", Defect_centery, Defects.False_Defects[i].ceny.ToString("F3"));
+                        grt.SetString("ImageResult", Defect_w, Defects.False_Defects[i].width.ToString("F3"));
+                        grt.SetString("ImageResult", Defect_h, Defects.False_Defects[i].height.ToString("F3"));
+                        grt.SetString("ImageResult", Defect_a, Defects.False_Defects[i].angle.ToString("F3"));
+                        grt.SetString("ImageResult", True_Defect, "-1.000");
+                        grt.SetString("ImageResult", Classification, Defects.False_Defects[i].Name.ToString());
+
+                    }
                 }
 
                 write_func(grt, 0, Defects, 0, 1);
@@ -2785,7 +2856,10 @@ namespace CheckPreformance
 
         }
 
+        private void Cmb_ImgList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
 
+        }
 
         private void Convert_Image_Mac(FileInfo ch0, FileInfo ch1, FileInfo ch2, FileInfo ch3)
         {

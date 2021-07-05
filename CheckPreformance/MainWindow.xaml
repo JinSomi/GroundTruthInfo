@@ -6,29 +6,31 @@
         xmlns:local="clr-namespace:CheckPreformance"
         xmlns:HalconDotNet="clr-namespace:HalconDotNet;assembly=halcondotnet" x:Class="CheckPreformance.MainWindow"
         mc:Ignorable="d"
-        Title="MainWindow" Height="501.204" Width="900.223" ResizeMode="CanResizeWithGrip" SizeToContent="WidthAndHeight" SizeChanged="Window_SizeChanged">
+        Title="MainWindow" Height="551.457" Width="900.223" ResizeMode="CanResizeWithGrip" SizeToContent="WidthAndHeight" SizeChanged="Window_SizeChanged">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="749*"/>
             <ColumnDefinition Width="143*"/>
         </Grid.ColumnDefinitions>
-        <HalconDotNet:HSmartWindowControlWPF Name="Halcon_Window" HorizontalAlignment="Left" Height="470" VerticalAlignment="Top" Width="636" /> <!--MouseLeftButtonDown="Halcon_Window_MouseLeftButtonDown" MouseMove="Halcon_Window_MouseMove"/>-->
-        <Grid HorizontalAlignment="Left" Height="465" Margin="641,5,0,0" VerticalAlignment="Top" Width="249" Grid.ColumnSpan="2">
+        <HalconDotNet:HSmartWindowControlWPF Name="Halcon_Window" HorizontalAlignment="Left" Height="470" VerticalAlignment="Top" Width="636" />
+        <!--MouseLeftButtonDown="Halcon_Window_MouseLeftButtonDown" MouseMove="Halcon_Window_MouseMove"/>-->
+        <Grid HorizontalAlignment="Left" Height="515" Margin="641,5,0,0" VerticalAlignment="Top" Width="249" Grid.ColumnSpan="2">
             <Button Name="Load_Btn" Content="이미지로드" HorizontalAlignment="Left" Height="27" VerticalAlignment="Top" Width="70" Click="Load_Btn_Click" Margin="10,63,0,0"/>
             <TextBox Name="txt_folderPath" HorizontalAlignment="Left" Height="27" Margin="85,63,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="158" FontSize="10"/>
-            <Button Name="Prev_Btn" Content="◀" HorizontalAlignment="Left" Height="30" Margin="10,102,0,0" VerticalAlignment="Top" Width="30" Click="Prev_Btn_Click"/>
-            <Button Name="Next_Btn" Content="▶" HorizontalAlignment="Left" Height="30" Margin="209,102,0,0" VerticalAlignment="Top" Width="30" Click="Prev_Btn_Click"/>
-            <Label Name="ImageName_lbl" Content="Label" HorizontalAlignment="Left" Height="30" Margin="54,102,0,0" VerticalAlignment="Top" Width="134"/>
-            <ListBox Name="Defects_lst"  SelectionMode="Multiple" HorizontalAlignment="Left" Height="247" Margin="10,132,0,0" VerticalAlignment="Top" Width="229" SelectionChanged="Defects_lst_SelectionChanged"/>
-            <Button Name="Detect_btn" Content="Detect" HorizontalAlignment="Left" Height="25" Margin="10,430,0,0" VerticalAlignment="Top" Width="48" Click="Detect_btn_Click"/>
-            <Button Name="Under_btn" Content="Under" HorizontalAlignment="Left" Height="25" Margin="102,430,0,0" VerticalAlignment="Top" Width="48" Click="Under_btn_Click" Background="#FFDDDDDD"/>
-            <Button Name="Over_btn" Content="Over" HorizontalAlignment="Left" Height="25" Margin="191,430,0,0" VerticalAlignment="Top" Width="48" Click="Detect_btn_Click"/>
+            <Button Name="Prev_Btn" Content="◀" HorizontalAlignment="Left" Height="30" Margin="10,149,0,0" VerticalAlignment="Top" Width="30" Click="Prev_Btn_Click"/>
+            <Button Name="Next_Btn" Content="▶" HorizontalAlignment="Left" Height="30" Margin="209,149,0,0" VerticalAlignment="Top" Width="30" Click="Prev_Btn_Click"/>
+            <Label Name="ImageName_lbl" Content="Label" HorizontalAlignment="Left" Height="30" Margin="54,149,0,0" VerticalAlignment="Top" Width="134"/>
+            <ListBox Name="Defects_lst"  SelectionMode="Multiple" HorizontalAlignment="Left" Height="247" Margin="10,184,0,0" VerticalAlignment="Top" Width="229" SelectionChanged="Defects_lst_SelectionChanged"/>
+            <Button Name="Detect_btn" Content="Detect" HorizontalAlignment="Left" Height="25" Margin="10,480,0,0" VerticalAlignment="Top" Width="48" Click="Detect_btn_Click"/>
+            <Button Name="Under_btn" Content="Under" HorizontalAlignment="Left" Height="25" Margin="102,480,0,0" VerticalAlignment="Top" Width="48" Click="Under_btn_Click" Background="#FFDDDDDD"/>
+            <Button Name="Over_btn" Content="Over" HorizontalAlignment="Left" Height="25" Margin="191,480,0,0" VerticalAlignment="Top" Width="48" Click="Detect_btn_Click" RenderTransformOrigin="0.574,2.573"/>
             <Label Content="sys.rcp" HorizontalAlignment="Left" Margin="27,2,0,0" VerticalAlignment="Top" Height="21" Padding="5,0" MouseDown="Label_MouseDown" Background="White"/>
             <Label Content="Recipe" HorizontalAlignment="Left" Margin="27,28,0,0" VerticalAlignment="Top" Height="21" Padding="5,0 " MouseDown="Label_MouseDown"/>
             <Button Name="btn_Mac" Content="Macro" HorizontalAlignment="Left" Height="39" Margin="102,10,0,0" VerticalAlignment="Top" Width="65" Background="#FFC3C3C3" Click="Button_Click"/>
             <Button Name="btn_Mic" Content="Micro" HorizontalAlignment="Left" Height="39" Margin="174,10,0,0" VerticalAlignment="Top" Width="65" Background="#FFC5C5C5" Click="Button_Click"/>
-            <ComboBox x:Name="cmb_DC" HorizontalAlignment="Left" Height="32" Margin="10,384,0,0" VerticalAlignment="Top" Width="178"/>
-            <Button x:Name="btn_DC" Content="등록" HorizontalAlignment="Left" Height="32" Margin="193,384,0,0" VerticalAlignment="Top" Width="46" Click="Btn_DC_Click"/>
+            <ComboBox x:Name="cmb_DC" HorizontalAlignment="Left" Height="32" Margin="10,443,0,0" VerticalAlignment="Top" Width="178"/>
+            <Button x:Name="btn_DC" Content="등록" HorizontalAlignment="Left" Height="32" Margin="193,443,0,0" VerticalAlignment="Top" Width="46" Click="Btn_DC_Click"/>
+            <ComboBox Name="cmb_ImgList" HorizontalAlignment="Left" Height="32" Margin="10,101,0,0" VerticalAlignment="Top" Width="229" SelectionChanged=" Prev_Btn_Click"/>
         </Grid>
 
         <Grid Name="OverDetail" HorizontalAlignment="Center" Height="51" Margin="546,265,46,103" VerticalAlignment="Center" Width="300" Background="White" Visibility="Hidden" Grid.ColumnSpan="2">
