@@ -23,103 +23,9 @@ using System.Windows.Media;
 using PixelFormat = System.Drawing.Imaging.PixelFormat;
 using System.Diagnostics;
 
+
 namespace CheckPreformance
 {
-    public struct Defect_struct
-    {
-
-        public int cenx;
-        public int ceny;
-        public int width;
-        public int height;
-        public float angle;
-
-
-        /// GroundTruth Feature
-        public int blob_ind { get; set; }
-        public bool GroundTruth;
-        public int Blobs_num;
-        public int In_Out;
-        public int Defect_Location;
-        public int Pixel_num;
-        public double Average_Distance;
-        public double Centroid_Distance;
-        public double Long_Axis_len;
-        public double Short_Axis_len;
-        public double Long_Axis_angle;
-        public double Short_Axis_angle;
-        public double Avg_R;
-        public double Avg_G;
-        public double Avg_B;
-        public double Avg_I;
-        public Defect_Classification Name;
-        public bool UnderDefect;
-
-    }
-
-    public enum Defect_Classification
-    {
-        Bump=0,
-        Chipping,
-        CoatingOff,
-        Stain,
-        Color,
-        Crack,
-        Scratch,
-        Dust,
-        Ect
-    }
-
-    public class ResultInfo
-    {
-        public FileInfo datName { get; set; }
-        public string ImageName_bf { get; set; }
-        public string ImageName_bf_defect { get; set; }
-        public string ImageName_df_defect { get; set; }
-        public string ImageName_co_defect { get; set; }
-        public string ImageName_df { get; set; }
-        public string ImageName_co { get; set; }
-        public int Detect_num { get; set; }
-        public int Under_num { get; set; }
-        public int Over_Dust_num { get; set; }
-        public int Over_Defect_num { get; set; }
-        public int Over_Bump_num { get; set; }
-        public int Over_Ect_num { get; set; }
-        public List<Defect_struct> Defects { get; set; }
-
-        public FileInfo CH0 { get; set; }
-        public FileInfo CH1 { get; set; }
-        public FileInfo CH2 { get; set; }
-        public FileInfo CH3 { get; set; }
-
-        public List<Defect_struct> True_Defects { get; set; }
-        public List<Defect_struct> False_Defects { get; set; }
-        public List<Defect_struct> Under_Defects { get; set; }
-
-        public List<Defect_struct> BF_Defects { get; set; }
-        public List<Defect_struct> DF_Defects { get; set; }
-        public List<Defect_struct> CO_Defects { get; set; }
-
-
-        public List<Defect_struct> True_BF_Defects { get; set; }
-        public List<Defect_struct> True_DF_Defects { get; set; }
-        public List<Defect_struct> True_CO_Defects { get; set; }
-
-
-        public List<Defect_struct> False_BF_Defects { get; set; }
-        public List<Defect_struct> False_DF_Defects { get; set; }
-        public List<Defect_struct> False_CO_Defects { get; set; }
-
-
-
-
-        public List<Defect_struct> Real_BF_Defects { get; set; }
-        public List<Defect_struct> Real_DF_Defects { get; set; }
-        public List<Defect_struct> Real_CO_Defects { get; set; }
-
-        public Defect_Classification Name;
-
-    }
 
     
     /// <summary>
@@ -141,7 +47,7 @@ namespace CheckPreformance
 
 
         public FileInfo[] datFiles;
-        public List<ResultInfo> infos;
+        public List<Structure.ResultInfo> infos;
         public HObject DefectRegion;
         public HObject DefectRegion_BF;
         public HObject DefectRegion_DF;
@@ -168,10 +74,10 @@ namespace CheckPreformance
 
             originalHeight = this.Height;
 
-            int DC_num = System.Enum.GetValues(typeof(Defect_Classification)).Length;
+            int DC_num = System.Enum.GetValues(typeof(Structure.Defect_Classification)).Length;
             for (int i = 0; i < DC_num; i++)
             {
-                cmb_DC.Items.Add((Defect_Classification)i);
+                cmb_DC.Items.Add((Structure.Defect_Classification)i);
             }
 
 
@@ -193,15 +99,15 @@ namespace CheckPreformance
             if (underDetect_mode)
             {
                 underDetect_mode = false;
-                Defect_struct under_temp = new Defect_struct();
+                Structure.Defect_struct under_temp = new Structure.Defect_struct();
                 under_temp.angle = 90;
                 under_temp.cenx = Convert.ToInt32(Start_pt_x + (End_pt_x - Start_pt_x) / 2);
                 under_temp.ceny = Convert.ToInt32(Start_pt_y + (End_pt_y - Start_pt_y) / 2);
                 under_temp.width = Convert.ToInt32((End_pt_x - Start_pt_x));
                 under_temp.height = Convert.ToInt32((End_pt_y - Start_pt_y));
-                under_temp.Name = (Defect_Classification)Enum.Parse(typeof(Defect_Classification), cmb_DC.SelectedItem.ToString());
+                under_temp.Name = (Structure.Defect_Classification)Enum.Parse(typeof(Structure.Defect_Classification), cmb_DC.SelectedItem.ToString());
                 under_temp.UnderDefect = true;
-                if (infos[Current_i].Under_Defects == null) infos[Current_i].Under_Defects = new List<Defect_struct>();
+                if (infos[Current_i].Under_Defects == null) infos[Current_i].Under_Defects = new List<Structure.Defect_struct>();
                 infos[Current_i].Under_Defects.Add(under_temp);
                 infos[Current_i].Defects.Add(under_temp);
 
@@ -291,11 +197,11 @@ namespace CheckPreformance
                 if (Directory.Exists(Address + "\\MicroDefect"))
                 {
                     datFiles = new DirectoryInfo(Address + "\\MicroDefect").GetFiles("*.dat");
-                    infos = new List<ResultInfo>();
+                    infos = new List<Structure.ResultInfo>();
                     RootAdderss = Address;
                     foreach (FileInfo f in datFiles)
                     {
-                        ResultInfo temp = new ResultInfo();
+                        Structure.ResultInfo temp = new Structure.ResultInfo();
                         temp.datName = f;
                         string name_temp = f.Name.Split('.')[0];
                         string corner = name_temp.Substring(name_temp.Length - 1);
@@ -338,13 +244,13 @@ namespace CheckPreformance
                 if (Directory.Exists(Address + "\\MacroColor"))
                 {
                     datFiles = new DirectoryInfo(Address + "\\MacroColor").GetFiles("*.dat");
-                    infos = new List<ResultInfo>();
+                    infos = new List<Structure.ResultInfo>();
                     RootAdderss = Address;
                     foreach (FileInfo f in datFiles)
                     {
                         if (f.Name.Contains("Defect"))
                         {
-                            ResultInfo temp = new ResultInfo();
+                            Structure.ResultInfo temp = new Structure.ResultInfo();
                             temp.datName = f;
                             string name_temp = f.Name.Split('.')[0];
                             //string corner = name_temp.Substring(name_temp.Length - 1);
@@ -400,7 +306,7 @@ namespace CheckPreformance
                     }
                     DrawDefects(infos[Current_i]);
 
-                    foreach (ResultInfo image_ in infos)
+                    foreach (Structure.ResultInfo image_ in infos)
                     {
                         cmb_ImgList.Items.Add(image_.datName.Name);
                     }
@@ -419,7 +325,7 @@ namespace CheckPreformance
 
         }
 
-        private void AddList(ResultInfo info)
+        private void AddList(Structure.ResultInfo info)
         {
             Defects_lst.Items.Clear();
 
@@ -437,22 +343,22 @@ namespace CheckPreformance
         }
 
 
-        private void GetDatResult_Mic(ref ResultInfo info)
+        private void GetDatResult_Mic(ref Structure.ResultInfo info)
         {
             
             IniReader result = new IniReader(info.datName.FullName);
 
             int Defect_num = result.GetInteger("LAND_DEFECT", "DEFECT_NUM");
 
-            info.Defects = new List<Defect_struct>();
-            info.BF_Defects = new List<Defect_struct>();
-            info.CO_Defects = new List<Defect_struct>();
-            info.DF_Defects = new List<Defect_struct>();
+            info.Defects = new List<Structure.Defect_struct>();
+            info.BF_Defects = new List<Structure.Defect_struct>();
+            info.CO_Defects = new List<Structure.Defect_struct>();
+            info.DF_Defects = new List<Structure.Defect_struct>();
 
            
             for (int i = 0; i < Defect_num; i++)
             {
-                Defect_struct temp = new Defect_struct();// = new HTuple();
+                Structure.Defect_struct temp = new Structure.Defect_struct();// = new HTuple();
 
                 temp.cenx = result.GetInteger("LAND_DEFECT", string.Format("DEFECT{0}_CENTER_X", i));
                 temp.ceny = result.GetInteger("LAND_DEFECT", string.Format("DEFECT{0}_CENTER_Y", i));
@@ -470,7 +376,7 @@ namespace CheckPreformance
             for (int i = 0; i < Defect_num; i++)
             {
 
-                Defect_struct temp = new Defect_struct();// = new HTuple();
+                Structure.Defect_struct temp = new Structure.Defect_struct();// = new HTuple();
 
                 temp.cenx = result.GetInteger("EDGE_DEFECT", string.Format("DEFECT{0}_CENTER_X", i));
                 temp.ceny = result.GetInteger("EDGE_DEFECT", string.Format("DEFECT{0}_CENTER_Y", i));
@@ -489,7 +395,7 @@ namespace CheckPreformance
             for (int i = 0; i < Defect_num; i++)
             {
 
-                Defect_struct temp = new Defect_struct();// = new HTuple();
+                Structure.Defect_struct temp = new Structure.Defect_struct();// = new HTuple();
 
                 temp.cenx = result.GetInteger("SADDLE_DEFECT", string.Format("DEFECT{0}_CENTER_X", i));
                 temp.ceny = result.GetInteger("SADDLE_DEFECT", string.Format("DEFECT{0}_CENTER_Y", i));
@@ -509,7 +415,7 @@ namespace CheckPreformance
             for (int i = 0; i < Defect_num; i++)
             {
             
-                Defect_struct temp = new Defect_struct();// = new HTuple();
+                Structure.Defect_struct temp = new Structure.Defect_struct();// = new HTuple();
 
                 temp.cenx = result.GetInteger("OUTSIDE_DEFECT", string.Format("DEFECT{0}_CENTER_X", i));
                 temp.ceny = result.GetInteger("OUTSIDE_DEFECT", string.Format("DEFECT{0}_CENTER_Y", i));
@@ -527,7 +433,7 @@ namespace CheckPreformance
             for (int i = 0; i < Defect_num; i++)
             {
 
-                Defect_struct temp = new Defect_struct();// = new HTuple();
+                Structure.Defect_struct temp = new Structure.Defect_struct();// = new HTuple();
 
                 temp.cenx = result.GetInteger("DF", string.Format("DEFECT{0}_CENTER_X", i));
                 temp.ceny = result.GetInteger("DF", string.Format("DEFECT{0}_CENTER_Y", i));
@@ -557,7 +463,7 @@ namespace CheckPreformance
             for (int i = 0; i < Defect_num; i++)
             {
 
-                Defect_struct temp = new Defect_struct();// = new HTuple();
+                Structure.Defect_struct temp = new Structure.Defect_struct();// = new HTuple();
 
                 temp.cenx = result.GetInteger("BF", string.Format("DEFECT{0}_CENTER_X", i));
                 temp.ceny = result.GetInteger("BF", string.Format("DEFECT{0}_CENTER_Y", i));
@@ -588,7 +494,7 @@ namespace CheckPreformance
             for (int i = 0; i < Defect_num; i++)
             {
 
-                Defect_struct temp = new Defect_struct();// = new HTuple();
+                Structure.Defect_struct temp = new Structure.Defect_struct();// = new HTuple();
 
                 temp.cenx = result.GetInteger("CO", string.Format("DEFECT{0}_CENTER_X", i));
                 temp.ceny = result.GetInteger("CO", string.Format("DEFECT{0}_CENTER_Y", i));
@@ -614,11 +520,11 @@ namespace CheckPreformance
             }
 
         }
-        private void GetDatResult_Mac(ref ResultInfo info)
+        private void GetDatResult_Mac(ref Structure.ResultInfo info)
         {
 
             IniReader reader = new IniReader(info.datName.FullName);
-            info.Defects = new List<Defect_struct>();
+            info.Defects = new List<Structure.Defect_struct>();
 
 
             #region 매크로 결함정보
@@ -626,7 +532,7 @@ namespace CheckPreformance
              int  num = reader.GetInteger(section, "DefectCount");
             for (int i = 0; i < num; i++)
             {
-                Defect_struct item = new Defect_struct();
+                Structure.Defect_struct item = new Structure.Defect_struct();
                 
                 int Left = reader.GetInteger(section, string.Format("Defect{0}X1", i));
                 int  Top = reader.GetInteger(section, string.Format("Defect{0}Y1", i));
@@ -646,7 +552,7 @@ namespace CheckPreformance
             num = reader.GetInteger(section, "DefectCount");
             for (int i = 0; i < num; i++)
             {
-                Defect_struct item = new Defect_struct();
+                Structure.Defect_struct item = new Structure.Defect_struct();
 
                 int Left = reader.GetInteger(section, string.Format("Defect{0}X1", i));
                 int Top = reader.GetInteger(section, string.Format("Defect{0}Y1", i));
@@ -666,7 +572,7 @@ namespace CheckPreformance
             num = reader.GetInteger(section, "DefectCount");
             for (int i = 0; i < num; i++)
             {
-                Defect_struct item = new Defect_struct();
+                Structure.Defect_struct item = new Structure.Defect_struct();
 
                 int Left = reader.GetInteger(section, string.Format("Defect{0}X1", i));
                 int Top = reader.GetInteger(section, string.Format("Defect{0}Y1", i));
@@ -686,7 +592,7 @@ namespace CheckPreformance
             num = reader.GetInteger(section, "DefectCount");
             for (int i = 0; i < num; i++)
             {
-                Defect_struct item = new Defect_struct();
+                Structure.Defect_struct item = new Structure.Defect_struct();
 
                 int Left = reader.GetInteger(section, string.Format("Defect{0}X1", i));
                 int Top = reader.GetInteger(section, string.Format("Defect{0}Y1", i));
@@ -706,7 +612,7 @@ namespace CheckPreformance
             num = reader.GetInteger(section, "DefectCount");
             for (int i = 0; i < num; i++)
             {
-                Defect_struct item = new Defect_struct();
+                Structure.Defect_struct item = new Structure.Defect_struct();
 
                 int Left = reader.GetInteger(section, string.Format("Defect{0}X1", i));
                 int Top = reader.GetInteger(section, string.Format("Defect{0}Y1", i));
@@ -727,7 +633,7 @@ namespace CheckPreformance
 
             
         }
-        private void DrawDefects(ResultInfo info)
+        private void DrawDefects(Structure.ResultInfo info)
         {
             HObject temp_rect;
             HOperatorSet.GenEmptyObj(out DefectRegion);
@@ -735,7 +641,7 @@ namespace CheckPreformance
             HOperatorSet.GenEmptyObj(out DefectRegion_BF);
             HOperatorSet.GenEmptyObj(out DefectRegion_CO);
 
-            foreach (Defect_struct d in info.Defects)
+            foreach (Structure.Defect_struct d in info.Defects)
             {
                 HTuple deg=new HTuple(d.angle);
                HOperatorSet.GenEmptyObj(out temp_rect);
@@ -743,21 +649,21 @@ namespace CheckPreformance
                 HOperatorSet.Union2(DefectRegion, temp_rect, out DefectRegion);
             }
 
-            foreach (Defect_struct d in info.BF_Defects)
+            foreach (Structure.Defect_struct d in info.BF_Defects)
             {
                 HTuple deg = new HTuple(d.angle);
                 HOperatorSet.GenEmptyObj(out temp_rect);
                 HOperatorSet.GenRectangle2(out temp_rect, d.ceny, d.cenx, deg.TupleRad(), d.height / 2, d.width / 2);
                 HOperatorSet.Union2(DefectRegion_BF, temp_rect, out DefectRegion_BF);
             }
-            foreach (Defect_struct d in info.DF_Defects)
+            foreach (Structure.Defect_struct d in info.DF_Defects)
             {
                 HTuple deg = new HTuple(d.angle);
                 HOperatorSet.GenEmptyObj(out temp_rect);
                 HOperatorSet.GenRectangle2(out temp_rect, d.ceny, d.cenx, deg.TupleRad(), d.height / 2, d.width / 2);
                 HOperatorSet.Union2(DefectRegion_DF, temp_rect, out DefectRegion_DF);
             }
-            foreach (Defect_struct d in info.CO_Defects)
+            foreach (Structure.Defect_struct d in info.CO_Defects)
             {
                 HTuple deg = new HTuple(d.angle);
                 HOperatorSet.GenEmptyObj(out temp_rect);
@@ -766,15 +672,15 @@ namespace CheckPreformance
             }
         }
 
-        private void intersection_Defect(ResultInfo info)
+        private void intersection_Defect(Structure.ResultInfo info)
         {
             HObject temp_rect, intersection_rgn;
             HTuple blob_area;
-            info.Real_BF_Defects = new List<Defect_struct>();
-            info.Real_CO_Defects = new List<Defect_struct>();
-            info.Real_DF_Defects = new List<Defect_struct>();
+            info.Real_BF_Defects = new List<Structure.Defect_struct>();
+            info.Real_CO_Defects = new List<Structure.Defect_struct>();
+            info.Real_DF_Defects = new List<Structure.Defect_struct>();
 
-            foreach (Defect_struct d in info.BF_Defects)
+            foreach (Structure.Defect_struct d in info.BF_Defects)
             {
                 HTuple deg = new HTuple(d.angle);
                 HOperatorSet.GenEmptyObj(out temp_rect);
@@ -788,7 +694,7 @@ namespace CheckPreformance
                 }
             }
 
-            foreach (Defect_struct d in info.DF_Defects)
+            foreach (Structure.Defect_struct d in info.DF_Defects)
             {
                 HTuple deg = new HTuple(d.angle);
                 HOperatorSet.GenEmptyObj(out temp_rect);
@@ -802,7 +708,7 @@ namespace CheckPreformance
                 }
             }
 
-            foreach (Defect_struct d in info.CO_Defects)
+            foreach (Structure.Defect_struct d in info.CO_Defects)
             {
                 HTuple deg = new HTuple(d.angle);
                 HOperatorSet.GenEmptyObj(out temp_rect);
@@ -817,28 +723,28 @@ namespace CheckPreformance
             }
         }
 
-        private void intersection_Defect_(ResultInfo info)
+        private void intersection_Defect_(Structure.ResultInfo info)
         {
             HObject temp_rect, intersection_rgn;
             HTuple blob_area;
             HObject RealDefect_rgn, FasleDefct_rgn;
 
-           // foreach (ResultInfo info in Defects_info)
+           // foreach (Structure.ResultInfo info in Defects_info)
             {
-                info.True_BF_Defects = new List<Defect_struct>();
-                info.True_CO_Defects = new List<Defect_struct>();
-                info.True_DF_Defects = new List<Defect_struct>();
-                info.False_BF_Defects = new List<Defect_struct>();
-                info.False_CO_Defects = new List<Defect_struct>();
-                info.False_DF_Defects = new List<Defect_struct>();
+                info.True_BF_Defects = new List<Structure.Defect_struct>();
+                info.True_CO_Defects = new List<Structure.Defect_struct>();
+                info.True_DF_Defects = new List<Structure.Defect_struct>();
+                info.False_BF_Defects = new List<Structure.Defect_struct>();
+                info.False_CO_Defects = new List<Structure.Defect_struct>();
+                info.False_DF_Defects = new List<Structure.Defect_struct>();
 
 
-                foreach (Defect_struct real_d in info.True_Defects)
+                foreach (Structure.Defect_struct real_d in info.True_Defects)
                 {
                     HOperatorSet.GenEmptyObj(out RealDefect_rgn);
                     HOperatorSet.GenRectangle2(out RealDefect_rgn, real_d.ceny, real_d.cenx, new HTuple(real_d.angle).TupleRad(), real_d.height / 2, real_d.width / 2);
 
-                    foreach (Defect_struct d in info.BF_Defects)
+                    foreach (Structure.Defect_struct d in info.BF_Defects)
                     {
                         HTuple deg = new HTuple(d.angle);
                         HOperatorSet.GenEmptyObj(out temp_rect);
@@ -848,7 +754,7 @@ namespace CheckPreformance
                         HOperatorSet.RegionFeatures(intersection_rgn, "area", out blob_area);
                         if (blob_area >= 1)
                         {
-                            Defect_struct tempstruct = d;
+                            Structure.Defect_struct tempstruct = d;
                             tempstruct.blob_ind = real_d.blob_ind;
                             tempstruct.Name = real_d.Name;
                             info.True_BF_Defects.Add(tempstruct);
@@ -856,7 +762,7 @@ namespace CheckPreformance
                         }
                     }
 
-                    foreach (Defect_struct d in info.DF_Defects)
+                    foreach (Structure.Defect_struct d in info.DF_Defects)
                     {
                         HTuple deg = new HTuple(d.angle);
                         HOperatorSet.GenEmptyObj(out temp_rect);
@@ -866,7 +772,7 @@ namespace CheckPreformance
                         HOperatorSet.RegionFeatures(intersection_rgn, "area", out blob_area);
                         if (blob_area >= 1)
                         {
-                            Defect_struct tempstruct = d;
+                            Structure.Defect_struct tempstruct = d;
                             tempstruct.blob_ind = real_d.blob_ind;
                             tempstruct.Name = real_d.Name;
                             info.True_DF_Defects.Add(tempstruct);
@@ -874,7 +780,7 @@ namespace CheckPreformance
                         }
                     }
 
-                    foreach (Defect_struct d in info.CO_Defects)
+                    foreach (Structure.Defect_struct d in info.CO_Defects)
                     {
                         HTuple deg = new HTuple(d.angle);
                         HOperatorSet.GenEmptyObj(out temp_rect);
@@ -884,7 +790,7 @@ namespace CheckPreformance
                         HOperatorSet.RegionFeatures(intersection_rgn, "area", out blob_area);
                         if (blob_area >= 1)
                         {
-                            Defect_struct tempstruct = d;
+                            Structure.Defect_struct tempstruct = d;
                             tempstruct.blob_ind = real_d.blob_ind;
                             tempstruct.Name = real_d.Name;
                             info.True_CO_Defects.Add(tempstruct);
@@ -892,12 +798,12 @@ namespace CheckPreformance
                     }
                 }
 
-                foreach (Defect_struct real_d in info.False_Defects)
+                foreach (Structure.Defect_struct real_d in info.False_Defects)
                 {
                     HOperatorSet.GenEmptyObj(out FasleDefct_rgn);
                     HOperatorSet.GenRectangle2(out FasleDefct_rgn, real_d.ceny, real_d.cenx, new HTuple(real_d.angle).TupleRad(), real_d.height / 2, real_d.width / 2);
 
-                    foreach (Defect_struct d in info.BF_Defects)
+                    foreach (Structure.Defect_struct d in info.BF_Defects)
                     {
                         HTuple deg = new HTuple(d.angle);
                         HOperatorSet.GenEmptyObj(out temp_rect);
@@ -907,7 +813,7 @@ namespace CheckPreformance
                         HOperatorSet.RegionFeatures(intersection_rgn, "area", out blob_area);
                         if (blob_area >= 1)
                         {
-                            Defect_struct tempstruct = d;
+                            Structure.Defect_struct tempstruct = d;
                             tempstruct.blob_ind = real_d.blob_ind;
                             tempstruct.Name = real_d.Name;
                             info.False_BF_Defects.Add(tempstruct);
@@ -915,7 +821,7 @@ namespace CheckPreformance
                         }
                     }
 
-                    foreach (Defect_struct d in info.DF_Defects)
+                    foreach (Structure.Defect_struct d in info.DF_Defects)
                     {
                         HTuple deg = new HTuple(d.angle);
                         HOperatorSet.GenEmptyObj(out temp_rect);
@@ -925,7 +831,7 @@ namespace CheckPreformance
                         HOperatorSet.RegionFeatures(intersection_rgn, "area", out blob_area);
                         if (blob_area >= 1)
                         {
-                            Defect_struct tempstruct = d;
+                            Structure.Defect_struct tempstruct = d;
                             tempstruct.blob_ind = real_d.blob_ind;
                             tempstruct.Name = real_d.Name;
                             info.False_DF_Defects.Add(tempstruct);
@@ -933,7 +839,7 @@ namespace CheckPreformance
                         }
                     }
 
-                    foreach (Defect_struct d in info.CO_Defects)
+                    foreach (Structure.Defect_struct d in info.CO_Defects)
                     {
                         HTuple deg = new HTuple(d.angle);
                         HOperatorSet.GenEmptyObj(out temp_rect);
@@ -943,7 +849,7 @@ namespace CheckPreformance
                         HOperatorSet.RegionFeatures(intersection_rgn, "area", out blob_area);
                         if (blob_area >= 1)
                         {
-                            Defect_struct tempstruct = d;
+                            Structure.Defect_struct tempstruct = d;
                             tempstruct.blob_ind = real_d.blob_ind;
                             tempstruct.Name = real_d.Name;
                             info.False_CO_Defects.Add(tempstruct);
@@ -957,7 +863,7 @@ namespace CheckPreformance
 
 
 
-        private HObject DrawDefects_select(Defect_struct defect)
+        private HObject DrawDefects_select(Structure.Defect_struct defect)
         {
             HObject temp_rect;
 
@@ -970,10 +876,10 @@ namespace CheckPreformance
 
         System.Drawing.Pen pen = new System.Drawing.Pen(System.Drawing.Color.Red, 2.0f);
         System.Drawing.Pen pen_false = new System.Drawing.Pen(System.Drawing.Color.Blue, 2.0f);
-        private void DrawDefects_onRawImg(List<Defect_struct> defects)
+        private void DrawDefects_onRawImg(List<Structure.Defect_struct> defects)
         {
             d_BF = p_BF.Clone() as Bitmap;// new Bitmap(p_BF.Width, p_DF.Height, Graphics.FromImage(p_BF));
-           foreach (Defect_struct defect in defects)
+           foreach (Structure.Defect_struct defect in defects)
             {
                 using (Graphics g = Graphics.FromImage(d_BF))
                 {
@@ -993,7 +899,7 @@ namespace CheckPreformance
         /// </summary>
         /// <param name="defects"></param>
         /// <param name="Mode">0: BF, 1:DF, 2:CO</param>
-        private void DrawDefects_onRawImg(List<Defect_struct> defects, int Mode, bool Truedetect=true)
+        private void DrawDefects_onRawImg(List<Structure.Defect_struct> defects, int Mode, bool Truedetect=true)
         {
 
             if (Mode == 0)
@@ -1001,7 +907,7 @@ namespace CheckPreformance
                 d_BF = p_BF.Clone() as Bitmap;
                 using (Graphics g = Graphics.FromImage(d_BF))
                 {
-                    foreach (Defect_struct defect in defects)
+                    foreach (Structure.Defect_struct defect in defects)
                     {
                         System.Drawing.Drawing2D.Matrix m = new System.Drawing.Drawing2D.Matrix();
                         m.RotateAt((float)defect.angle, new PointF((float)defect.cenx, (float)defect.ceny));
@@ -1020,7 +926,7 @@ namespace CheckPreformance
                 d_DF = p_DF.Clone() as Bitmap;
                 using (Graphics g = Graphics.FromImage(d_DF))
                 {
-                    foreach (Defect_struct defect in defects)
+                    foreach (Structure.Defect_struct defect in defects)
                     {
                         System.Drawing.Drawing2D.Matrix m = new System.Drawing.Drawing2D.Matrix();
                         m.RotateAt((float)defect.angle, new PointF((float)defect.cenx, (float)defect.ceny));
@@ -1037,7 +943,7 @@ namespace CheckPreformance
                 d_CO = p_CO.Clone() as Bitmap;
                 using (Graphics g = Graphics.FromImage(d_CO))
                 {
-                    foreach (Defect_struct defect in defects)
+                    foreach (Structure.Defect_struct defect in defects)
                     {
                         System.Drawing.Drawing2D.Matrix m = new System.Drawing.Drawing2D.Matrix();
                         m.RotateAt((float)defect.angle, new PointF((float)defect.cenx, (float)defect.ceny));
@@ -1057,14 +963,14 @@ namespace CheckPreformance
         /// </summary>
         /// <param name="defects"></param>
         /// <param name="Mode">0: BF, 1:DF, 2:CO</param>
-        private void DrawDefects_onRawImg(Bitmap DstImg, List<Defect_struct> defect, int Mode, bool Truedetect = true)
+        private void DrawDefects_onRawImg(Bitmap DstImg, List<Structure.Defect_struct> defect, int Mode, bool Truedetect = true)
         {
-            List<Defect_struct> temp_struct;
+            List<Structure.Defect_struct> temp_struct;
             using (Graphics g = Graphics.FromImage(DstImg))
             {
-               // temp_struct = new List<Defect_struct>();
+               // temp_struct = new List<Structure.Defect_struct>();
 
-               //// foreach (ResultInfo defect in defects)
+               //// foreach (Structure.ResultInfo defect in defects)
                // {
                //     temp_struct.Clear();
 
@@ -1081,7 +987,7 @@ namespace CheckPreformance
                //         temp_struct = defect.Real_CO_Defects;
                //     }
 
-                    foreach (Defect_struct mode_defect in defect)
+                    foreach (Structure.Defect_struct mode_defect in defect)
                     {
                         System.Drawing.Drawing2D.Matrix m = new System.Drawing.Drawing2D.Matrix();
                         m.RotateAt((float)mode_defect.angle, new PointF((float)mode_defect.cenx, (float)mode_defect.ceny));
@@ -1149,8 +1055,8 @@ namespace CheckPreformance
             {
                 var select_ind = Defects_lst.SelectedItems;
 
-                if (infos[befor_i].True_Defects == null) infos[befor_i].True_Defects = new List<Defect_struct>();
-                if (infos[befor_i].False_Defects == null) infos[befor_i].False_Defects = new List<Defect_struct>();
+                if (infos[befor_i].True_Defects == null) infos[befor_i].True_Defects = new List<Structure.Defect_struct>();
+                if (infos[befor_i].False_Defects == null) infos[befor_i].False_Defects = new List<Structure.Defect_struct>();
 
 
                 if (select_ind.Count > 0)
@@ -1171,17 +1077,17 @@ namespace CheckPreformance
                         }
                         if (selected)
                         {
-                            Defect_struct temp_struct = infos[befor_i].Defects[newind];
-                            temp_struct.Name = (Defect_Classification)Enum.Parse(typeof(Defect_Classification), Defects_lst.Items[newind].ToString().Split('-')[1]);
+                            Structure.Defect_struct temp_struct = infos[befor_i].Defects[newind];
+                            temp_struct.Name = (Structure.Defect_Classification)Enum.Parse(typeof(Structure.Defect_Classification), Defects_lst.Items[newind].ToString().Split('-')[1]);
                             infos[befor_i].True_Defects.Add(temp_struct);
                             //infos[befor_i].True_Defects.Add(infos[befor_i].Defects[list_i]);
                         }
                         else
                         {
-                            Defect_struct temp_struct = infos[befor_i].Defects[newind];
+                            Structure.Defect_struct temp_struct = infos[befor_i].Defects[newind];
                             if (temp_struct.UnderDefect == false)
                             {
-                                temp_struct.Name = (Defect_Classification)Enum.Parse(typeof(Defect_Classification), Defects_lst.Items[newind].ToString().Split('-')[1]);
+                                temp_struct.Name = (Structure.Defect_Classification)Enum.Parse(typeof(Structure.Defect_Classification), Defects_lst.Items[newind].ToString().Split('-')[1]);
                                 infos[befor_i].False_Defects.Add(temp_struct);
                             }
                             //infos[befor_i].False_Defects.Add(infos[befor_i].Defects[list_i]);
@@ -1293,7 +1199,7 @@ namespace CheckPreformance
                 if (d_BF != null) d_DF.Dispose();
             }
         }
-        private void saveGrt(ResultInfo res)
+        private void saveGrt(Structure.ResultInfo res)
         {
             if (File.Exists(RootAdderss + "\\Defect_Image\\" + res.datName.Name.Replace("dat", "txt"))) File.Delete(RootAdderss + "\\Defect_Image\\" + res.datName.Name.Replace("dat", "txt"));
             IniReader grt = new IniReader(RootAdderss + "\\Defect_Image\\"+res.datName.Name.Replace("dat", "txt"));
@@ -1344,20 +1250,20 @@ namespace CheckPreformance
             }
         }
 
-        private void saveGrt_withFeature(string SaveAddress, List<ResultInfo> TrueDefect, List<ResultInfo> FalseDefect)
+        private void saveGrt_withFeature(string SaveAddress, List<Structure.ResultInfo> TrueDefect, List<Structure.ResultInfo> FalseDefect)
         {
             if (File.Exists(SaveAddress)) File.Delete(SaveAddress);
             IniReader grt = new IniReader(SaveAddress);
 
             int bf_total_num=0, df_total_num = 0, cx_total_num = 0;
 
-            foreach (ResultInfo defect in TrueDefect)
+            foreach (Structure.ResultInfo defect in TrueDefect)
             {
                 bf_total_num += defect.True_BF_Defects.Count;
                 df_total_num += defect.True_DF_Defects.Count;
                 cx_total_num += defect.True_CO_Defects.Count;
             }
-            foreach (ResultInfo defect in FalseDefect)
+            foreach (Structure.ResultInfo defect in FalseDefect)
             {
                 bf_total_num += defect.False_BF_Defects.Count;
                 df_total_num += defect.False_DF_Defects.Count;
@@ -1623,14 +1529,14 @@ namespace CheckPreformance
         }
 
 
-        private void saveGrt_withFeature(string SaveAddress, ResultInfo Defects)
+        private void saveGrt_withFeature(string SaveAddress, Structure.ResultInfo Defects)
         {
             if (File.Exists(SaveAddress)) File.Delete(SaveAddress);
             IniReader grt = new IniReader(SaveAddress);
 
             
 
-           // foreach (ResultInfo defect in Defects)
+           // foreach (Structure.ResultInfo defect in Defects)
             {
 
                 grt.SetString("ImageResult", "GroundTruth", Defects.True_Defects.Count != 0 ? "1.000" : "0.000");
@@ -1719,9 +1625,9 @@ namespace CheckPreformance
                     grt.SetString("Blob_Info", True_Defect, "1.000");
 
 
-                    Defect_struct temp_Bf_struct = Defects.True_BF_Defects.Find(x => x.blob_ind == Defects.True_Defects[i].blob_ind);
-                    Defect_struct temp_Df_struct = Defects.True_DF_Defects.Find(x => x.blob_ind == Defects.True_Defects[i].blob_ind);
-                    Defect_struct temp_Co_struct = Defects.True_CO_Defects.Find(x => x.blob_ind == Defects.True_Defects[i].blob_ind);
+                    Structure.Defect_struct temp_Bf_struct = Defects.True_BF_Defects.Find(x => x.blob_ind == Defects.True_Defects[i].blob_ind);
+                    Structure.Defect_struct temp_Df_struct = Defects.True_DF_Defects.Find(x => x.blob_ind == Defects.True_Defects[i].blob_ind);
+                    Structure.Defect_struct temp_Co_struct = Defects.True_CO_Defects.Find(x => x.blob_ind == Defects.True_Defects[i].blob_ind);
 
                     grt.SetString("Blob_info", BF, Defects.True_BF_Defects.Count(x => x.blob_ind == Defects.True_Defects[i].blob_ind) != 0 ? "1.000" : "-1.000");
                     grt.SetString("Blob_info", DF, Defects.True_DF_Defects.Count(x => x.blob_ind == Defects.True_Defects[i].blob_ind) != 0 ? "1.000" : "-1.000");
@@ -1851,9 +1757,9 @@ namespace CheckPreformance
                     grt.SetString("Blob_Info", Defect_a, Defects.False_Defects[j].angle.ToString("F3"));
 
 
-                    Defect_struct temp_Bf_struct = Defects.False_BF_Defects.Find(x => x.blob_ind == Defects.False_Defects[j].blob_ind);
-                    Defect_struct temp_Df_struct = Defects.False_DF_Defects.Find(x => x.blob_ind == Defects.False_Defects[j].blob_ind);
-                    Defect_struct temp_Co_struct = Defects.False_CO_Defects.Find(x => x.blob_ind == Defects.False_Defects[j].blob_ind);
+                    Structure.Defect_struct temp_Bf_struct = Defects.False_BF_Defects.Find(x => x.blob_ind == Defects.False_Defects[j].blob_ind);
+                    Structure.Defect_struct temp_Df_struct = Defects.False_DF_Defects.Find(x => x.blob_ind == Defects.False_Defects[j].blob_ind);
+                    Structure.Defect_struct temp_Co_struct = Defects.False_CO_Defects.Find(x => x.blob_ind == Defects.False_Defects[j].blob_ind);
 
                     grt.SetString("Blob_Info", True_Defect, "-1.000");
                     grt.SetString("Blob_info", BF, Defects.False_BF_Defects.Count(x => x.blob_ind == Defects.False_Defects[j].blob_ind) != 0 ? "1.000" : "-1.000");
@@ -2040,17 +1946,22 @@ namespace CheckPreformance
 
         }
 
-        private void saveGrt_withFeature_(string SaveAddress, ResultInfo Defects)
+        private void saveGrt_withFeature_(string SaveAddress, Structure.ResultInfo Defects)
         {
             if (File.Exists(SaveAddress)) File.Delete(SaveAddress);
             IniReader grt = new IniReader(SaveAddress);
 
 
 
-            // foreach (ResultInfo defect in Defects)
+            // foreach (Structure.ResultInfo defect in Defects)
             {
-
-                grt.SetString("ImageResult", "GroundTruth", Defects.True_Defects.Count != 0 ? "1.000" : "0.000");
+                double ground_tr = 0.000;
+                if (Defects.True_Defects.Count > 0) ground_tr = 1.000;
+                else
+                {
+                    if (Defects.Under_Defects != null) ground_tr = 1.000;
+                }
+                grt.SetString("ImageResult", "GroundTruth", ground_tr.ToString("F3"));// Defects.True_Defects.Count != 0 ? "1.000" : "0.000");
                 grt.SetString("ImageResult", "Blob_num_at_BF", Defects.BF_Defects.Count().ToString("F3"));
                 grt.SetString("ImageResult", "Blob_num_at_DF", Defects.DF_Defects.Count().ToString("F3"));
                 grt.SetString("ImageResult", "Blob_num_at_CX", Defects.CO_Defects.Count().ToString("F3"));
@@ -2082,49 +1993,49 @@ namespace CheckPreformance
                     grt.SetString("ImageResult", Classification, Defects.True_Defects[i].Name.ToString());
 
                 }
-                if (Defects.Under_Defects == null)
-                {
-                    string Defect_centerx = string.Format("Under_Defect{0}_CENTER_X", "0");
-                    string Defect_centery = string.Format("Under_Defect{0}_CENTER_Y", "0");
-                    string Defect_w = string.Format("Under_Defect{0}_WIDTH", "0");
-                    string Defect_h = string.Format("Under_Defect{0}_HEIGHT", "0");
-                    string Defect_a = string.Format("Under_Defect{0}_ANGLE", "0");
-                    string Classification = string.Format("Under_Defect{0}_Classification", "0");
-                    string True_Defect = string.Format("Defect{0}_TrueDefect", "0");
+                //if (Defects.Under_Defects == null)
+                //{
+                //    string Defect_centerx = string.Format("Under_Defect{0}_CENTER_X", "0");
+                //    string Defect_centery = string.Format("Under_Defect{0}_CENTER_Y", "0");
+                //    string Defect_w = string.Format("Under_Defect{0}_WIDTH", "0");
+                //    string Defect_h = string.Format("Under_Defect{0}_HEIGHT", "0");
+                //    string Defect_a = string.Format("Under_Defect{0}_ANGLE", "0");
+                //    string Classification = string.Format("Under_Defect{0}_Classification", "0");
+                //    string True_Defect = string.Format("Defect{0}_TrueDefect", "0");
 
 
-                    grt.SetString("ImageResult", Defect_centerx, "0.000");
-                    grt.SetString("ImageResult", Defect_centery, "0.000");
-                    grt.SetString("ImageResult", Defect_w, "0.000");
-                    grt.SetString("ImageResult", Defect_h, "0.000");
-                    grt.SetString("ImageResult", Defect_a, "0.000");
-                    grt.SetString("ImageResult", True_Defect, "0.000");
-                    grt.SetString("ImageResult", Classification, "Zero");
+                //    grt.SetString("ImageResult", Defect_centerx, "0.000");
+                //    grt.SetString("ImageResult", Defect_centery, "0.000");
+                //    grt.SetString("ImageResult", Defect_w, "0.000");
+                //    grt.SetString("ImageResult", Defect_h, "0.000");
+                //    grt.SetString("ImageResult", Defect_a, "0.000");
+                //    grt.SetString("ImageResult", True_Defect, "0.000");
+                //    grt.SetString("ImageResult", Classification, "Zero");
 
-                }
-                if (Defects.Under_Defects != null)
-                {
-                    if (Defects.Under_Defects.Count == 0)
-                    {
+                //}
+                //if (Defects.Under_Defects != null)
+                //{
+                //    if (Defects.Under_Defects.Count == 0)
+                //    {
 
-                        string Defect_centerx = string.Format("Under_Defect{0}_CENTER_X", "0");
-                        string Defect_centery = string.Format("Under_Defect{0}_CENTER_Y", "0");
-                        string Defect_w = string.Format("Under_Defect{0}_WIDTH", "0");
-                        string Defect_h = string.Format("Under_Defect{0}_HEIGHT", "0");
-                        string Defect_a = string.Format("Under_Defect{0}_ANGLE", "0");
-                        string Classification = string.Format("Under_Defect{0}_Classification", "0");
-                        string True_Defect = string.Format("Defect{0}_TrueDefect", "0");
+                //        string Defect_centerx = string.Format("Under_Defect{0}_CENTER_X", "0");
+                //        string Defect_centery = string.Format("Under_Defect{0}_CENTER_Y", "0");
+                //        string Defect_w = string.Format("Under_Defect{0}_WIDTH", "0");
+                //        string Defect_h = string.Format("Under_Defect{0}_HEIGHT", "0");
+                //        string Defect_a = string.Format("Under_Defect{0}_ANGLE", "0");
+                //        string Classification = string.Format("Under_Defect{0}_Classification", "0");
+                //        string True_Defect = string.Format("Defect{0}_TrueDefect", "0");
 
 
-                        grt.SetString("ImageResult", Defect_centerx, "0.000");
-                        grt.SetString("ImageResult", Defect_centery, "0.000");
-                        grt.SetString("ImageResult", Defect_w, "0.000");
-                        grt.SetString("ImageResult", Defect_h, "0.000");
-                        grt.SetString("ImageResult", Defect_a, "0.000");
-                        grt.SetString("ImageResult", True_Defect, "0.000");
-                        grt.SetString("ImageResult", Classification, "Zero");
-                    }
-                }
+                //        grt.SetString("ImageResult", Defect_centerx, "0.000");
+                //        grt.SetString("ImageResult", Defect_centery, "0.000");
+                //        grt.SetString("ImageResult", Defect_w, "0.000");
+                //        grt.SetString("ImageResult", Defect_h, "0.000");
+                //        grt.SetString("ImageResult", Defect_a, "0.000");
+                //        grt.SetString("ImageResult", True_Defect, "0.000");
+                //        grt.SetString("ImageResult", Classification, "Zero");
+                //    }
+                //}
 
                 if (Defects.False_Defects.Count>0)
                 {
@@ -2169,8 +2080,9 @@ namespace CheckPreformance
                 string Defect_w = string.Format("Defect{0}_WIDTH", i);
                 string Defect_h = string.Format("Defect{0}_HEIGHT", i);
                 string Defect_a = string.Format("Defect{0}_ANGLE", i);
-                string Classification = string.Format("Defect{0}_Classification", "0");
-
+                string Classification = string.Format("Defect{0}_Classification", i);
+                string True_Defect_=string.Format("Defect{0}_TrueDefect", i);
+            
                 string True_Defect = string.Format("Blob{0}_TrueDefect", i);
                 string BF = string.Format("Blob{0}_BF", i);
                 string DF = string.Format("Blob{0}_DF", i);
@@ -2229,35 +2141,65 @@ namespace CheckPreformance
                 string _Average_I_CX = string.Format("Blob{0}_Average_I_CX", i);
 
 
-                grt.SetString("ImageResult", Defect_centerx, "0.000");
-                grt.SetString("ImageResult", Defect_centery, "0.000");
-                grt.SetString("ImageResult", Defect_w, "0.000");
-                grt.SetString("ImageResult", Defect_h, "0.000");
-                grt.SetString("ImageResult", Defect_a, "0.000");
-                grt.SetString("ImageResult", Classification, "Zero");
 
-                if (Defects.Under_Defects == null) Defects.Under_Defects = new List<Defect_struct>();
+
+                if (Defects.Under_Defects == null) Defects.Under_Defects = new List<Structure.Defect_struct>();
 
                 if (Defects.Under_Defects.Count == 0)
                 {
                     grt.SetString("Blob_Info", True_Defect, "0.000");
-
-                    Defect_centerx = string.Format("Under_Defect{0}_CENTER_X", i);
-                    Defect_centery = string.Format("Under_Defect{0}_CENTER_Y", i);
-                    Defect_w = string.Format("Under_Defect{0}_WIDTH", i);
-                    Defect_h = string.Format("Under_Defect{0}_HEIGHT", i);
-                    Defect_a = string.Format("Under_Defect{0}_ANGLE", i);
-                    Classification = string.Format("Under_Defect{0}_Classification", i);
-
-
                     grt.SetString("ImageResult", Defect_centerx, "0.000");
                     grt.SetString("ImageResult", Defect_centery, "0.000");
                     grt.SetString("ImageResult", Defect_w, "0.000");
                     grt.SetString("ImageResult", Defect_h, "0.000");
                     grt.SetString("ImageResult", Defect_a, "0.000");
+                    grt.SetString("ImageResult", True_Defect_, "0.000");
                     grt.SetString("ImageResult", Classification, "Zero");
+                    //Defect_centerx = string.Format("Under_Defect{0}_CENTER_X", i);
+                    //Defect_centery = string.Format("Under_Defect{0}_CENTER_Y", i);
+                    //Defect_w = string.Format("Under_Defect{0}_WIDTH", i);
+                    //Defect_h = string.Format("Under_Defect{0}_HEIGHT", i);
+                    //Defect_a = string.Format("Under_Defect{0}_ANGLE", i);
+                    //Classification = string.Format("Under_Defect{0}_Classification", i);
+
+
+                    //grt.SetString("ImageResult", Defect_centerx, "0.000");
+                    //grt.SetString("ImageResult", Defect_centery, "0.000");
+                    //grt.SetString("ImageResult", Defect_w, "0.000");
+                    //grt.SetString("ImageResult", Defect_h, "0.000");
+                    //grt.SetString("ImageResult", Defect_a, "0.000");
+                    //grt.SetString("ImageResult", Classification, "Zero");
                 }
-                else { grt.SetString("Blob_Info", True_Defect, "1.000"); }
+                else
+                {
+                    grt.SetString("Blob_Info", True_Defect, "1.000");
+                    for (int a = 0; i < Defects.Under_Defects.Count; i++)
+                    {
+                        //Defect_centerx = string.Format("Under_Defect{0}_CENTER_X", i);
+                        //Defect_centery = string.Format("Under_Defect{0}_CENTER_Y", i);
+                        //Defect_w = string.Format("Under_Defect{0}_WIDTH", i);
+                        //Defect_h = string.Format("Under_Defect{0}_HEIGHT", i);
+                        //Defect_a = string.Format("Under_Defect{0}_ANGLE", i);
+                        //Classification = string.Format("Under_Defect{0}_Classification", i);
+                        int b = a + Defects.True_Defects.Count + Defects.False_Defects.Count;
+                         Defect_centerx = string.Format("Defect{0}_CENTER_X",b);
+                         Defect_centery = string.Format("Defect{0}_CENTER_Y", b);
+                         Defect_w = string.Format("Defect{0}_WIDTH", b);
+                         Defect_h = string.Format("Defect{0}_HEIGHT", b);
+                         Defect_a = string.Format("Defect{0}_ANGLE", b);
+                         Classification = string.Format("Defect{0}_Classification", b);
+                         True_Defect_ = string.Format("Defect{0}_TrueDefect", b);
+
+                        grt.SetString("ImageResult", Defect_centerx, Defects.Under_Defects[a].cenx.ToString("F3"));
+                        grt.SetString("ImageResult", Defect_centery, Defects.Under_Defects[a].ceny.ToString("F3"));
+                        grt.SetString("ImageResult", Defect_w, Defects.Under_Defects[a].width.ToString("F3"));
+                        grt.SetString("ImageResult", Defect_h, Defects.Under_Defects[a].height.ToString("F3"));
+                        grt.SetString("ImageResult", Defect_a, Defects.Under_Defects[a].angle.ToString("F3"));
+                        grt.SetString("ImageResult", True_Defect_, "-2.000");
+                        grt.SetString("ImageResult", Classification, Defects.Under_Defects[a].Name.ToString());
+
+                    }
+                }
 
 
                 grt.SetString("Blob_info", BF, "0.000");
@@ -2348,40 +2290,39 @@ namespace CheckPreformance
         /// <param name="defect_s"></param>
         /// <param name="defect_mode">wirte할 이미지 모드 결함 0:BF, 1:DF, 2:CO</param>
         ///<param name="TrueFalse">해당결함이 True인지 false 인지</param>
-        private void write_func(IniReader grt, int i, ResultInfo Defects, int defect_mode, int TrueFalse)
+        private void write_func(IniReader grt, int i, Structure.ResultInfo Defects, int defect_mode, int TrueFalse)
         {
 
-            List<Defect_struct> temp_Bf_struct = null;
-            List<Defect_struct> temp_Df_struct = null;
-            List<Defect_struct> temp_Co_struct = null;
+            List<Structure.Defect_struct> temp_Bf_struct = null;
+            List<Structure.Defect_struct> temp_Df_struct = null;
+            List<Structure.Defect_struct> temp_Co_struct = null;
             int defect_num = 0;
 
-            Defect_Classification classification;
-
+         
             switch (defect_mode)
             {
                 case 0:
                     if (TrueFalse == 1) temp_Bf_struct = Defects.True_BF_Defects;
                     else temp_Bf_struct = Defects.False_BF_Defects;
                     //temp_Bf_struct = Defects.BF_Defects;// Defects.True_BF_Defects.FindAll(x => x.blob_ind == Defects.True_Defects[i].blob_ind);
-                    temp_Df_struct = new List<Defect_struct>(new Defect_struct[temp_Bf_struct.Count]);
-                    temp_Co_struct = new List<Defect_struct>(new Defect_struct[temp_Bf_struct.Count]);
+                    temp_Df_struct = new List<Structure.Defect_struct>(new Structure.Defect_struct[temp_Bf_struct.Count]);
+                    temp_Co_struct = new List<Structure.Defect_struct>(new Structure.Defect_struct[temp_Bf_struct.Count]);
                     defect_num = temp_Bf_struct.Count;
                     break;
                 case 1:
                     if (TrueFalse == 1) temp_Df_struct = Defects.True_DF_Defects;
                     else temp_Df_struct = Defects.False_DF_Defects;
                     //temp_Df_struct = Defects.True_DF_Defects.FindAll(x => x.blob_ind == Defects.True_Defects[i].blob_ind);
-                    temp_Bf_struct = new List<Defect_struct>(new Defect_struct[temp_Df_struct.Count]);
-                    temp_Co_struct = new List<Defect_struct>(new Defect_struct[temp_Df_struct.Count]);
+                    temp_Bf_struct = new List<Structure.Defect_struct>(new Structure.Defect_struct[temp_Df_struct.Count]);
+                    temp_Co_struct = new List<Structure.Defect_struct>(new Structure.Defect_struct[temp_Df_struct.Count]);
                     defect_num = temp_Df_struct.Count;
                     break;
                 case 2:
                     if (TrueFalse == 1) temp_Co_struct = Defects.True_CO_Defects;
                     else temp_Co_struct = Defects.False_CO_Defects;
                    // temp_Co_struct = Defects.True_CO_Defects.FindAll(x => x.blob_ind == Defects.True_Defects[i].blob_ind);
-                    temp_Bf_struct = new List<Defect_struct>(new Defect_struct[temp_Co_struct.Count]);
-                    temp_Df_struct = new List<Defect_struct>(new Defect_struct[temp_Co_struct.Count]);
+                    temp_Bf_struct = new List<Structure.Defect_struct>(new Structure.Defect_struct[temp_Co_struct.Count]);
+                    temp_Df_struct = new List<Structure.Defect_struct>(new Structure.Defect_struct[temp_Co_struct.Count]);
                     defect_num = temp_Co_struct.Count;
                     break;
             }
@@ -2569,6 +2510,7 @@ namespace CheckPreformance
                     break;
                 case "Bump_btn":
                     infos[Current_i].Over_Bump_num = Defects_lst.SelectedItems.Count;
+
                     OverDetail.Visibility = Visibility.Hidden;
                     break;
                 case "Ect_btn":
@@ -2583,7 +2525,7 @@ namespace CheckPreformance
             }
         }
 
-        private void SaveContents(ResultInfo info)
+        private void SaveContents(Structure.ResultInfo info)
         {
             int overnum = info.Over_Bump_num + info.Over_Defect_num + info.Over_Dust_num + info.Over_Ect_num;
             Writer.WriteLine(string.Format("{0},{1},{2},{3},{4},{5},{6},{7}", info.datName.Name, info.Detect_num, info.Under_num, overnum, info.Over_Dust_num, info.Over_Bump_num, info.Over_Defect_num, info.Over_Ect_num));
@@ -2616,7 +2558,7 @@ namespace CheckPreformance
 
         }
 
-        private void save_grt(ResultInfo info)
+        private void save_grt(Structure.ResultInfo info)
         {
             if (!Directory.Exists(RootAdderss + "\\Grt"))
             {
@@ -2859,6 +2801,23 @@ namespace CheckPreformance
         private void Cmb_ImgList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
 
+        }
+
+        private void CheckPerform_btn_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+        private void CompareWithGT()
+        {
+            FileInfo[] grtFiles = new DirectoryInfo(RootAdderss).GetFiles("*.txt");
+
+            foreach (FileInfo grt in grtFiles)
+            {
+                string datName = grt.FullName.Replace(".txt", ".dat");
+                IniReader grt_ini = new IniReader(grt.FullName);
+                IniReader dat_ini = new IniReader(datName);
+
+            }
         }
 
         private void Convert_Image_Mac(FileInfo ch0, FileInfo ch1, FileInfo ch2, FileInfo ch3)

@@ -21,9 +21,8 @@
             <Button Name="Next_Btn" Content="▶" HorizontalAlignment="Left" Height="30" Margin="209,149,0,0" VerticalAlignment="Top" Width="30" Click="Prev_Btn_Click"/>
             <Label Name="ImageName_lbl" Content="Label" HorizontalAlignment="Left" Height="30" Margin="54,149,0,0" VerticalAlignment="Top" Width="134"/>
             <ListBox Name="Defects_lst"  SelectionMode="Multiple" HorizontalAlignment="Left" Height="247" Margin="10,184,0,0" VerticalAlignment="Top" Width="229" SelectionChanged="Defects_lst_SelectionChanged"/>
-            <Button Name="Detect_btn" Content="Detect" HorizontalAlignment="Left" Height="25" Margin="10,480,0,0" VerticalAlignment="Top" Width="48" Click="Detect_btn_Click"/>
-            <Button Name="Under_btn" Content="Under" HorizontalAlignment="Left" Height="25" Margin="102,480,0,0" VerticalAlignment="Top" Width="48" Click="Under_btn_Click" Background="#FFDDDDDD"/>
-            <Button Name="Over_btn" Content="Over" HorizontalAlignment="Left" Height="25" Margin="191,480,0,0" VerticalAlignment="Top" Width="48" Click="Detect_btn_Click" RenderTransformOrigin="0.574,2.573"/>
+            <Button Name="CheckPerform_btn" Content="성능평가" HorizontalAlignment="Left" Height="25" Margin="193,480,0,0" VerticalAlignment="Top" Width="46" Click="CheckPerform_btn_Click" FontSize="10"/>
+            <Button Name="Under_btn" Content="Under Defect 추가" HorizontalAlignment="Left" Height="25" Margin="10,480,0,0" VerticalAlignment="Top" Width="107" Click="Under_btn_Click" Background="#FFDDDDDD" FontSize="10"/>
             <Label Content="sys.rcp" HorizontalAlignment="Left" Margin="27,2,0,0" VerticalAlignment="Top" Height="21" Padding="5,0" MouseDown="Label_MouseDown" Background="White"/>
             <Label Content="Recipe" HorizontalAlignment="Left" Margin="27,28,0,0" VerticalAlignment="Top" Height="21" Padding="5,0 " MouseDown="Label_MouseDown"/>
             <Button Name="btn_Mac" Content="Macro" HorizontalAlignment="Left" Height="39" Margin="102,10,0,0" VerticalAlignment="Top" Width="65" Background="#FFC3C3C3" Click="Button_Click"/>
