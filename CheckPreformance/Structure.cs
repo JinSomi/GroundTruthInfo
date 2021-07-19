@@ -42,7 +42,7 @@ namespace CheckPreformance
 
         public enum Defect_Classification
         {
-            Bump = 0,
+            Bump = 1,
             Chipping,
             CoatingOff,
             Stain,
@@ -50,6 +50,7 @@ namespace CheckPreformance
             Crack,
             Scratch,
             Dust,
+            Texture,
             Ect
         }
 
