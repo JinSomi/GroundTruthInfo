@@ -668,7 +668,7 @@ namespace CheckPreformance
             {
                 HTuple deg=new HTuple(d.angle);
                HOperatorSet.GenEmptyObj(out temp_rect);
-                HOperatorSet.GenRectangle2(out temp_rect, d.ceny, d.cenx, deg.TupleRad(), d.height/2, d.width/2);
+                HOperatorSet.GenRectangle2(out temp_rect, d.ceny, d.cenx, -deg.TupleRad(), d.height/2, d.width/2);
                 HOperatorSet.Union2(DefectRegion, temp_rect, out DefectRegion);
             }
 
@@ -676,21 +676,21 @@ namespace CheckPreformance
             {
                 HTuple deg = new HTuple(d.angle);
                 HOperatorSet.GenEmptyObj(out temp_rect);
-                HOperatorSet.GenRectangle2(out temp_rect, d.ceny, d.cenx, deg.TupleRad(), d.height / 2, d.width / 2);
+                HOperatorSet.GenRectangle2(out temp_rect, d.ceny, d.cenx, -deg.TupleRad(), d.height / 2, d.width / 2);
                 HOperatorSet.Union2(DefectRegion_BF, temp_rect, out DefectRegion_BF);
             }
             foreach (Structure.Defect_struct d in info.DF_Defects)
             {
                 HTuple deg = new HTuple(d.angle);
                 HOperatorSet.GenEmptyObj(out temp_rect);
-                HOperatorSet.GenRectangle2(out temp_rect, d.ceny, d.cenx, deg.TupleRad(), d.height / 2, d.width / 2);
+                HOperatorSet.GenRectangle2(out temp_rect, d.ceny, d.cenx, -deg.TupleRad(), d.height / 2, d.width / 2);
                 HOperatorSet.Union2(DefectRegion_DF, temp_rect, out DefectRegion_DF);
             }
             foreach (Structure.Defect_struct d in info.CO_Defects)
             {
                 HTuple deg = new HTuple(d.angle);
                 HOperatorSet.GenEmptyObj(out temp_rect);
-                HOperatorSet.GenRectangle2(out temp_rect, d.ceny, d.cenx, deg.TupleRad(), d.height / 2, d.width / 2);
+                HOperatorSet.GenRectangle2(out temp_rect, d.ceny, d.cenx, -deg.TupleRad(), d.height / 2, d.width / 2);
                 HOperatorSet.Union2(DefectRegion_CO, temp_rect, out DefectRegion_CO);
             }
         }
@@ -2253,7 +2253,7 @@ namespace CheckPreformance
                 grt.SetString("Blob_info", DF, "0.000");
                 grt.SetString("Blob_info", CX, "0.000");
                 Classification = string.Format("Blob{0}_Classification", i );
-                grt.SetString("Blob_info", Classification, "Zero");
+                grt.SetString("Blob_info", Classification, "0.000");
                 grt.SetString("Blob_info", _INOUT_at_BF, "0.000");
                 grt.SetString("Blob_info", _INOUT_at_DF, "0.000");
                 grt.SetString("Blob_info", _INOUT_at_CX, "0.000");
@@ -2453,8 +2453,8 @@ namespace CheckPreformance
                 grt.SetString("Blob_info", DF, defect_mode == 1 ? "1.000" : "-1.000");
                 grt.SetString("Blob_info", CX, defect_mode == 2 ? "1.000" : "-1.000");
 
-                if(defect_mode==0)  grt.SetString("Blob_info", Classification, temp_Bf_struct[j].Name.ToString());
-                else if (defect_mode == 1) grt.SetString("Blob_info", Classification, temp_Df_struct[j].Name.ToString());
+                if(defect_mode==0)  grt.SetString("Blob_info", Classification,((int)temp_Bf_struct[j].Name).ToString("F3"));
+                else if (defect_mode == 1) grt.SetString("Blob_info", Classification, ((int)temp_Df_struct[j].Name).ToString("F3"));
                 else grt.SetString("Blob_info", Classification, ((int)temp_Co_struct[j].Name).ToString("F3"));
 
                 grt.SetString("Blob_info", _INOUT_at_BF, temp_Bf_struct[j].In_Out.ToString("F3"));
