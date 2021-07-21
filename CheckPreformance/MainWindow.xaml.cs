@@ -356,13 +356,34 @@ namespace CheckPreformance
             {
                 Defects_lst.Items.Add("결함 없음.");
             }
-            else
+
+            else //if (info.True_Defects.Count + info.False_Defects.Count + info.Under_Defects.Count > 0)
             {
-                for (int i = 0; i < info.Defects.Count ; i++)
+                List<int> select_i = new List<int>();
+                for (int i = 0; i < info.Defects.Count; i++)
                 {
-                    Defects_lst.Items.Add(i);
+                    int name = (int)info.Defects[i].Name;
+
+                    string list_format = string.Format("{0}-{1}", i, name==0?"":info.Defects[i].Name.ToString());
+                    if (info.Defects[i].GroundTruth == 2) list_format += "-Under";
+
+                    Defects_lst.Items.Add(list_format);
+                    if (info.Defects[i].GroundTruth == 1)
+                    {
+                        Defects_lst.SelectedItems.Add(i);
+                        select_i.Add(i);
+                    }
                 }
+
+                
             }
+            //else
+            //{
+            //    for (int i = 0; i < info.Defects.Count; i++)
+            //    {
+            //        Defects_lst.Items.Add(i);
+            //    }
+            //}
         }
 
 
@@ -1078,8 +1099,13 @@ namespace CheckPreformance
             {
                 var select_ind = Defects_lst.SelectedItems;
 
-                if (infos[befor_i].True_Defects == null) infos[befor_i].True_Defects = new List<Structure.Defect_struct>();
-                if (infos[befor_i].False_Defects == null) infos[befor_i].False_Defects = new List<Structure.Defect_struct>();
+                /*if (infos[befor_i].True_Defects == null)*/
+                infos[befor_i].True_Defects = new List<Structure.Defect_struct>();
+                /*if (infos[befor_i].False_Defects == null) */
+                infos[befor_i].False_Defects = new List<Structure.Defect_struct>();
+                /* if (infos[befor_i].Under_Defects == null) */
+                infos[befor_i].Under_Defects = new List<Structure.Defect_struct>();
+
 
 
                 if (select_ind.Count > 0)
@@ -1102,7 +1128,9 @@ namespace CheckPreformance
                         {
                             Structure.Defect_struct temp_struct = infos[befor_i].Defects[newind];
                             temp_struct.Name = (Structure.Defect_Classification)Enum.Parse(typeof(Structure.Defect_Classification), Defects_lst.Items[newind].ToString().Split('-')[1]);
+                            temp_struct.GroundTruth = 1;
                             infos[befor_i].True_Defects.Add(temp_struct);
+                            infos[befor_i].Defects[list_i] = temp_struct;
                             //infos[befor_i].True_Defects.Add(infos[befor_i].Defects[list_i]);
                         }
                         else
@@ -1111,7 +1139,9 @@ namespace CheckPreformance
                             if (temp_struct.UnderDefect == false)
                             {
                                 temp_struct.Name = (Structure.Defect_Classification)Enum.Parse(typeof(Structure.Defect_Classification), Defects_lst.Items[newind].ToString().Split('-')[1]);
+                                temp_struct.GroundTruth = -1;
                                 infos[befor_i].False_Defects.Add(temp_struct);
+                                infos[befor_i].Defects[list_i] = temp_struct;
                             }
                             //infos[befor_i].False_Defects.Add(infos[befor_i].Defects[list_i]);
                         }
@@ -1152,14 +1182,33 @@ namespace CheckPreformance
                 {
                     if (Defects_lst.Items.Contains("결함 없음."))
                     {
+                        if (Defects_lst.Items.Count == 1)
+                        {
+                            if (!Directory.Exists(RootAdderss + "\\" + ModelName)) Directory.CreateDirectory(RootAdderss + "\\" + ModelName);
 
-                        if (!Directory.Exists(RootAdderss + "\\" + ModelName)) Directory.CreateDirectory(RootAdderss + "\\" + ModelName);
-
-                        p_BF.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_bf, ImageFormat.Bmp);
-                        p_DF.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_df, ImageFormat.Bmp);
-                        p_CO.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_co, ImageFormat.Bmp);
-                        //d_BF.Save(RootAdderss + "\\OK_Image\\" + infos[befor_i].ImageName_bf_defect, ImageFormat.Bmp);
-                        saveGrt_withFeature_(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].datName.Name.Replace("dat", "txt"), infos[befor_i]);
+                            p_BF.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_bf, ImageFormat.Bmp);
+                            p_DF.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_df, ImageFormat.Bmp);
+                            p_CO.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_co, ImageFormat.Bmp);
+                            //d_BF.Save(RootAdderss + "\\OK_Image\\" + infos[befor_i].ImageName_bf_defect, ImageFormat.Bmp);
+                            saveGrt_withFeature_(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].datName.Name.Replace("dat", "txt"), infos[befor_i]);
+                        }
+                        else
+                        {
+                            for (int list_i = 1; list_i < Defects_lst.Items.Count; list_i++)
+                            {
+                                int newind = list_i - 1;
+                                
+                               // for (int ch = 0; ch < select_ind.Count; ch++)
+                                {
+                                    Structure.Defect_struct temp_struct = infos[befor_i].Defects[newind];
+                                    temp_struct.Name = (Structure.Defect_Classification)Enum.Parse(typeof(Structure.Defect_Classification), Defects_lst.Items[list_i].ToString().Split('-')[1]);
+                                    temp_struct.GroundTruth = 2;
+                                    infos[befor_i].Under_Defects.Add(temp_struct);
+                                    infos[befor_i].Defects[newind] = temp_struct;
+                                }
+                            }
+                            saveGrt_withFeature_(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].datName.Name.Replace("dat", "txt"), infos[befor_i]);
+                        }
                     }
                     else
                     {
@@ -1172,7 +1221,9 @@ namespace CheckPreformance
                                     if (temp_struct.UnderDefect == false)
                                     {
                                         temp_struct.Name = (Structure.Defect_Classification)Enum.Parse(typeof(Structure.Defect_Classification), Defects_lst.Items[list_i].ToString().Split('-')[1]);
+                                        temp_struct.GroundTruth = -1;
                                         infos[befor_i].False_Defects.Add(temp_struct);
+                                        infos[befor_i].Defects[list_i] = temp_struct;
                                     }
                                 }
                             }
@@ -1181,15 +1232,25 @@ namespace CheckPreformance
                         {
                             for (int list_i = 0; list_i < Defects_lst.Items.Count; list_i++)
                             {
-                                string item_=Defects_lst.Items[list_i].ToString();
-                                if(!item_.Contains("Under"))
+                                string item_ = Defects_lst.Items[list_i].ToString();
+                                if (!item_.Contains("Under"))
                                 {
                                     Structure.Defect_struct temp_struct = infos[befor_i].Defects[list_i];
                                     if (temp_struct.UnderDefect == false)
                                     {
                                         temp_struct.Name = (Structure.Defect_Classification)Enum.Parse(typeof(Structure.Defect_Classification), Defects_lst.Items[list_i].ToString().Split('-')[1]);
+                                        temp_struct.GroundTruth = -1;
                                         infos[befor_i].False_Defects.Add(temp_struct);
+                                        infos[befor_i].Defects[list_i] = temp_struct;
                                     }
+                                }
+                                else
+                                {
+                                    Structure.Defect_struct temp_struct = infos[befor_i].Defects[list_i];
+                                    temp_struct.Name = (Structure.Defect_Classification)Enum.Parse(typeof(Structure.Defect_Classification), Defects_lst.Items[list_i].ToString().Split('-')[1]);
+                                    temp_struct.GroundTruth = 2;
+                                    infos[befor_i].Under_Defects.Add(temp_struct);
+                                    infos[befor_i].Defects[list_i] = temp_struct;
                                 }
                             }
 
@@ -2006,7 +2067,7 @@ namespace CheckPreformance
                 if (Defects.True_Defects.Count > 0) ground_tr = 1.000;
                 else
                 {
-                    if (Defects.Under_Defects != null) ground_tr = 1.000;
+                    if (Defects.Under_Defects.Count >0 ) ground_tr = 1.000;
                 }
                 grt.SetString("ImageResult", "GroundTruth", ground_tr.ToString("F3"));// Defects.True_Defects.Count != 0 ? "1.000" : "0.000");
                 grt.SetString("ImageResult", "Blob_num_at_BF", Defects.BF_Defects.Count().ToString("F3"));
@@ -2845,11 +2906,21 @@ namespace CheckPreformance
             {
                 for (int list_i = 0; list_i < Defects_lst.Items.Count; list_i++)
                 {
+                    bool selected=false;// = select_ind.e.Contains(list_i);
+                    for (int i = 0; i < select_ind.Count; i++)
+                    {
+                        string temp_St = select_ind[i].ToString();
+                        if (temp_St.Contains(list_i.ToString()))
+                        {
+                            selected = true;
+                            break;
+                        }
+                    }
 
-                    bool selected = select_ind.Contains(list_i);
                     if (selected)
                     {
-                        Defects_lst.Items[list_i] = string.Format("{0}-{1}", list_i, cmb_DC.SelectedItem.ToString());
+                        if (Defects_lst.Items[list_i].ToString().Contains("Under")) Defects_lst.Items[list_i] = string.Format("{0}-{1}-{2}", list_i, cmb_DC.SelectedItem.ToString(),"Under");
+                        else Defects_lst.Items[list_i] = string.Format("{0}-{1}", list_i, cmb_DC.SelectedItem.ToString());
                     }
                 }
 

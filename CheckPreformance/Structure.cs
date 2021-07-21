@@ -20,7 +20,10 @@ namespace CheckPreformance
 
             /// GroundTruth Feature
             public int blob_ind { get; set; }
-            public int GroundTruth;
+            /// <summary>
+            /// 1= true , -1 =fasle, 2 = under
+            /// </summary>
+            public int GroundTruth { get; set; }
             public int Blobs_num;
             public int In_Out;
             public int Defect_Location;
