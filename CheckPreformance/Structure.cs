@@ -64,8 +64,10 @@ namespace CheckPreformance
             public string ImageName_bf_defect { get; set; }
             public string ImageName_df_defect { get; set; }
             public string ImageName_co_defect { get; set; }
+            public string ImageName_bl_defect { get; set; }
             public string ImageName_df { get; set; }
             public string ImageName_co { get; set; }
+            public string ImageName_bl { get; set; }
             public int Detect_num { get; set; }
             public int Under_num { get; set; }
             public int Over_Dust_num { get; set; }
@@ -86,16 +88,17 @@ namespace CheckPreformance
             public List<Defect_struct> BF_Defects { get; set; }
             public List<Defect_struct> DF_Defects { get; set; }
             public List<Defect_struct> CO_Defects { get; set; }
-
+            public List<Defect_struct> BL_Defects { get; set; }
 
             public List<Defect_struct> True_BF_Defects { get; set; }
             public List<Defect_struct> True_DF_Defects { get; set; }
             public List<Defect_struct> True_CO_Defects { get; set; }
-
+            public List<Defect_struct> True_BL_Defects { get; set; }
 
             public List<Defect_struct> False_BF_Defects { get; set; }
             public List<Defect_struct> False_DF_Defects { get; set; }
             public List<Defect_struct> False_CO_Defects { get; set; }
+            public List<Defect_struct> False_BL_Defects { get; set; }
 
 
 
@@ -103,6 +106,7 @@ namespace CheckPreformance
             public List<Defect_struct> Real_BF_Defects { get; set; }
             public List<Defect_struct> Real_DF_Defects { get; set; }
             public List<Defect_struct> Real_CO_Defects { get; set; }
+            public List<Defect_struct> Real_BL_Defects { get; set; }
 
             public Defect_Classification Name;
 
