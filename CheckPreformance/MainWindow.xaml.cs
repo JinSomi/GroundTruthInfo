@@ -92,22 +92,55 @@ namespace CheckPreformance
 
         private void MainWindow_KeyDown(object sender, KeyEventArgs e)
         {
-           
+
 
             if (e.Key == Key.Q)
             {
-              
+
                 UpdateWindow(1);
             }
             else if (e.Key == Key.W)
             {
                 UpdateWindow(2);
             }
-            else if(e.Key == Key.E)
+            else if (e.Key == Key.E)
             {
                 UpdateWindow(3);
             }
-           // throw new NotImplementedException();
+            else if (e.Key == Key.Delete)
+            {
+                string select = Defects_lst.SelectedItem.ToString();
+
+                string[] temp_st = select.Split('-');
+
+                if (temp_st[temp_st.Length - 1] == "Under")
+                {
+                    Structure.Defect_struct temp_under = infos[Current_i].Defects[Convert.ToInt32(temp_st[0])];
+                    infos[Current_i].Defects.Remove(temp_under);
+                    infos[Current_i].Under_Defects.Remove(temp_under);
+                }
+                //Defects_lst.Items.Remove(Defects_lst.SelectedItem);
+                //Defects_lst.Items.Add(string.Format("{0}-{1}-{2}", infos[Current_i].Defects.Count - 1, cmb_DC.SelectedItem.ToString(), "Under"));
+                Defects_lst.Items.Clear();
+
+                for (int i = 0; i < infos[Current_i].Defects.Count - 1; i++)
+                {
+                    Structure.Defect_struct temp = infos[Current_i].Defects[i];
+
+                    if (!temp.UnderDefect)
+                    {
+                        Defects_lst.Items.Add(string.Format("{0}-{1}", i, temp.Name.ToString()));
+                    }
+                    else
+                    {
+                        Defects_lst.Items.Add(string.Format("{0}-{1}-{2}",i,temp.Name.ToString(), "Under"));
+
+                    }
+                }
+
+            }
+
+            // throw new NotImplementedException();
         }
 
         bool underDetect_mode = false;
@@ -244,14 +277,20 @@ namespace CheckPreformance
                         temp.ImageName_co_defect = string.Format("{0}CO{1}_Marking.bmp", name, corner);
                         temp.ImageName_bl_defect = string.Format("{0}BL{1}_Marking.bmp", name, corner);
 
-                        //if (temp.datName.Replace("dat", "txt").Exists)
-                        //{
+                        GetDatResult_Mic(ref temp);
 
-                        //}
-                        //else
+                        if (File.Exists(temp.datName.FullName.Replace("dat", "txt")))
                         {
-                            GetDatResult_Mic(ref temp);
+                            Structure.ResultInfo gt_temp = new Structure.ResultInfo();
+                            gt_temp.datName = f;
+                            GetGTResult_Mic(ref temp);
+
+                            //temp.Defects = gt_temp.Defects;
+                            //temp.Under_Defects = gt_temp.Under_Defects;
+                            //temp.Under_num = gt_temp.Under_Defects.Count;
+
                         }
+
                         infos.Add(temp);
                     }
 
@@ -369,6 +408,11 @@ namespace CheckPreformance
 
                     string list_format = string.Format("{0}-{1}", i, name==0?"":info.Defects[i].Name.ToString());
                     if (info.Defects[i].GroundTruth == 2) list_format += "-Under";
+                    else
+                    {
+                        if (info.Defects[i].GroundTruth == 1) list_format += "-True";
+                        else list_format += "-False";
+                    }
 
                     Defects_lst.Items.Add(list_format);
                     if (info.Defects[i].GroundTruth == 1)
@@ -1251,6 +1295,13 @@ namespace CheckPreformance
                                 temp_struct.Name = (Structure.Defect_Classification)Enum.Parse(typeof(Structure.Defect_Classification), Defects_lst.Items[newind].ToString().Split('-')[1]);
                                 temp_struct.GroundTruth = -1;
                                 infos[befor_i].False_Defects.Add(temp_struct);
+                                infos[befor_i].Defects[list_i] = temp_struct;
+                            }
+                            else
+                            {
+                                temp_struct.Name = (Structure.Defect_Classification)Enum.Parse(typeof(Structure.Defect_Classification), Defects_lst.Items[newind].ToString().Split('-')[1]);
+                                temp_struct.GroundTruth = 2;
+                                infos[befor_i].Under_Defects.Add(temp_struct);
                                 infos[befor_i].Defects[list_i] = temp_struct;
                             }
                             //infos[befor_i].False_Defects.Add(infos[befor_i].Defects[list_i]);
@@ -3059,40 +3110,46 @@ namespace CheckPreformance
                 DllImport.CvtImageDLLImport.Demosaic(PtrImageBuf2, PtrBufCh2, SYS.ImageWidth, SYS.ImageHeight, SYS.BayerType.ToString());
                 DllImport.CvtImageDLLImport.Demosaic(PtrImageBuf3, PtrBufCh3, SYS.ImageWidth, SYS.ImageHeight, SYS.BayerType.ToString());
 
-                //DarkField -> WB 및 Intensity 적용
-                DllImport.CvtImageDLLImport.SetWB(PtrImageBuf0, PtrImageBuf0_, SYS.ImageWidth, SYS.ImageHeight, ImageAnalysis.ImagePattern.BGR8bpp.ToString(), SYS.GainCh0[0] * RecipeIOI.IlTmicDF[0], SYS.GainCh0[1] * RecipeIOI.IlTmicDF[0], SYS.GainCh0[2] * RecipeIOI.IlTmicDF[0]);
-                DllImport.CvtImageDLLImport.SetWB(PtrImageBuf1, PtrImageBuf1_, SYS.ImageWidth, SYS.ImageHeight, ImageAnalysis.ImagePattern.BGR8bpp.ToString(), SYS.GainCh1[0] * RecipeIOI.IlTmicDF[1], SYS.GainCh1[1] * RecipeIOI.IlTmicDF[1], SYS.GainCh1[2] * RecipeIOI.IlTmicDF[1]);
-                DllImport.CvtImageDLLImport.SetWB(PtrImageBuf2, PtrImageBuf2_, SYS.ImageWidth, SYS.ImageHeight, ImageAnalysis.ImagePattern.BGR8bpp.ToString(), SYS.GainCh2[0] * RecipeIOI.IlTmicDF[2], SYS.GainCh2[1] * RecipeIOI.IlTmicDF[2], SYS.GainCh2[2] * RecipeIOI.IlTmicDF[2]);
-                DllImport.CvtImageDLLImport.SetWB(PtrImageBuf3, PtrImageBuf3_, SYS.ImageWidth, SYS.ImageHeight, ImageAnalysis.ImagePattern.BGR8bpp.ToString(), SYS.GainCh3[0] * RecipeIOI.IlTmicDF[3], SYS.GainCh3[1] * RecipeIOI.IlTmicDF[3], SYS.GainCh3[2] * RecipeIOI.IlTmicDF[3]);
+
+                //WB 적용 
+                DllImport.CvtImageDLLImport.SetWB(PtrImageBuf0, SYS.MICRO_SIZE_WIDTH, SYS.MICRO_SIZE_HEIGHT, ImageAnalysis.ImagePattern.BGR8bpp.ToString(), SYS.MicGainCh0[0], SYS.MicGainCh0[1], SYS.MicGainCh0[2], 8);
+                DllImport.CvtImageDLLImport.SetWB(PtrImageBuf1, SYS.MICRO_SIZE_WIDTH, SYS.MICRO_SIZE_HEIGHT, ImageAnalysis.ImagePattern.BGR8bpp.ToString(), SYS.MicGainCh1[0], SYS.MicGainCh1[1], SYS.MicGainCh1[2], 8);
+                DllImport.CvtImageDLLImport.SetWB(PtrImageBuf2, SYS.MICRO_SIZE_WIDTH, SYS.MICRO_SIZE_HEIGHT, ImageAnalysis.ImagePattern.BGR8bpp.ToString(), SYS.MicGainCh2[0], SYS.MicGainCh2[1], SYS.MicGainCh2[2], 8);
+                DllImport.CvtImageDLLImport.SetWB(PtrImageBuf3, SYS.MICRO_SIZE_WIDTH, SYS.MICRO_SIZE_HEIGHT, ImageAnalysis.ImagePattern.BGR8bpp.ToString(), SYS.MicGainCh3[0], SYS.MicGainCh3[1], SYS.MicGainCh3[2], 8);
+
+
+                //DarkField -> Intensity 적용
+                DllImport.CvtImageDLLImport.Intensity(PtrImageBuf0_, PtrImageBuf0, SYS.MICRO_SIZE, RecipeIOI.IlTmicDF[0], 8);
+                DllImport.CvtImageDLLImport.Intensity(PtrImageBuf1_, PtrImageBuf1, SYS.MICRO_SIZE, RecipeIOI.IlTmicDF[1], 8);
+                DllImport.CvtImageDLLImport.Intensity(PtrImageBuf2_, PtrImageBuf2, SYS.MICRO_SIZE, RecipeIOI.IlTmicDF[2], 8);
+                DllImport.CvtImageDLLImport.Intensity(PtrImageBuf3_, PtrImageBuf3, SYS.MICRO_SIZE, RecipeIOI.IlTmicDF[3], 8);
                 //병합
-                DllImport.CvtImageDLLImport.Summation(PtrBufDF, PtrImageBuf0_, PtrImageBuf1_, PtrImageBuf2_, PtrImageBuf3_, SYS.ImageSize);
+                DllImport.CvtImageDLLImport.Summation(PtrBufDF, PtrImageBuf0_, PtrImageBuf1_, PtrImageBuf2_, PtrImageBuf3_, SYS.MICRO_SIZE, 8);
 
-                //DarkField -> WB 및 Intensity 적용
-                DllImport.CvtImageDLLImport.SetWB(PtrImageBuf0, PtrImageBuf0_, SYS.ImageWidth, SYS.ImageHeight, ImageAnalysis.ImagePattern.BGR8bpp.ToString(), SYS.GainCh0[0] * RecipeIOI.IlTmicBF[0], SYS.GainCh0[1] * RecipeIOI.IlTmicBF[0], SYS.GainCh0[2] * RecipeIOI.IlTmicBF[0]);
-                DllImport.CvtImageDLLImport.SetWB(PtrImageBuf1, PtrImageBuf1_, SYS.ImageWidth, SYS.ImageHeight, ImageAnalysis.ImagePattern.BGR8bpp.ToString(), SYS.GainCh1[0] * RecipeIOI.IlTmicBF[1], SYS.GainCh1[1] * RecipeIOI.IlTmicBF[1], SYS.GainCh1[2] * RecipeIOI.IlTmicBF[1]);
-                DllImport.CvtImageDLLImport.SetWB(PtrImageBuf2, PtrImageBuf2_, SYS.ImageWidth, SYS.ImageHeight, ImageAnalysis.ImagePattern.BGR8bpp.ToString(), SYS.GainCh2[0] * RecipeIOI.IlTmicBF[2], SYS.GainCh2[1] * RecipeIOI.IlTmicBF[2], SYS.GainCh2[2] * RecipeIOI.IlTmicBF[2]);
-                DllImport.CvtImageDLLImport.SetWB(PtrImageBuf3, PtrImageBuf3_, SYS.ImageWidth, SYS.ImageHeight, ImageAnalysis.ImagePattern.BGR8bpp.ToString(), SYS.GainCh3[0] * RecipeIOI.IlTmicBF[3], SYS.GainCh3[1] * RecipeIOI.IlTmicBF[3], SYS.GainCh3[2] * RecipeIOI.IlTmicBF[3]);
+                //BrightField -> Intensity 적용
+                DllImport.CvtImageDLLImport.Intensity(PtrImageBuf0_, PtrImageBuf0, SYS.MICRO_SIZE, RecipeIOI.IlTmicBF[0], 8);
+                DllImport.CvtImageDLLImport.Intensity(PtrImageBuf1_, PtrImageBuf1, SYS.MICRO_SIZE, RecipeIOI.IlTmicBF[1], 8);
+                DllImport.CvtImageDLLImport.Intensity(PtrImageBuf2_, PtrImageBuf2, SYS.MICRO_SIZE, RecipeIOI.IlTmicBF[2], 8);
+                DllImport.CvtImageDLLImport.Intensity(PtrImageBuf3_, PtrImageBuf3, SYS.MICRO_SIZE, RecipeIOI.IlTmicBF[3], 8);
                 //병합
-                DllImport.CvtImageDLLImport.Summation(PtrBufBF, PtrImageBuf0_, PtrImageBuf1_, PtrImageBuf2_, PtrImageBuf3_, SYS.ImageSize);
+                DllImport.CvtImageDLLImport.Summation(PtrBufBF, PtrImageBuf0_, PtrImageBuf1_, PtrImageBuf2_, PtrImageBuf3_, SYS.MICRO_SIZE, 8);
 
-                //double[] IlTmicCO = { 0, 0, 1.0, 1.0 };
-
-
-                //MiddleField -> WB 및 Intensity 적용
-                DllImport.CvtImageDLLImport.SetWB(PtrImageBuf0, PtrImageBuf0_, SYS.ImageWidth, SYS.ImageHeight, ImageAnalysis.ImagePattern.BGR8bpp.ToString(), SYS.GainCh0[0] * RecipeIOI.IlTmicCO[0], SYS.GainCh0[1] * RecipeIOI.IlTmicCO[0], SYS.GainCh0[2] * RecipeIOI.IlTmicCO[0]);
-                DllImport.CvtImageDLLImport.SetWB(PtrImageBuf1, PtrImageBuf1_, SYS.ImageWidth, SYS.ImageHeight, ImageAnalysis.ImagePattern.BGR8bpp.ToString(), SYS.GainCh1[0] * RecipeIOI.IlTmicCO[1], SYS.GainCh1[1] * RecipeIOI.IlTmicCO[1], SYS.GainCh1[2] * RecipeIOI.IlTmicCO[1]);
-                DllImport.CvtImageDLLImport.SetWB(PtrImageBuf2, PtrImageBuf2_, SYS.ImageWidth, SYS.ImageHeight, ImageAnalysis.ImagePattern.BGR8bpp.ToString(), SYS.GainCh2[0] * RecipeIOI.IlTmicCO[2], SYS.GainCh2[1] * RecipeIOI.IlTmicCO[2], SYS.GainCh2[2] * RecipeIOI.IlTmicCO[2]);
-                DllImport.CvtImageDLLImport.SetWB(PtrImageBuf3, PtrImageBuf3_, SYS.ImageWidth, SYS.ImageHeight, ImageAnalysis.ImagePattern.BGR8bpp.ToString(), SYS.GainCh3[0] * RecipeIOI.IlTmicCO[3], SYS.GainCh3[1] * RecipeIOI.IlTmicCO[3], SYS.GainCh3[2] * RecipeIOI.IlTmicCO[3]);
+                //Coaxial -> Intensity 적용
+                DllImport.CvtImageDLLImport.Intensity(PtrImageBuf0_, PtrImageBuf0, SYS.MICRO_SIZE, RecipeIOI.IlTmicCO[0], 8);
+                DllImport.CvtImageDLLImport.Intensity(PtrImageBuf1_, PtrImageBuf1, SYS.MICRO_SIZE, RecipeIOI.IlTmicCO[1], 8);
+                DllImport.CvtImageDLLImport.Intensity(PtrImageBuf2_, PtrImageBuf2, SYS.MICRO_SIZE, RecipeIOI.IlTmicCO[2], 8);
+                DllImport.CvtImageDLLImport.Intensity(PtrImageBuf3_, PtrImageBuf3, SYS.MICRO_SIZE, RecipeIOI.IlTmicCO[3], 8);
                 //병합
-                DllImport.CvtImageDLLImport.Summation(PtrBufCO, PtrImageBuf0_, PtrImageBuf1_, PtrImageBuf2_, PtrImageBuf3_, SYS.ImageSize);
+                DllImport.CvtImageDLLImport.Summation(PtrBufCO, PtrImageBuf0_, PtrImageBuf1_, PtrImageBuf2_, PtrImageBuf3_, SYS.MICRO_SIZE, 8);
 
-                //BackLight -> WB 및 Intensity 적용
-                DllImport.CvtImageDLLImport.SetWB(PtrImageBuf0, PtrImageBuf0_, SYS.ImageWidth, SYS.ImageHeight, ImageAnalysis.ImagePattern.BGR8bpp.ToString(), SYS.GainCh0[0] * RecipeIOI.IlTmicBL[0], SYS.GainCh0[1] * RecipeIOI.IlTmicBL[0], SYS.GainCh0[2] * RecipeIOI.IlTmicBL[0]);
-                DllImport.CvtImageDLLImport.SetWB(PtrImageBuf1, PtrImageBuf1_, SYS.ImageWidth, SYS.ImageHeight, ImageAnalysis.ImagePattern.BGR8bpp.ToString(), SYS.GainCh1[0] * RecipeIOI.IlTmicBL[1], SYS.GainCh1[1] * RecipeIOI.IlTmicBL[1], SYS.GainCh1[2] * RecipeIOI.IlTmicBL[1]);
-                DllImport.CvtImageDLLImport.SetWB(PtrImageBuf2, PtrImageBuf2_, SYS.ImageWidth, SYS.ImageHeight, ImageAnalysis.ImagePattern.BGR8bpp.ToString(), SYS.GainCh2[0] * RecipeIOI.IlTmicBL[2], SYS.GainCh2[1] * RecipeIOI.IlTmicBL[2], SYS.GainCh2[2] * RecipeIOI.IlTmicBL[2]);
-                DllImport.CvtImageDLLImport.SetWB(PtrImageBuf3, PtrImageBuf3_, SYS.ImageWidth, SYS.ImageHeight, ImageAnalysis.ImagePattern.BGR8bpp.ToString(), SYS.GainCh3[0] * RecipeIOI.IlTmicBL[3], SYS.GainCh3[1] * RecipeIOI.IlTmicBL[3], SYS.GainCh3[2] * RecipeIOI.IlTmicBL[3]);
+                //BackLight -> Intensity 적용
+                DllImport.CvtImageDLLImport.Intensity(PtrImageBuf0_, PtrImageBuf0, SYS.MICRO_SIZE, RecipeIOI.IlTmicBL[0], 8);
+                DllImport.CvtImageDLLImport.Intensity(PtrImageBuf1_, PtrImageBuf1, SYS.MICRO_SIZE, RecipeIOI.IlTmicBL[1], 8);
+                DllImport.CvtImageDLLImport.Intensity(PtrImageBuf2_, PtrImageBuf2, SYS.MICRO_SIZE, RecipeIOI.IlTmicBL[2], 8);
+                DllImport.CvtImageDLLImport.Intensity(PtrImageBuf3_, PtrImageBuf3, SYS.MICRO_SIZE, RecipeIOI.IlTmicBL[3], 8);
                 //병합
-                DllImport.CvtImageDLLImport.Summation(PtrBufShilluette, PtrImageBuf0_, PtrImageBuf1_, PtrImageBuf2_, PtrImageBuf3_, SYS.ImageSize);
+                DllImport.CvtImageDLLImport.Summation(PtrBufShilluette, PtrImageBuf0_, PtrImageBuf1_, PtrImageBuf2_, PtrImageBuf3_, SYS.MICRO_SIZE, 8);
+
 
                 HOperatorSet.GenImageInterleaved(out BaseImage_BF, BufBF.Scan0, "bgr", SYS.ImageWidth, SYS.ImageHeight, -1, "byte", SYS.ImageWidth, SYS.ImageHeight, 0, 0, -1, 0);
                 HOperatorSet.GenImageInterleaved(out BaseImage_DF, BufDF.Scan0, "bgr", SYS.ImageWidth, SYS.ImageHeight, -1, "byte", SYS.ImageWidth, SYS.ImageHeight, 0, 0, -1, 0);
@@ -3159,8 +3216,14 @@ namespace CheckPreformance
 
                     if (selected)
                     {
-                        if (Defects_lst.Items[list_i].ToString().Contains("Under")) Defects_lst.Items[list_i] = string.Format("{0}-{1}-{2}", list_i, cmb_DC.SelectedItem.ToString(),"Under");
-                        else Defects_lst.Items[list_i] = string.Format("{0}-{1}", list_i, cmb_DC.SelectedItem.ToString());
+                        if (Defects_lst.Items[list_i].ToString().Contains("Under")) Defects_lst.Items[list_i] = string.Format("{0}-{1}-{2}", list_i, cmb_DC.SelectedItem.ToString(), "Under");
+                        else
+                        {
+                            Defects_lst.Items[list_i] = string.Format("{0}-{1}", list_i, cmb_DC.SelectedItem.ToString());
+                            Structure.Defect_struct temp_strucuture = infos[Current_i].Defects[list_i];
+                            temp_strucuture.Name = (Structure.Defect_Classification)Enum.Parse(typeof(Structure.Defect_Classification), cmb_DC.SelectedItem.ToString());
+                            infos[Current_i].Defects[list_i] = temp_strucuture;
+                        }
                     }
                 }
 
@@ -3215,16 +3278,18 @@ namespace CheckPreformance
 
         public void GetGTResult_Mic(ref Structure.ResultInfo resultinfo)
         {
-            IniDataReader test = new IniDataReader(resultinfo.datName.FullName);
+            IniDataReader test = new IniDataReader(resultinfo.datName.FullName.Replace("dat","txt"));
             string[] testttt = test.GetAllKeys("ImageResult");
             string testt = testttt[testttt.Length - 1].Split('_')[0];
             int Defect_num = Convert.ToInt32(testt.Substring(testt.Length -1, 1));
-
-
+            resultinfo.True_Defects = new List<Structure.Defect_struct>();
+            resultinfo.False_Defects = new List<Structure.Defect_struct>();
+            resultinfo.Under_Defects = new List<Structure.Defect_struct>();
+            resultinfo.Defects = new List<Structure.Defect_struct>();
 
             for (int i = 0; i < Defect_num+1; i++)
             {
-                resultinfo.Defects = new List<Structure.Defect_struct>();
+
                 string section = "ImageResult";
                 string Defect_centerx = string.Format("Defect{0}_CENTER_X", i);
                 string Defect_centery = string.Format("Defect{0}_CENTER_Y", i);
@@ -3240,15 +3305,18 @@ namespace CheckPreformance
                 defec_.width= Convert.ToInt32(test.GetDouble(section, string.Format("Defect{0}_WIDTH", i)));
                 defec_.height = Convert.ToInt32(test.GetDouble(section, string.Format("Defect{0}_HEIGHT", i)));
                 defec_.angle = Convert.ToInt32(test.GetDouble(section, string.Format("Defect{0}_ANGLE", i)));
-                defec_.Name = (Structure.Defect_Classification)Enum.Parse(typeof(Structure.Defect_Classification), test.GetString(section, string.Format("Defect{0}_Classification", i)));
+                defec_.Name = (Structure.Defect_Classification)Enum.ToObject(typeof(Structure.Defect_Classification), Convert.ToInt32(test.GetDouble(section, string.Format("Defect{0}_Classification", i))));
                 defec_.GroundTruth = Convert.ToInt32(test.GetDouble(section, string.Format("Defect{0}_TrueDefect", i)));
 
-                resultinfo.Defects.Add(defec_);
+              
                 if (defec_.GroundTruth == 1) resultinfo.True_Defects.Add(defec_);
-                else if(defec_.GroundTruth == -1) resultinfo.False_Defects.Add(defec_);
-                else resultinfo.Under_Defects.Add(defec_);
-
-
+                else if (defec_.GroundTruth == -1) resultinfo.False_Defects.Add(defec_);
+                else
+                {
+                    defec_.UnderDefect = true;
+                    resultinfo.Under_Defects.Add(defec_);
+                }
+                 resultinfo.Defects.Add(defec_);
                 #region Blob 정보 
                 //string True_Defect = string.Format("Blob{0}_TrueDefect", i);
                 //string BF = string.Format("Blob{0}_BF", i);
@@ -3310,6 +3378,12 @@ namespace CheckPreformance
                 #endregion
 
             }
+        }
+
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+           
+
         }
 
         private void Convert_Image_Mac(FileInfo ch0, FileInfo ch1, FileInfo ch2, FileInfo ch3)
