@@ -3405,16 +3405,16 @@ namespace CheckPreformance
         private void CheckPerform_btn_Click(object sender, RoutedEventArgs e)
         {
 
-            RootAdderss = @"C:\Users\WTA\Desktop\grtTEST\grtTEST";
+            RootAdderss = @"\\192.168.1.170\Insert\_Batch이미지\교세라\KPTK_\CNMG08HQ PV7020 RCP\TopMicDefect";
             Writer = new StreamWriter(string.Format("{0}\\Perfomance.csv", RootAdderss), true, Encoding.Default);
-            Writer.WriteLine("이미지,Detect, UnderKill, OverKill, 먼지, 부착, 막벗겨짐, 기타");
+            Writer.WriteLine("이미지,Detect, UnderKill, OverKill, 먼지, 부착, 막벗겨짐, 스크레치, 텍스쳐, 기타");
             CompareWithGT();
             Writer.Close();
         }
         private void CompareWithGT()
         {
             FileInfo[] grtFiles = new DirectoryInfo(RootAdderss).GetFiles("*.txt");
-
+            grtFiles=grtFiles.OrderBy(x => x.Name).ToArray();
             List<Structure.ResultInfo> DatResults = new List<Structure.ResultInfo>();
             List<Structure.ResultInfo> GtResults = new List<Structure.ResultInfo>();
 
@@ -3458,6 +3458,13 @@ namespace CheckPreformance
             HOperatorSet.GenEmptyObj(out ho_DefectRgn);
             HOperatorSet.GenEmptyObj(out ho_TempRect);
 
+            HObject empty_rgn;
+
+            HOperatorSet.GenImageConst(out empty_rgn, "byte", SYS.MICRO_SIZE_WIDTH, SYS.MICRO_SIZE_HEIGHT);
+
+            var halW = Halcon_Window.HalconWindow;
+            HOperatorSet.DispImage(empty_rgn, halW);
+
 
             int TrueDetect_cnt = 0;
             int OverDetect_cnt = 0;
@@ -3465,6 +3472,8 @@ namespace CheckPreformance
             int Over_Dust_cnt = 0;
             int Over_Bump_cnt = 0;
             int Over_CoatingOff_cnt = 0;
+            int Over_Scratch_cnt = 0;
+            int Over_Texture_cnt = 0;
             int Over_Ect_cnt = 0;
 
             bool isChecked = false;
@@ -3473,15 +3482,15 @@ namespace CheckPreformance
             {
                 HTuple phi;
                 HOperatorSet.TupleRad(gt.Defects[i].angle, out phi);
-                HOperatorSet.GenRectangle2(out GT_Rgn,new HTuple(gt.Defects[i].ceny), new HTuple(gt.Defects[i].ceny), phi, new HTuple(gt.Defects[i].width), new HTuple(gt.Defects[i].height));
+                HOperatorSet.GenRectangle2(out GT_Rgn,new HTuple(gt.Defects[i].ceny), new HTuple(gt.Defects[i].cenx), phi, new HTuple(gt.Defects[i].width)/2, new HTuple(gt.Defects[i].height)/2);
                 isChecked = false;
 
                 if (dat.Defects.Count > 0)
                 {
                     for (int j = 0; j < dat.Defects.Count; j++)
                     {
-                        HOperatorSet.TupleRad(dat.Defects[i].angle, out phi);
-                        HOperatorSet.GenRectangle2(out ho_DefectRgn, dat.Defects[j].ceny, dat.Defects[j].ceny, phi, dat.Defects[j].width, dat.Defects[j].height);
+                        HOperatorSet.TupleRad(dat.Defects[j].angle, out phi);
+                        HOperatorSet.GenRectangle2(out ho_DefectRgn, dat.Defects[j].ceny, dat.Defects[j].cenx, phi, dat.Defects[j].width/2, dat.Defects[j].height/2);
                         HOperatorSet.Intersection(GT_Rgn, ho_DefectRgn, out ho_interRgn);
 
                         HOperatorSet.RegionFeatures(ho_interRgn, "area", out Inter_AreaSize);
@@ -3508,6 +3517,12 @@ namespace CheckPreformance
                                     case Structure.Defect_Classification.Dust:
                                         Over_Dust_cnt++;
                                         break;
+                                    case Structure.Defect_Classification.Scratch:
+                                        Over_Scratch_cnt++;
+                                        break;
+                                    case Structure.Defect_Classification.Texture:
+                                        Over_Texture_cnt++;
+                                        break;
                                     default:
                                         Over_Ect_cnt++;
                                         break;
@@ -3520,6 +3535,8 @@ namespace CheckPreformance
                             }
 
                             isChecked = true;
+
+                            break;
                         }
                         
 
@@ -3527,27 +3544,34 @@ namespace CheckPreformance
 
                     if (isChecked == false)
                     {
-                        UnderDetect_cnt++;
+                        if (gt.Defects[i].GroundTruth !=-1)
+                        {
+                            UnderDetect_cnt++;
+                        }
                     }
                 }
                 else
                 {
-                    OverDetect_cnt++;
-                    switch (gt.Defects[i].Name)
+                    if (gt.Defects[i].GroundTruth != -1)
                     {
-                        case Structure.Defect_Classification.Bump:
-                            Over_Bump_cnt++;
-                            break;
-                        case Structure.Defect_Classification.CoatingOff:
-                            Over_CoatingOff_cnt++;
-                            break;
-                        case Structure.Defect_Classification.Dust:
-                            Over_Dust_cnt++;
-                            break;
-                        default:
-                            Over_Ect_cnt++;
-                            break;
+                        UnderDetect_cnt++;
                     }
+                    //OverDetect_cnt++;
+                    //switch (gt.Defects[i].Name)
+                    //{
+                    //    case Structure.Defect_Classification.Bump:
+                    //        Over_Bump_cnt++;
+                    //        break;
+                    //    case Structure.Defect_Classification.CoatingOff:
+                    //        Over_CoatingOff_cnt++;
+                    //        break;
+                    //    case Structure.Defect_Classification.Dust:
+                    //        Over_Dust_cnt++;
+                    //        break;
+                    //    default:
+                    //        Over_Ect_cnt++;
+                    //        break;
+                    //}
                 }
             }
 
@@ -3558,110 +3582,114 @@ namespace CheckPreformance
             }
 
             //                  Writer.WriteLine("이미지,Detect, UnderKill, OverKill, 먼지, 부착, 막벗겨짐, 기타");
-            Writer.WriteLine(string.Format("{0},{1},{2},{3},{4},{5},{6},{7}", dat.datName.Name, TrueDetect_cnt, UnderDetect_cnt, OverDetect_cnt, Over_Dust_cnt, Over_Bump_cnt, Over_CoatingOff_cnt, Over_Ect_cnt));
+            Writer.WriteLine(string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9}", dat.datName.Name, TrueDetect_cnt, UnderDetect_cnt, OverDetect_cnt, Over_Dust_cnt, Over_Bump_cnt, Over_CoatingOff_cnt, Over_Scratch_cnt, Over_Texture_cnt,Over_Ect_cnt));
         }
 
         public void GetGTResult_Mic(ref Structure.ResultInfo resultinfo)
         {
-            IniDataReader test = new IniDataReader(resultinfo.datName.FullName.Replace("dat","txt"));
+            IniDataReader test = new IniDataReader(resultinfo.datName.FullName.Replace("dat", "txt"));
             string[] testttt = test.GetAllKeys("ImageResult");
             string testt = testttt[testttt.Length - 1].Split('_')[0];
-            int Defect_num = Convert.ToInt32(testt.Substring(testt.Length -1, 1));
+            int Defect_num = 0;
+            if (testt.Contains("Defect")) Defect_num = Convert.ToInt32(testt.Substring(6,testt.Length-6));
+            else Defect_num = -1;
             resultinfo.True_Defects = new List<Structure.Defect_struct>();
             resultinfo.False_Defects = new List<Structure.Defect_struct>();
             resultinfo.Under_Defects = new List<Structure.Defect_struct>();
             resultinfo.Defects = new List<Structure.Defect_struct>();
-
-            for (int i = 0; i < Defect_num+1; i++)
+            if (Defect_num >-1)
             {
-
-                string section = "ImageResult";
-                string Defect_centerx = string.Format("Defect{0}_CENTER_X", i);
-                string Defect_centery = string.Format("Defect{0}_CENTER_Y", i);
-                string Defect_w = string.Format("Defect{0}_WIDTH", i);
-                string Defect_h = string.Format("Defect{0}_HEIGHT", i);
-                string Defect_a = string.Format("Defect{0}_ANGLE", i);
-                string Classification = string.Format("Defect{0}_Classification", i);
-                string True_Defect_ = string.Format("Defect{0}_TrueDefect", i);
-
-                Structure.Defect_struct defec_ = new Structure.Defect_struct();
-                defec_.cenx = Convert.ToInt32(test.GetDouble(section, string.Format("Defect{0}_CENTER_X", i)));
-                defec_.ceny= Convert.ToInt32(test.GetDouble(section, string.Format("Defect{0}_CENTER_Y", i)));
-                defec_.width= Convert.ToInt32(test.GetDouble(section, string.Format("Defect{0}_WIDTH", i)));
-                defec_.height = Convert.ToInt32(test.GetDouble(section, string.Format("Defect{0}_HEIGHT", i)));
-                defec_.angle = Convert.ToInt32(test.GetDouble(section, string.Format("Defect{0}_ANGLE", i)));
-                defec_.Name = (Structure.Defect_Classification)Enum.ToObject(typeof(Structure.Defect_Classification), Convert.ToInt32(test.GetDouble(section, string.Format("Defect{0}_Classification", i))));
-                defec_.GroundTruth = Convert.ToInt32(test.GetDouble(section, string.Format("Defect{0}_TrueDefect", i)));
-
-              
-                if (defec_.GroundTruth == 1) resultinfo.True_Defects.Add(defec_);
-                else if (defec_.GroundTruth == -1) resultinfo.False_Defects.Add(defec_);
-                else
+                for (int i = 0; i < Defect_num + 1; i++)
                 {
-                    defec_.UnderDefect = true;
-                    resultinfo.Under_Defects.Add(defec_);
+
+                    string section = "ImageResult";
+                    string Defect_centerx = string.Format("Defect{0}_CENTER_X", i);
+                    string Defect_centery = string.Format("Defect{0}_CENTER_Y", i);
+                    string Defect_w = string.Format("Defect{0}_WIDTH", i);
+                    string Defect_h = string.Format("Defect{0}_HEIGHT", i);
+                    string Defect_a = string.Format("Defect{0}_ANGLE", i);
+                    string Classification = string.Format("Defect{0}_Classification", i);
+                    string True_Defect_ = string.Format("Defect{0}_TrueDefect", i);
+
+                    Structure.Defect_struct defec_ = new Structure.Defect_struct();
+                    defec_.cenx = Convert.ToInt32(test.GetDouble(section, string.Format("Defect{0}_CENTER_X", i)));
+                    defec_.ceny = Convert.ToInt32(test.GetDouble(section, string.Format("Defect{0}_CENTER_Y", i)));
+                    defec_.width = Convert.ToInt32(test.GetDouble(section, string.Format("Defect{0}_WIDTH", i)));
+                    defec_.height = Convert.ToInt32(test.GetDouble(section, string.Format("Defect{0}_HEIGHT", i)));
+                    defec_.angle = Convert.ToInt32(test.GetDouble(section, string.Format("Defect{0}_ANGLE", i)));
+                    defec_.Name = (Structure.Defect_Classification)Enum.ToObject(typeof(Structure.Defect_Classification), Convert.ToInt32(test.GetDouble(section, string.Format("Defect{0}_Classification", i))));
+                    defec_.GroundTruth = Convert.ToInt32(test.GetDouble(section, string.Format("Defect{0}_TrueDefect", i)));
+
+
+                    if (defec_.GroundTruth == 1) resultinfo.True_Defects.Add(defec_);
+                    else if (defec_.GroundTruth == -1) resultinfo.False_Defects.Add(defec_);
+                    else
+                    {
+                        defec_.UnderDefect = true;
+                        resultinfo.Under_Defects.Add(defec_);
+                    }
+                    resultinfo.Defects.Add(defec_);
+                    #region Blob 정보 
+                    //string True_Defect = string.Format("Blob{0}_TrueDefect", i);
+                    //string BF = string.Format("Blob{0}_BF", i);
+                    //string DF = string.Format("Blob{0}_DF", i);
+                    //string CX = string.Format("Blob{0}_CX", i);
+
+                    //string _INOUT_at_BF = string.Format("Blob{0}_INOUT_at_BF", i);
+                    //string _INOUT_at_DF = string.Format("Blob{0}_INOUT_at_DF", i);
+                    //string _INOUT_at_CX = string.Format("Blob{0}_INOUT_at_CX", i);
+
+                    //string _Defect_Location_BF = string.Format("Blob{0}_Defect_Location_BF", i);
+                    //string _Defect_Location_DF = string.Format("Blob{0}_Defect_Location_DF", i);
+                    //string _Defect_Location_CX = string.Format("Blob{0}_Defect_Location_CX", i);
+
+                    //string _Pixel_num_BF = string.Format("Blob{0}_Pixel_num_BF", i);
+                    //string _Pixel_num_DF = string.Format("Blob{0}_Pixel_num_DF", i);
+                    //string _Pixel_num_CX = string.Format("Blob{0}_Pixel_num_CX", i);
+
+                    //string _Average_Distance_BF = string.Format("Blob{0}_Average_Distance_BF", i);
+                    //string _Average_Distance_DF = string.Format("Blob{0}_Average_Distance_DF", i);
+                    //string _Average_Distance_CX = string.Format("Blob{0}_Average_Distance_CX", i);
+
+                    //string _Centroid_Distance_BF = string.Format("Blob{0}_Centroid_Distance_BF", i);
+                    //string _Centroid_Distance_DF = string.Format("Blob{0}_Centroid_Distance_DF", i);
+                    //string _Centroid_Distance_CX = string.Format("Blob{0}_Centroid_Distance_CX", i);
+
+                    //string _Long_Axis_BF = string.Format("Blob{0}_Long_Axis_BF", i);
+                    //string _Long_Axis_DF = string.Format("Blob{0}_Long_Axis_DF", i);
+                    //string _Long_Axis_CX = string.Format("Blob{0}_Long_Axis_CX", i);
+
+                    //string _Short_Axis_BF = string.Format("Blob{0}_Short_Axis_BF", i);
+                    //string _Short_Axis_DF = string.Format("Blob{0}_Short_Axis_DF", i);
+                    //string _Short_Axis_CX = string.Format("Blob{0}_Short_Axis_CX", i);
+
+                    //string _Long_Axis_angle_BF = string.Format("Blob{0}_Long_Axis_angle_BF", i);
+                    //string _Long_Axis_angle_DF = string.Format("Blob{0}_Long_Axis_angle_DF", i);
+                    //string _Long_Axis_angle_CX = string.Format("Blob{0}_Long_Axis_angle_CX", i);
+
+                    //string _Short_Axis_angle_BF = string.Format("Blob{0}_Short_Axis_angle_BF", i);
+                    //string _Short_Axis_angle_DF = string.Format("Blob{0}_Short_Axis_angle_DF", i);
+                    //string _Short_Axis_angle_CX = string.Format("Blob{0}_Short_Axis_angle_CX", i);
+
+                    //string _Average_R_BF = string.Format("Blob{0}_Average_R_BF", i);
+                    //string _Average_R_DF = string.Format("Blob{0}_Average_R_DF", i);
+                    //string _Average_R_CX = string.Format("Blob{0}_Average_R_CX", i);
+
+                    //string _Average_G_BF = string.Format("Blob{0}_Average_G_BF", i);
+                    //string _Average_G_DF = string.Format("Blob{0}_Average_G_DF", i);
+                    //string _Average_G_CX = string.Format("Blob{0}_Average_G_CX", i);
+
+                    //string _Average_B_BF = string.Format("Blob{0}_Average_B_BF", i);
+                    //string _Average_B_DF = string.Format("Blob{0}_Average_B_DF", i);
+                    //string _Average_B_CX = string.Format("Blob{0}_Average_B_CX", i);
+
+                    //string _Average_I_BF = string.Format("Blob{0}_Average_I_BF", i);
+                    //string _Average_I_DF = string.Format("Blob{0}_Average_I_DF", i);
+                    //string _Average_I_CX = string.Format("Blob{0}_Average_I_CX", i);
+
+                    #endregion
+
                 }
-                 resultinfo.Defects.Add(defec_);
-                #region Blob 정보 
-                //string True_Defect = string.Format("Blob{0}_TrueDefect", i);
-                //string BF = string.Format("Blob{0}_BF", i);
-                //string DF = string.Format("Blob{0}_DF", i);
-                //string CX = string.Format("Blob{0}_CX", i);
-
-                //string _INOUT_at_BF = string.Format("Blob{0}_INOUT_at_BF", i);
-                //string _INOUT_at_DF = string.Format("Blob{0}_INOUT_at_DF", i);
-                //string _INOUT_at_CX = string.Format("Blob{0}_INOUT_at_CX", i);
-
-                //string _Defect_Location_BF = string.Format("Blob{0}_Defect_Location_BF", i);
-                //string _Defect_Location_DF = string.Format("Blob{0}_Defect_Location_DF", i);
-                //string _Defect_Location_CX = string.Format("Blob{0}_Defect_Location_CX", i);
-
-                //string _Pixel_num_BF = string.Format("Blob{0}_Pixel_num_BF", i);
-                //string _Pixel_num_DF = string.Format("Blob{0}_Pixel_num_DF", i);
-                //string _Pixel_num_CX = string.Format("Blob{0}_Pixel_num_CX", i);
-
-                //string _Average_Distance_BF = string.Format("Blob{0}_Average_Distance_BF", i);
-                //string _Average_Distance_DF = string.Format("Blob{0}_Average_Distance_DF", i);
-                //string _Average_Distance_CX = string.Format("Blob{0}_Average_Distance_CX", i);
-
-                //string _Centroid_Distance_BF = string.Format("Blob{0}_Centroid_Distance_BF", i);
-                //string _Centroid_Distance_DF = string.Format("Blob{0}_Centroid_Distance_DF", i);
-                //string _Centroid_Distance_CX = string.Format("Blob{0}_Centroid_Distance_CX", i);
-
-                //string _Long_Axis_BF = string.Format("Blob{0}_Long_Axis_BF", i);
-                //string _Long_Axis_DF = string.Format("Blob{0}_Long_Axis_DF", i);
-                //string _Long_Axis_CX = string.Format("Blob{0}_Long_Axis_CX", i);
-
-                //string _Short_Axis_BF = string.Format("Blob{0}_Short_Axis_BF", i);
-                //string _Short_Axis_DF = string.Format("Blob{0}_Short_Axis_DF", i);
-                //string _Short_Axis_CX = string.Format("Blob{0}_Short_Axis_CX", i);
-
-                //string _Long_Axis_angle_BF = string.Format("Blob{0}_Long_Axis_angle_BF", i);
-                //string _Long_Axis_angle_DF = string.Format("Blob{0}_Long_Axis_angle_DF", i);
-                //string _Long_Axis_angle_CX = string.Format("Blob{0}_Long_Axis_angle_CX", i);
-
-                //string _Short_Axis_angle_BF = string.Format("Blob{0}_Short_Axis_angle_BF", i);
-                //string _Short_Axis_angle_DF = string.Format("Blob{0}_Short_Axis_angle_DF", i);
-                //string _Short_Axis_angle_CX = string.Format("Blob{0}_Short_Axis_angle_CX", i);
-
-                //string _Average_R_BF = string.Format("Blob{0}_Average_R_BF", i);
-                //string _Average_R_DF = string.Format("Blob{0}_Average_R_DF", i);
-                //string _Average_R_CX = string.Format("Blob{0}_Average_R_CX", i);
-
-                //string _Average_G_BF = string.Format("Blob{0}_Average_G_BF", i);
-                //string _Average_G_DF = string.Format("Blob{0}_Average_G_DF", i);
-                //string _Average_G_CX = string.Format("Blob{0}_Average_G_CX", i);
-
-                //string _Average_B_BF = string.Format("Blob{0}_Average_B_BF", i);
-                //string _Average_B_DF = string.Format("Blob{0}_Average_B_DF", i);
-                //string _Average_B_CX = string.Format("Blob{0}_Average_B_CX", i);
-
-                //string _Average_I_BF = string.Format("Blob{0}_Average_I_BF", i);
-                //string _Average_I_DF = string.Format("Blob{0}_Average_I_DF", i);
-                //string _Average_I_CX = string.Format("Blob{0}_Average_I_CX", i);
-
-                #endregion
-
             }
         }
 
