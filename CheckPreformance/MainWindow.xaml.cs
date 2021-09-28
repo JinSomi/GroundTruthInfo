@@ -98,7 +98,7 @@ namespace CheckPreformance
 
         private void ModeSet()
         {
-            IniReader result = new IniReader(@"C:\Users\WTA\source\repos\CheckPreformance\CheckPreformance\bin\Debug\Add.dat");
+            IniReader result = new IniReader(AppDomain.CurrentDomain.BaseDirectory+"\\Add.dat");
          
                string[] temp=            result.GetAllKeys("Info");
             Golden_Mode = result.GetInteger("Info", "Golden_Mode");
