@@ -25,7 +25,8 @@ namespace CheckPreformance
             /// </summary>
             public int GroundTruth { get; set; }
             public int Blobs_num;
-            public int In_Out;
+            public int In;
+            public int Out;
             public int Defect_Location;
             public int Pixel_num;
             public double Average_Distance;
