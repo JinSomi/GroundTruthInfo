@@ -41,6 +41,10 @@ namespace CheckPreformance
             public double Avg_I;
             public Defect_Classification Name;
             public bool UnderDefect;
+            public int BF_num { get; set; }
+            public int DF_num;
+            public int CX_num;
+            public int BL_num;
 
         }
 

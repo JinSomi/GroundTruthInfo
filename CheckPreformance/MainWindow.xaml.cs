@@ -1060,7 +1060,7 @@ namespace CheckPreformance
             HTuple blob_area;
             HObject RealDefect_rgn, FasleDefct_rgn;
 
-           // foreach (Structure.ResultInfo info in Defects_info)
+            // foreach (Structure.ResultInfo info in Defects_info)
             {
                 info.True_BF_Defects = new List<Structure.Defect_struct>();
                 info.True_CO_Defects = new List<Structure.Defect_struct>();
@@ -1072,10 +1072,16 @@ namespace CheckPreformance
                 info.False_BL_Defects = new List<Structure.Defect_struct>();
 
 
-                foreach (Structure.Defect_struct real_d in info.True_Defects)
+                // foreach (Structure.Defect_struct real_d in info.True_Defects)
+                for (int i = 0; i < info.True_Defects.Count; i++)
                 {
+                    Structure.Defect_struct real_d = info.True_Defects[i];
                     HOperatorSet.GenEmptyObj(out RealDefect_rgn);
                     HOperatorSet.GenRectangle2(out RealDefect_rgn, real_d.ceny, real_d.cenx, new HTuple(real_d.angle).TupleRad(), real_d.height / 2, real_d.width / 2);
+                    int bf_exist = 0;
+                    int df_exist = 0;
+                    int cx_exist = 0;
+                    int bl_exist = 0;
 
                     foreach (Structure.Defect_struct d in info.BF_Defects)
                     {
@@ -1090,8 +1096,9 @@ namespace CheckPreformance
                             Structure.Defect_struct tempstruct = d;
                             tempstruct.blob_ind = real_d.blob_ind;
                             tempstruct.Name = real_d.Name;
+                            bf_exist = 1;
                             info.True_BF_Defects.Add(tempstruct);
-                           
+
                         }
                     }
 
@@ -1109,7 +1116,7 @@ namespace CheckPreformance
                             tempstruct.blob_ind = real_d.blob_ind;
                             tempstruct.Name = real_d.Name;
                             info.True_DF_Defects.Add(tempstruct);
-                       
+                            df_exist = 1;
                         }
                     }
 
@@ -1127,6 +1134,7 @@ namespace CheckPreformance
                             tempstruct.blob_ind = real_d.blob_ind;
                             tempstruct.Name = real_d.Name;
                             info.True_CO_Defects.Add(tempstruct);
+                            cx_exist = 1;
                         }
                     }
 
@@ -1144,12 +1152,28 @@ namespace CheckPreformance
                             tempstruct.blob_ind = real_d.blob_ind;
                             tempstruct.Name = real_d.Name;
                             info.True_BL_Defects.Add(tempstruct);
+                            bl_exist = 1;
                         }
                     }
+                    real_d.BF_num = bf_exist;
+                    real_d.DF_num = df_exist;
+                    real_d.CX_num = cx_exist;
+                    real_d.BL_num = bl_exist;
+
+                    info.True_Defects[i] = real_d;
                 }
 
-                foreach (Structure.Defect_struct real_d in info.False_Defects)
+
+                //foreach (Structure.Defect_struct real_d in info.False_Defects)
+                for (int i = 0; i < info.False_Defects.Count; i++)
                 {
+                    int bf_exist = 0;
+                    int df_exist = 0;
+                    int cx_exist = 0;
+                    int bl_exist = 0;
+
+
+                    Structure.Defect_struct real_d = info.False_Defects[i];
                     HOperatorSet.GenEmptyObj(out FasleDefct_rgn);
                     HOperatorSet.GenRectangle2(out FasleDefct_rgn, real_d.ceny, real_d.cenx, new HTuple(real_d.angle).TupleRad(), real_d.height / 2, real_d.width / 2);
 
@@ -1167,7 +1191,7 @@ namespace CheckPreformance
                             tempstruct.blob_ind = real_d.blob_ind;
                             tempstruct.Name = real_d.Name;
                             info.False_BF_Defects.Add(tempstruct);
-
+                            bf_exist = 1;
                         }
                     }
 
@@ -1185,7 +1209,7 @@ namespace CheckPreformance
                             tempstruct.blob_ind = real_d.blob_ind;
                             tempstruct.Name = real_d.Name;
                             info.False_DF_Defects.Add(tempstruct);
-
+                            df_exist = 1;
                         }
                     }
 
@@ -1203,6 +1227,7 @@ namespace CheckPreformance
                             tempstruct.blob_ind = real_d.blob_ind;
                             tempstruct.Name = real_d.Name;
                             info.False_CO_Defects.Add(tempstruct);
+                            cx_exist = 1;
                         }
                     }
                     foreach (Structure.Defect_struct d in info.BL_Defects)
@@ -1219,8 +1244,15 @@ namespace CheckPreformance
                             tempstruct.blob_ind = real_d.blob_ind;
                             tempstruct.Name = real_d.Name;
                             info.False_BL_Defects.Add(tempstruct);
+                            bl_exist = 1;
                         }
                     }
+                    real_d.BF_num = bf_exist;
+                    real_d.DF_num = df_exist;
+                    real_d.CX_num = cx_exist;
+                    real_d.BL_num = bl_exist;
+
+                    info.False_Defects[i] = real_d;
                 }
             }
 
@@ -2581,14 +2613,17 @@ namespace CheckPreformance
                 grt.SetString("Blob_info", _Average_I_DF, "0.000");
                 grt.SetString("Blob_info", _Average_I_CX, "0.000");
             }
-
+    
         }
 
         private void saveGrt_withFeature_(string SaveAddress, Structure.ResultInfo Defects)
         {
             if (File.Exists(SaveAddress)) File.Delete(SaveAddress);
+            
+           
             IniReader grt = new IniReader(SaveAddress);
 
+           
 
 
             // foreach (Structure.ResultInfo defect in Defects)
@@ -2620,29 +2655,36 @@ namespace CheckPreformance
             }
 
 
-          
-                for (int i = 0; i < Defects.True_Defects.Count; i++)
-                {
-                    string Defect_centerx = string.Format("Defect{0}_CENTER_X", i);
-                    string Defect_centery = string.Format("Defect{0}_CENTER_Y", i);
-                    string Defect_w = string.Format("Defect{0}_WIDTH", i);
-                    string Defect_h = string.Format("Defect{0}_HEIGHT", i);
-                    string Defect_a = string.Format("Defect{0}_ANGLE", i);
 
-                    string True_Defect = string.Format("Defect{0}_TrueDefect", i);
+            for (int i = 0; i < Defects.True_Defects.Count; i++)
+            {
+                string Defect_centerx = string.Format("Defect{0}_CENTER_X", i);
+                string Defect_centery = string.Format("Defect{0}_CENTER_Y", i);
+                string Defect_w = string.Format("Defect{0}_WIDTH", i);
+                string Defect_h = string.Format("Defect{0}_HEIGHT", i);
+                string Defect_a = string.Format("Defect{0}_ANGLE", i);
 
-                    string Classification = string.Format("Defect{0}_Classification", i);
+                string True_Defect = string.Format("Defect{0}_TrueDefect", i);
 
+                string Classification = string.Format("Defect{0}_Classification", i);
+                string BF_Exist = string.Format("Defect{0}_BF_Exist", i);
+                string DF_Exist = string.Format("Defect{0}_DF_Exist", i);
+                string CX_Exist = string.Format("Defect{0}_CX_Exist", i);
+                string BL_Exist = string.Format("Defect{0}_BL_Exist", i);
 
-                    grt.SetString("ImageResult", Defect_centerx, Defects.True_Defects[i].cenx.ToString("F3"));
-                    grt.SetString("ImageResult", Defect_centery, Defects.True_Defects[i].ceny.ToString("F3"));
-                    grt.SetString("ImageResult", Defect_w, Defects.True_Defects[i].width.ToString("F3"));
-                    grt.SetString("ImageResult", Defect_h, Defects.True_Defects[i].height.ToString("F3"));
-                    grt.SetString("ImageResult", Defect_a, Defects.True_Defects[i].angle.ToString("F3"));
-                    grt.SetString("ImageResult", True_Defect, "1.000");
-                    grt.SetString("ImageResult", Classification, ((int)Defects.True_Defects[i].Name).ToString("F3"));
+                grt.SetString("ImageResult", Defect_centerx, Defects.True_Defects[i].cenx.ToString("F3"));
+                grt.SetString("ImageResult", Defect_centery, Defects.True_Defects[i].ceny.ToString("F3"));
+                grt.SetString("ImageResult", Defect_w, Defects.True_Defects[i].width.ToString("F3"));
+                grt.SetString("ImageResult", Defect_h, Defects.True_Defects[i].height.ToString("F3"));
+                grt.SetString("ImageResult", Defect_a, Defects.True_Defects[i].angle.ToString("F3"));
+                grt.SetString("ImageResult", True_Defect, "1.000");
+                grt.SetString("ImageResult", Classification, ((int)Defects.True_Defects[i].Name).ToString("F3"));
+                grt.SetString("ImageResult", BF_Exist, ((int)Defects.True_Defects[i].BF_num).ToString("F3"));
+                grt.SetString("ImageResult", DF_Exist, ((int)Defects.True_Defects[i].DF_num).ToString("F3"));
+                grt.SetString("ImageResult", CX_Exist, ((int)Defects.True_Defects[i].CX_num).ToString("F3"));
+                grt.SetString("ImageResult", BL_Exist, ((int)Defects.True_Defects[i].BL_num).ToString("F3"));
 
-                }
+            }
 
                 if (Defects.False_Defects.Count > 0)
                 {
@@ -2658,8 +2700,12 @@ namespace CheckPreformance
                         string Classification = string.Format("Defect{0}_Classification", j);
                         string True_Defect = string.Format("Defect{0}_TrueDefect", j);
 
+                    string BF_Exist = string.Format("Defect{0}_BF_Exist", i);
+                    string DF_Exist = string.Format("Defect{0}_DF_Exist", i);
+                    string CX_Exist = string.Format("Defect{0}_CX_Exist", i);
+                    string BL_Exist = string.Format("Defect{0}_BL_Exist", i);
 
-                        grt.SetString("ImageResult", Defect_centerx, Defects.False_Defects[i].cenx.ToString("F3"));
+                    grt.SetString("ImageResult", Defect_centerx, Defects.False_Defects[i].cenx.ToString("F3"));
                         grt.SetString("ImageResult", Defect_centery, Defects.False_Defects[i].ceny.ToString("F3"));
                         grt.SetString("ImageResult", Defect_w, Defects.False_Defects[i].width.ToString("F3"));
                         grt.SetString("ImageResult", Defect_h, Defects.False_Defects[i].height.ToString("F3"));
@@ -2667,7 +2713,12 @@ namespace CheckPreformance
                         grt.SetString("ImageResult", True_Defect, "-1.000");
                         grt.SetString("ImageResult", Classification, ((int)Defects.False_Defects[i].Name).ToString("F3"));
 
-                    }
+                    grt.SetString("ImageResult", BF_Exist, ((int)Defects.False_Defects[i].BF_num).ToString("F3"));
+                    grt.SetString("ImageResult", DF_Exist, ((int)Defects.False_Defects[i].DF_num).ToString("F3"));
+                    grt.SetString("ImageResult", CX_Exist, ((int)Defects.False_Defects[i].CX_num).ToString("F3"));
+                    grt.SetString("ImageResult", BL_Exist, ((int)Defects.False_Defects[i].BL_num).ToString("F3"));
+
+                }
                 }
             if (Write_Mode == 1)
             {
@@ -2923,10 +2974,408 @@ namespace CheckPreformance
                         grt.SetString("ImageResult", True_Defect_, "2.000");
                         grt.SetString("ImageResult", Classification, ((int)Defects.Under_Defects[i].Name).ToString("F3"));
 
+                        string BF_Exist = string.Format("Defect{0}_BF_Exist", i);
+                        string DF_Exist = string.Format("Defect{0}_DF_Exist", i);
+                        string CX_Exist = string.Format("Defect{0}_CX_Exist", i);
+                        string BL_Exist = string.Format("Defect{0}_BL_Exist", i);
+
+                        grt.SetString("ImageResult", BF_Exist, "0.000");
+                        grt.SetString("ImageResult", DF_Exist, "0.000");
+                        grt.SetString("ImageResult", CX_Exist, "0.000");
+                        grt.SetString("ImageResult", BL_Exist, "0.000");
+
                     }
                 }
             }
         }
+
+        private void saveGrt_withFeature_bulider(string SaveAddress, Structure.ResultInfo Defects)
+        {
+            if (File.Exists(SaveAddress)) File.Delete(SaveAddress);
+
+
+            StringBuilder grt = new StringBuilder();// new IniReader(SaveAddress);
+
+
+
+
+            // foreach (Structure.ResultInfo defect in Defects)
+            {
+                double ground_tr = 0.000;
+                if (Defects.True_Defects.Count > 0) ground_tr = 1.000;
+                else
+                {
+                    if (Defects.Under_Defects != null)
+                    {
+                        if (Defects.Under_Defects.Count > 0) ground_tr = 1.000;
+                    }
+                }
+                grt.Append("[ImageResult]\n");
+                grt.AppendFormat("GroundTruth={0}\n", ground_tr.ToString("F3"));
+
+                //grt.SetString("ImageResult", "GroundTruth", ground_tr.ToString("F3"));// Defects.True_Defects.Count != 0 ? "1.000" : "0.000");
+                if (Write_Mode == 1)
+                {
+                    grt.AppendFormat("Blob_num_at_BF={0}\n", Defects.BF_Defects.Count().ToString("F3"));
+                    grt.AppendFormat("Blob_num_at_DF={0}\n", Defects.DF_Defects.Count().ToString("F3"));
+                    grt.AppendFormat("Blob_num_at_CX={0}\n", Defects.CO_Defects.Count().ToString("F3"));
+                    grt.AppendFormat("Blob_num_at_BL={0}\n", Defects.BL_Defects.Count().ToString("F3"));
+                }
+                else
+                {
+                    grt.AppendFormat("Blob_num_at_BF={0}\n", "0.000");
+                    grt.AppendFormat("Blob_num_at_DF={0}\n", "0.000");
+                    grt.AppendFormat("Blob_num_at_CX={0}\n", "0.000");
+                    grt.AppendFormat("Blob_num_at_BL={0}\n", "0.000");
+                }
+            }
+
+
+
+            for (int i = 0; i < Defects.True_Defects.Count; i++)
+            {
+                string Defect_centerx = string.Format("Defect{0}_CENTER_X", i);
+                string Defect_centery = string.Format("Defect{0}_CENTER_Y", i);
+                string Defect_w = string.Format("Defect{0}_WIDTH", i);
+                string Defect_h = string.Format("Defect{0}_HEIGHT", i);
+                string Defect_a = string.Format("Defect{0}_ANGLE", i);
+
+                string True_Defect = string.Format("Defect{0}_TrueDefect", i);
+
+                string Classification = string.Format("Defect{0}_Classification", i);
+                string BF_Exist = string.Format("Defect{0}_BF_Exist", i);
+                string DF_Exist = string.Format("Defect{0}_DF_Exist", i);
+                string CX_Exist = string.Format("Defect{0}_CX_Exist", i);
+                string BL_Exist = string.Format("Defect{0}_BL_Exist", i);
+
+                grt.AppendFormat("{0}={1}\n", Defect_centerx, Defects.True_Defects[i].cenx.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", Defect_centery, Defects.True_Defects[i].ceny.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", Defect_w, Defects.True_Defects[i].width.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", Defect_h, Defects.True_Defects[i].height.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", Defect_a, Defects.True_Defects[i].angle.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", True_Defect, "1.000");
+                grt.AppendFormat("{0}={1}\n", Classification, ((int)Defects.True_Defects[i].Name).ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", BF_Exist, ((int)Defects.True_Defects[i].BF_num).ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", DF_Exist, ((int)Defects.True_Defects[i].DF_num).ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", CX_Exist, ((int)Defects.True_Defects[i].CX_num).ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", BL_Exist, ((int)Defects.True_Defects[i].BL_num).ToString("F3"));
+
+            }
+
+            if (Defects.False_Defects.Count > 0)
+            {
+
+                for (int i = 0; i < Defects.False_Defects.Count; i++)
+                {
+                    int j = Defects.True_Defects.Count + i;
+                    string Defect_centerx = string.Format("Defect{0}_CENTER_X", j);
+                    string Defect_centery = string.Format("Defect{0}_CENTER_Y", j);
+                    string Defect_w = string.Format("Defect{0}_WIDTH", j);
+                    string Defect_h = string.Format("Defect{0}_HEIGHT", j);
+                    string Defect_a = string.Format("Defect{0}_ANGLE", j);
+                    string Classification = string.Format("Defect{0}_Classification", j);
+                    string True_Defect = string.Format("Defect{0}_TrueDefect", j);
+
+                    string BF_Exist = string.Format("Defect{0}_BF_Exist", j);
+                    string DF_Exist = string.Format("Defect{0}_DF_Exist", j);
+                    string CX_Exist = string.Format("Defect{0}_CX_Exist", j);
+                    string BL_Exist = string.Format("Defect{0}_BL_Exist", j);
+
+                    grt.AppendFormat("{0}={1}\n", Defect_centerx, Defects.False_Defects[i].cenx.ToString("F3"));
+                    grt.AppendFormat("{0}={1}\n", Defect_centery, Defects.False_Defects[i].ceny.ToString("F3"));
+                    grt.AppendFormat("{0}={1}\n", Defect_w, Defects.False_Defects[i].width.ToString("F3"));
+                    grt.AppendFormat("{0}={1}\n", Defect_h, Defects.False_Defects[i].height.ToString("F3"));
+                    grt.AppendFormat("{0}={1}\n", Defect_a, Defects.False_Defects[i].angle.ToString("F3"));
+                    grt.AppendFormat("{0}={1}\n", True_Defect, "-1.000");
+                    grt.AppendFormat("{0}={1}\n", Classification, ((int)Defects.False_Defects[i].Name).ToString("F3"));
+                                                          
+                    grt.AppendFormat("{0}={1}\n", BF_Exist, ((int)Defects.False_Defects[i].BF_num).ToString("F3"));
+                    grt.AppendFormat("{0}={1}\n", DF_Exist, ((int)Defects.False_Defects[i].DF_num).ToString("F3"));
+                    grt.AppendFormat("{0}={1}\n", CX_Exist, ((int)Defects.False_Defects[i].CX_num).ToString("F3"));
+                    grt.AppendFormat("{0}={1}\n", BL_Exist, ((int)Defects.False_Defects[i].BL_num).ToString("F3"));
+
+                }
+            }
+            if (Write_Mode == 1)
+            {
+                if (Defects.BF_Defects.Count + Defects.DF_Defects.Count + Defects.CO_Defects.Count + Defects.BL_Defects.Count > 0)
+                {
+                    grt.AppendFormat("[Blob_Info]\n");
+                    write_func_bulider(ref grt, 0, Defects, 0, 1);
+                    write_func_bulider(ref grt, Defects.True_BF_Defects.Count, Defects, 1, 1);
+                    write_func_bulider(ref grt, Defects.True_BF_Defects.Count + Defects.True_DF_Defects.Count, Defects, 2, 1);
+                    write_func_bulider(ref grt, Defects.True_BF_Defects.Count + Defects.True_DF_Defects.Count + Defects.True_CO_Defects.Count, Defects, 3, 1);
+                    write_func_bulider(ref grt, Defects.True_BF_Defects.Count + Defects.True_DF_Defects.Count + Defects.True_CO_Defects.Count + Defects.True_BL_Defects.Count, Defects, 0, 0);
+                    write_func_bulider(ref grt, Defects.True_BF_Defects.Count + Defects.True_DF_Defects.Count + Defects.True_CO_Defects.Count + Defects.True_BL_Defects.Count + Defects.False_BF_Defects.Count, Defects, 1, 0);
+                    write_func_bulider(ref grt, Defects.True_BF_Defects.Count + Defects.True_DF_Defects.Count + Defects.True_CO_Defects.Count + Defects.True_BL_Defects.Count + Defects.False_BF_Defects.Count + Defects.False_DF_Defects.Count, Defects, 2, 0);
+                    write_func_bulider(ref grt, Defects.True_BF_Defects.Count + Defects.True_DF_Defects.Count + Defects.True_CO_Defects.Count + Defects.True_BL_Defects.Count + Defects.False_BF_Defects.Count + Defects.False_DF_Defects.Count + Defects.False_CO_Defects.Count, Defects, 3, 0);
+                }
+                else
+                {
+                    int i = 0;
+                    string Defect_centerx = string.Format("Defect{0}_CENTER_X", i);
+                    string Defect_centery = string.Format("Defect{0}_CENTER_Y", i);
+                    string Defect_w = string.Format("Defect{0}_WIDTH", i);
+                    string Defect_h = string.Format("Defect{0}_HEIGHT", i);
+                    string Defect_a = string.Format("Defect{0}_ANGLE", i);
+                    string Classification = string.Format("Defect{0}_Classification", i);
+                    string True_Defect_ = string.Format("Defect{0}_TrueDefect", i);
+
+                    string True_Defect = string.Format("Blob{0}_TrueDefect", i);
+                    string BF = string.Format("Blob{0}_BF", i);
+                    string DF = string.Format("Blob{0}_DF", i);
+                    string CX = string.Format("Blob{0}_CX", i);
+                    string BL = string.Format("Blob{0}_BL", i);
+
+                    string _Defect_cenx = string.Format("Blob{0}_CENTER_X", i);
+                    string _Defect_ceny = string.Format("Blob{0}_CENTER_Y", i);
+                    string _Defect_w = string.Format("Blob{0}_WIDTH", i);
+                    string _Defect_h = string.Format("Blob{0}_HEIGHT", i);
+                    string _Defect_a = string.Format("Blob{0}_ANGLE", i);
+
+
+                    string _IN_at_BF = string.Format("Blob{0}_IN_at_BF", i);
+                    string _IN_at_DF = string.Format("Blob{0}_IN_at_DF", i);
+                    string _IN_at_CX = string.Format("Blob{0}_IN_at_CX", i);
+                    string _IN_at_BL = string.Format("Blob{0}_IN_at_BL", i);
+
+                    string _OUT_at_BF = string.Format("Blob{0}_OUT_at_BF", i);
+                    string _OUT_at_DF = string.Format("Blob{0}_OUT_at_DF", i);
+                    string _OUT_at_CX = string.Format("Blob{0}_OUT_at_CX", i);
+                    string _OUT_at_BL = string.Format("Blob{0}_OUT_at_BL", i);
+
+                    string _Defect_Location_BF = string.Format("Blob{0}_Defect_Location_BF", i);
+                    string _Defect_Location_DF = string.Format("Blob{0}_Defect_Location_DF", i);
+                    string _Defect_Location_CX = string.Format("Blob{0}_Defect_Location_CX", i);
+                    string _Defect_Location_BL = string.Format("Blob{0}_Defect_Location_BL", i);
+
+                    string _Pixel_num_BF = string.Format("Blob{0}_Pixel_num_BF", i);
+                    string _Pixel_num_DF = string.Format("Blob{0}_Pixel_num_DF", i);
+                    string _Pixel_num_CX = string.Format("Blob{0}_Pixel_num_CX", i);
+                    string _Pixel_num_BL = string.Format("Blob{0}_Pixel_num_BL", i);
+
+                    string _Average_Distance_BF = string.Format("Blob{0}_Average_Distance_BF", i);
+                    string _Average_Distance_DF = string.Format("Blob{0}_Average_Distance_DF", i);
+                    string _Average_Distance_CX = string.Format("Blob{0}_Average_Distance_CX", i);
+                    string _Average_Distance_BL = string.Format("Blob{0}_Average_Distance_BL", i);
+
+                    string _Centroid_Distance_BF = string.Format("Blob{0}_Centroid_Distance_BF", i);
+                    string _Centroid_Distance_DF = string.Format("Blob{0}_Centroid_Distance_DF", i);
+                    string _Centroid_Distance_CX = string.Format("Blob{0}_Centroid_Distance_CX", i);
+                    string _Centroid_Distance_BL = string.Format("Blob{0}_Centroid_Distance_BL", i);
+
+                    string _Long_Axis_BF = string.Format("Blob{0}_Long_Axis_BF", i);
+                    string _Long_Axis_DF = string.Format("Blob{0}_Long_Axis_DF", i);
+                    string _Long_Axis_CX = string.Format("Blob{0}_Long_Axis_CX", i);
+                    string _Long_Axis_BL = string.Format("Blob{0}_Long_Axis_BL", i);
+
+                    string _Short_Axis_BF = string.Format("Blob{0}_Short_Axis_BF", i);
+                    string _Short_Axis_DF = string.Format("Blob{0}_Short_Axis_DF", i);
+                    string _Short_Axis_CX = string.Format("Blob{0}_Short_Axis_CX", i);
+                    string _Short_Axis_BL = string.Format("Blob{0}_Short_Axis_BL", i);
+
+                    string _Long_Axis_angle_BF = string.Format("Blob{0}_Long_Axis_angle_BF", i);
+                    string _Long_Axis_angle_DF = string.Format("Blob{0}_Long_Axis_angle_DF", i);
+                    string _Long_Axis_angle_CX = string.Format("Blob{0}_Long_Axis_angle_CX", i);
+                    string _Long_Axis_angle_BL = string.Format("Blob{0}_Long_Axis_angle_BL", i);
+
+                    string _Short_Axis_angle_BF = string.Format("Blob{0}_Short_Axis_angle_BF", i);
+                    string _Short_Axis_angle_DF = string.Format("Blob{0}_Short_Axis_angle_DF", i);
+                    string _Short_Axis_angle_CX = string.Format("Blob{0}_Short_Axis_angle_CX", i);
+                    string _Short_Axis_angle_BL = string.Format("Blob{0}_Short_Axis_angle_BL", i);
+
+                    string _Average_R_BF = string.Format("Blob{0}_Average_R_BF", i);
+                    string _Average_R_DF = string.Format("Blob{0}_Average_R_DF", i);
+                    string _Average_R_CX = string.Format("Blob{0}_Average_R_CX", i);
+                    string _Average_R_BL = string.Format("Blob{0}_Average_R_BL", i);
+
+
+                    string _Average_G_BF = string.Format("Blob{0}_Average_G_BF", i);
+                    string _Average_G_DF = string.Format("Blob{0}_Average_G_DF", i);
+                    string _Average_G_CX = string.Format("Blob{0}_Average_G_CX", i);
+                    string _Average_G_BL = string.Format("Blob{0}_Average_G_BL", i);
+
+                    string _Average_B_BF = string.Format("Blob{0}_Average_B_BF", i);
+                    string _Average_B_DF = string.Format("Blob{0}_Average_B_DF", i);
+                    string _Average_B_CX = string.Format("Blob{0}_Average_B_CX", i);
+                    string _Average_B_BL = string.Format("Blob{0}_Average_B_BL", i);
+
+                    string _Average_I_BF = string.Format("Blob{0}_Average_I_BF", i);
+                    string _Average_I_DF = string.Format("Blob{0}_Average_I_DF", i);
+                    string _Average_I_CX = string.Format("Blob{0}_Average_I_CX", i);
+                    string _Average_I_BL = string.Format("Blob{0}_Average_I_BL", i);
+
+                    string BF_Exist = string.Format("Defect{0}_BF_Exist", i);
+                    string DF_Exist = string.Format("Defect{0}_DF_Exist", i);
+                    string CX_Exist = string.Format("Defect{0}_CX_Exist", i);
+                    string BL_Exist = string.Format("Defect{0}_BL_Exist", i);
+
+                    if (Defects.Under_Defects == null) Defects.Under_Defects = new List<Structure.Defect_struct>();
+
+                    if (Defects.Under_Defects.Count == 0)
+                    {
+                        //grt.AppendFormat("Blob_Info", True_Defect, "0.000");
+                        grt.AppendFormat("{0}={1}\n", Defect_centerx, "0.000");
+                        grt.AppendFormat("{0}={1}\n", Defect_centery, "0.000");
+                        grt.AppendFormat("{0}={1}\n", Defect_w, "0.000");
+                        grt.AppendFormat("{0}={1}\n", Defect_h, "0.000");
+                        grt.AppendFormat("{0}={1}\n", Defect_a, "0.000");
+                        grt.AppendFormat("{0}={1}\n", True_Defect_, "0.000");
+                        grt.AppendFormat("{0}={1}\n", Classification, "0.000");
+                        grt.AppendFormat("{0}={1}\n", BF_Exist, "0.000");
+                        grt.AppendFormat("{0}={1}\n", DF_Exist, "0.000");
+                        grt.AppendFormat("{0}={1}\n", CX_Exist, "0.000");
+                        grt.AppendFormat("{0}={1}\n", BL_Exist, "0.000");
+
+                    }
+                    else
+                    {
+
+                        for (int a = 0; i < Defects.Under_Defects.Count; i++)
+                        {
+
+                            int b = a + Defects.True_Defects.Count + Defects.False_Defects.Count;
+                            Defect_centerx = string.Format("Defect{0}_CENTER_X", b);
+                            Defect_centery = string.Format("Defect{0}_CENTER_Y", b);
+                            Defect_w = string.Format("Defect{0}_WIDTH", b);
+                            Defect_h = string.Format("Defect{0}_HEIGHT", b);
+                            Defect_a = string.Format("Defect{0}_ANGLE", b);
+                            Classification = string.Format("Defect{0}_Classification", b);
+                            True_Defect_ = string.Format("Defect{0}_TrueDefect", b);
+
+                            grt.AppendFormat("{0}={1}\n", Defect_centerx, Defects.Under_Defects[a].cenx.ToString("F3"));
+                            grt.AppendFormat("{0}={1}\n", Defect_centery, Defects.Under_Defects[a].ceny.ToString("F3"));
+                            grt.AppendFormat("{0}={1}\n", Defect_w, Defects.Under_Defects[a].width.ToString("F3"));
+                            grt.AppendFormat("{0}={1}\n", Defect_h, Defects.Under_Defects[a].height.ToString("F3"));
+                            grt.AppendFormat("{0}={1}\n", Defect_a, Defects.Under_Defects[a].angle.ToString("F3"));
+                            grt.AppendFormat("{0}={1}\n", True_Defect_, "2.000");
+                            grt.AppendFormat("{0}={1}\n", Classification, ((int)Defects.Under_Defects[a].Name).ToString("F3"));
+
+                        }
+                    }
+
+                    grt.Append("[Blob_Info]\n");
+                    grt.AppendFormat("{0}={1}\n", True_Defect, "0.000");
+                    grt.AppendFormat("{0}={1}\n", BF, "0.000");
+                    grt.AppendFormat("{0}={1}\n", DF, "0.000");
+                    grt.AppendFormat("{0}={1}\n", CX, "0.000");
+                    grt.AppendFormat("{0}={1}\n", BL, "0.000");
+
+                    Classification = string.Format("Blob{0}_Classification", i);
+                    grt.AppendFormat("{0}={1}\n", Classification, "0.000");
+
+                    grt.AppendFormat("{0}={1}\n", _Defect_cenx, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Defect_ceny, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Defect_w, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Defect_h, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Defect_a, "0.000");
+                                                          
+                    grt.AppendFormat("{0}={1}\n", _IN_at_BF, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _IN_at_DF, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _IN_at_CX, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _IN_at_BL, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _OUT_at_BF, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _OUT_at_DF, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _OUT_at_CX, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _OUT_at_BL, "0.000");
+                                                      
+                    grt.AppendFormat("{0}={1}\n", _Defect_Location_BF, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Defect_Location_DF, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Defect_Location_CX, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Defect_Location_BL, "0.000");
+                                                          
+                                                          
+                    grt.AppendFormat("{0}={1}\n", _Pixel_num_BF, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Pixel_num_DF, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Pixel_num_CX, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Pixel_num_BL, "0.000");
+                                                          
+                    grt.AppendFormat("{0}={1}\n", _Average_Distance_BF, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Average_Distance_DF, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Average_Distance_CX, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Average_Distance_BL, "0.000");
+                                                          
+                    grt.AppendFormat("{0}={1}\n", _Centroid_Distance_BF, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Centroid_Distance_DF, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Centroid_Distance_CX, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Centroid_Distance_BL, "0.000");
+                                                          
+                    grt.AppendFormat("{0}={1}\n", _Long_Axis_BF, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Long_Axis_DF, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Long_Axis_CX, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Long_Axis_BL, "0.000");
+                                                         
+                    grt.AppendFormat("{0}={1}\n", _Short_Axis_BF, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Short_Axis_DF, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Short_Axis_CX, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Short_Axis_BL, "0.000");
+                                                          
+                    grt.AppendFormat("{0}={1}\n", _Average_R_BF, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Average_R_DF, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Average_R_CX, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Average_R_BL, "0.000");
+                                                          
+                    grt.AppendFormat("{0}={1}\n", _Average_G_BF, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Average_G_DF, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Average_G_CX, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Average_G_BL, "0.000");
+                                                         
+                    grt.AppendFormat("{0}={1}\n", _Average_B_BF, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Average_B_DF, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Average_B_CX, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Average_B_BL, "0.000");
+                                                          
+                    grt.AppendFormat("{0}={1}\n", _Average_I_BF, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Average_I_DF, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Average_I_CX, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Average_I_BL, "0.000");
+                }
+            }
+
+
+            if (Defects.Under_Defects != null)
+            {
+                if (Defects.Under_Defects.Count > 0)
+                {
+                    for (int i = 0; i < Defects.Under_Defects.Count; i++)
+                    {
+                        int b = Defects.False_Defects.Count + Defects.True_Defects.Count + i;
+                        string Defect_centerx = string.Format("Defect{0}_CENTER_X", b);
+                        string Defect_centery = string.Format("Defect{0}_CENTER_Y", b);
+                        string Defect_w = string.Format("Defect{0}_WIDTH", b);
+                        string Defect_h = string.Format("Defect{0}_HEIGHT", b);
+                        string Defect_a = string.Format("Defect{0}_ANGLE", b);
+                        string Classification = string.Format("Defect{0}_Classification", b);
+                        string True_Defect_ = string.Format("Defect{0}_TrueDefect", b);
+
+                        grt.AppendFormat("{0}={1}\n", Defect_centerx, Defects.Under_Defects[i].cenx.ToString("F3"));
+                        grt.AppendFormat("{0}={1}\n", Defect_centery, Defects.Under_Defects[i].ceny.ToString("F3"));
+                        grt.AppendFormat("{0}={1}\n", Defect_w, Defects.Under_Defects[i].width.ToString("F3"));
+                        grt.AppendFormat("{0}={1}\n", Defect_h, Defects.Under_Defects[i].height.ToString("F3"));
+                        grt.AppendFormat("{0}={1}\n", Defect_a, Defects.Under_Defects[i].angle.ToString("F3"));
+                        grt.AppendFormat("{0}={1}\n", True_Defect_, "2.000");
+                        grt.AppendFormat("{0}={1}\n", Classification, ((int)Defects.Under_Defects[i].Name).ToString("F3"));
+
+                        string BF_Exist = string.Format("Defect{0}_BF_Exist", i);
+                        string DF_Exist = string.Format("Defect{0}_DF_Exist", i);
+                        string CX_Exist = string.Format("Defect{0}_CX_Exist", i);
+                        string BL_Exist = string.Format("Defect{0}_BL_Exist", i);
+
+                        grt.AppendFormat("{0}={1}\n", BF_Exist, "0.000");
+                        grt.AppendFormat("{0}={1}\n", DF_Exist, "0.000");
+                        grt.AppendFormat("{0}={1}\n", CX_Exist, "0.000");
+                        grt.AppendFormat("{0}={1}\n", BL_Exist, "0.000");
+
+                    }
+                }
+            }
+
+            StreamWriter sss = new StreamWriter(SaveAddress);
+            sss.Write(grt.ToString());
+            sss.Close();
+        }
+
+
         /// <summary>
         /// 
         /// </summary>
@@ -3183,6 +3632,254 @@ namespace CheckPreformance
                 grt.SetString("Blob_info", _Average_I_DF, temp_Df_struct[j].Avg_I.ToString("F3"));
                 grt.SetString("Blob_info", _Average_I_CX, temp_Co_struct[j].Avg_I.ToString("F3"));
                 grt.SetString("Blob_info", _Average_I_BL, temp_BL_struct[j].Avg_I.ToString("F3"));
+            }
+        }
+
+        private void write_func_bulider(ref StringBuilder grt, int i, Structure.ResultInfo Defects, int defect_mode, int TrueFalse)
+        {
+
+            List<Structure.Defect_struct> temp_Bf_struct = null;
+            List<Structure.Defect_struct> temp_Df_struct = null;
+            List<Structure.Defect_struct> temp_Co_struct = null;
+            List<Structure.Defect_struct> temp_BL_struct = null;
+            int defect_num = 0;
+
+
+            switch (defect_mode)
+            {
+                case 0:
+                    if (TrueFalse == 1) temp_Bf_struct = Defects.True_BF_Defects;
+                    else temp_Bf_struct = Defects.False_BF_Defects;
+                    //temp_Bf_struct = Defects.BF_Defects;// Defects.True_BF_Defects.FindAll(x => x.blob_ind == Defects.True_Defects[i].blob_ind);
+                    temp_Df_struct = new List<Structure.Defect_struct>(new Structure.Defect_struct[temp_Bf_struct.Count]);
+                    temp_Co_struct = new List<Structure.Defect_struct>(new Structure.Defect_struct[temp_Bf_struct.Count]);
+                    temp_BL_struct = new List<Structure.Defect_struct>(new Structure.Defect_struct[temp_Bf_struct.Count]);
+                    defect_num = temp_Bf_struct.Count;
+                    break;
+                case 1:
+                    if (TrueFalse == 1) temp_Df_struct = Defects.True_DF_Defects;
+                    else temp_Df_struct = Defects.False_DF_Defects;
+                    //temp_Df_struct = Defects.True_DF_Defects.FindAll(x => x.blob_ind == Defects.True_Defects[i].blob_ind);
+                    temp_Bf_struct = new List<Structure.Defect_struct>(new Structure.Defect_struct[temp_Df_struct.Count]);
+                    temp_Co_struct = new List<Structure.Defect_struct>(new Structure.Defect_struct[temp_Df_struct.Count]);
+                    temp_BL_struct = new List<Structure.Defect_struct>(new Structure.Defect_struct[temp_Df_struct.Count]);
+                    defect_num = temp_Df_struct.Count;
+                    break;
+                case 2:
+                    if (TrueFalse == 1) temp_Co_struct = Defects.True_CO_Defects;
+                    else temp_Co_struct = Defects.False_CO_Defects;
+                    // temp_Co_struct = Defects.True_CO_Defects.FindAll(x => x.blob_ind == Defects.True_Defects[i].blob_ind);
+                    temp_Bf_struct = new List<Structure.Defect_struct>(new Structure.Defect_struct[temp_Co_struct.Count]);
+                    temp_Df_struct = new List<Structure.Defect_struct>(new Structure.Defect_struct[temp_Co_struct.Count]);
+                    temp_BL_struct = new List<Structure.Defect_struct>(new Structure.Defect_struct[temp_Co_struct.Count]);
+                    defect_num = temp_Co_struct.Count;
+                    break;
+                case 3:
+                    if (TrueFalse == 1) temp_BL_struct = Defects.True_BL_Defects;
+                    else temp_BL_struct = Defects.False_BL_Defects;
+                    // temp_Co_struct = Defects.True_CO_Defects.FindAll(x => x.blob_ind == Defects.True_Defects[i].blob_ind);
+                    temp_Bf_struct = new List<Structure.Defect_struct>(new Structure.Defect_struct[temp_BL_struct.Count]);
+                    temp_Df_struct = new List<Structure.Defect_struct>(new Structure.Defect_struct[temp_BL_struct.Count]);
+                    temp_Co_struct = new List<Structure.Defect_struct>(new Structure.Defect_struct[temp_BL_struct.Count]);
+                    defect_num = temp_BL_struct.Count;
+                    break;
+            }
+
+
+
+
+            for (int j = 0; j < defect_num; j++)
+            {
+                #region format
+                string Defect_centerx = string.Format("Blob{0}_CENTER_X", i + j);
+                string Defect_centery = string.Format("Blob{0}_CENTER_Y", i + j);
+                string Defect_w = string.Format("Blob{0}_WIDTH", i + j);
+                string Defect_h = string.Format("Blob{0}_HEIGHT", i + j);
+                string Defect_a = string.Format("Blob{0}_ANGLE", i + j);
+
+                string True_Defect = string.Format("Blob{0}_TrueDefect", i + j);
+                string BF = string.Format("Blob{0}_BF", i + j);
+                string DF = string.Format("Blob{0}_DF", i + j);
+                string CX = string.Format("Blob{0}_CX", i + j);
+                string BL = string.Format("Blob{0}_BL", i + j);
+                string Classification = string.Format("Blob{0}_Classification", i + j);
+
+                string _IN_at_BF = string.Format("Blob{0}_IN_at_BF", i + j);
+                string _IN_at_DF = string.Format("Blob{0}_IN_at_DF", i + j);
+                string _IN_at_CX = string.Format("Blob{0}_IN_at_CX", i + j);
+                string _IN_at_BL = string.Format("Blob{0}_IN_at_BL", i + j);
+
+                string _OUT_at_BF = string.Format("Blob{0}_OUT_at_BF", i + j);
+                string _OUT_at_DF = string.Format("Blob{0}_OUT_at_DF", i + j);
+                string _OUT_at_CX = string.Format("Blob{0}_OUT_at_CX", i + j);
+                string _OUT_at_BL = string.Format("Blob{0}_OUT_at_BL", i + j);
+
+                string _Defect_Location_BF = string.Format("Blob{0}_Defect_Location_BF", i + j);
+                string _Defect_Location_DF = string.Format("Blob{0}_Defect_Location_DF", i + j);
+                string _Defect_Location_CX = string.Format("Blob{0}_Defect_Location_CX", i + j);
+                string _Defect_Location_BL = string.Format("Blob{0}_Defect_Location_BL", i + j);
+
+                string _Pixel_num_BF = string.Format("Blob{0}_Pixel_num_BF", i + j);
+                string _Pixel_num_DF = string.Format("Blob{0}_Pixel_num_DF", i + j);
+                string _Pixel_num_CX = string.Format("Blob{0}_Pixel_num_CX", i + j);
+                string _Pixel_num_BL = string.Format("Blob{0}_Pixel_num_BL", i + j);
+
+                string _Average_Distance_BF = string.Format("Blob{0}_Average_Distance_BF", i + j);
+                string _Average_Distance_DF = string.Format("Blob{0}_Average_Distance_DF", i + j);
+                string _Average_Distance_CX = string.Format("Blob{0}_Average_Distance_CX", i + j);
+                string _Average_Distance_BL = string.Format("Blob{0}_Average_Distance_BL", i + j);
+
+                string _Centroid_Distance_BF = string.Format("Blob{0}_Centroid_Distance_BF", i + j);
+                string _Centroid_Distance_DF = string.Format("Blob{0}_Centroid_Distance_DF", i + j);
+                string _Centroid_Distance_CX = string.Format("Blob{0}_Centroid_Distance_CX", i + j);
+                string _Centroid_Distance_BL = string.Format("Blob{0}_Centroid_Distance_BL", i + j);
+
+                string _Long_Axis_BF = string.Format("Blob{0}_Long_Axis_BF", i + j);
+                string _Long_Axis_DF = string.Format("Blob{0}_Long_Axis_DF", i + j);
+                string _Long_Axis_CX = string.Format("Blob{0}_Long_Axis_CX", i + j);
+                string _Long_Axis_BL = string.Format("Blob{0}_Long_Axis_BL", i + j);
+
+                string _Short_Axis_BF = string.Format("Blob{0}_Short_Axis_BF", i + j);
+                string _Short_Axis_DF = string.Format("Blob{0}_Short_Axis_DF", i + j);
+                string _Short_Axis_CX = string.Format("Blob{0}_Short_Axis_CX", i + j);
+                string _Short_Axis_BL = string.Format("Blob{0}_Short_Axis_BL", i + j);
+
+                string _Long_Axis_angle_BF = string.Format("Blob{0}_Long_Axis_angle_BF", i + j);
+                string _Long_Axis_angle_DF = string.Format("Blob{0}_Long_Axis_angle_DF", i + j);
+                string _Long_Axis_angle_CX = string.Format("Blob{0}_Long_Axis_angle_CX", i + j);
+                string _Long_Axis_angle_BL = string.Format("Blob{0}_Long_Axis_angle_BL", i + j);
+
+                string _Short_Axis_angle_BF = string.Format("Blob{0}_Short_Axis_angle_BF", i + j);
+                string _Short_Axis_angle_DF = string.Format("Blob{0}_Short_Axis_angle_DF", i + j);
+                string _Short_Axis_angle_CX = string.Format("Blob{0}_Short_Axis_angle_CX", i + j);
+                string _Short_Axis_angle_BL = string.Format("Blob{0}_Short_Axis_angle_BL", i + j);
+
+                string _Average_R_BF = string.Format("Blob{0}_Average_R_BF", i + j);
+                string _Average_R_DF = string.Format("Blob{0}_Average_R_DF", i + j);
+                string _Average_R_CX = string.Format("Blob{0}_Average_R_CX", i + j);
+                string _Average_R_BL = string.Format("Blob{0}_Average_R_BL", i + j);
+
+                string _Average_G_BF = string.Format("Blob{0}_Average_G_BF", i + j);
+                string _Average_G_DF = string.Format("Blob{0}_Average_G_DF", i + j);
+                string _Average_G_CX = string.Format("Blob{0}_Average_G_CX", i + j);
+                string _Average_G_BL = string.Format("Blob{0}_Average_G_BL", i + j);
+
+                string _Average_B_BF = string.Format("Blob{0}_Average_B_BF", i + j);
+                string _Average_B_DF = string.Format("Blob{0}_Average_B_DF", i + j);
+                string _Average_B_CX = string.Format("Blob{0}_Average_B_CX", i + j);
+                string _Average_B_BL = string.Format("Blob{0}_Average_B_BL", i + j);
+
+                string _Average_I_BF = string.Format("Blob{0}_Average_I_BF", i + j);
+                string _Average_I_DF = string.Format("Blob{0}_Average_I_DF", i + j);
+                string _Average_I_CX = string.Format("Blob{0}_Average_I_CX", i + j);
+                string _Average_I_BL = string.Format("Blob{0}_Average_I_BL", i + j);
+                #endregion
+
+                grt.AppendFormat("{0}={1}\n", True_Defect, TrueFalse == 1 ? "1.000" : "-1.000");
+
+                grt.AppendFormat("{0}={1}\n", BF, defect_mode == 0 ? "1.000" : "-1.000");
+                grt.AppendFormat("{0}={1}\n", DF, defect_mode == 1 ? "1.000" : "-1.000");
+                grt.AppendFormat("{0}={1}\n", CX, defect_mode == 2 ? "1.000" : "-1.000");
+                grt.AppendFormat("{0}={1}\n", BL, defect_mode == 3 ? "1.000" : "-1.000");
+
+                if (defect_mode == 0) grt.AppendFormat("{0}={1}\n", Classification, ((int)temp_Bf_struct[j].Name).ToString("F3"));
+                else if (defect_mode == 1) grt.AppendFormat("{0}={1}\n", Classification, ((int)temp_Df_struct[j].Name).ToString("F3"));
+                else if (defect_mode == 2) grt.AppendFormat("{0}={1}\n", Classification, ((int)temp_Co_struct[j].Name).ToString("F3"));
+                else grt.AppendFormat("{0}={1}\n", Classification, ((int)temp_BL_struct[j].Name).ToString("F3"));
+
+
+                if (defect_mode == 0)
+                {
+                    grt.AppendFormat("{0}={1}\n", Defect_centerx, temp_Bf_struct[j].cenx.ToString("F3"));
+                    grt.AppendFormat("{0}={1}\n", Defect_centery, temp_Bf_struct[j].ceny.ToString("F3"));
+                    grt.AppendFormat("{0}={1}\n", Defect_w, temp_Bf_struct[j].width.ToString("F3"));
+                    grt.AppendFormat("{0}={1}\n", Defect_h, temp_Bf_struct[j].height.ToString("F3"));
+                    grt.AppendFormat("{0}={1}\n", Defect_a, temp_Bf_struct[j].angle.ToString("F3"));
+                }
+                else if (defect_mode == 1)
+                {
+                    grt.AppendFormat("{0}={1}\n", Defect_centerx, temp_Df_struct[j].cenx.ToString("F3"));
+                    grt.AppendFormat("{0}={1}\n", Defect_centery, temp_Df_struct[j].ceny.ToString("F3"));
+                    grt.AppendFormat("{0}={1}\n", Defect_w, temp_Df_struct[j].width.ToString("F3"));
+                    grt.AppendFormat("{0}={1}\n", Defect_h, temp_Df_struct[j].height.ToString("F3"));
+                    grt.AppendFormat("{0}={1}\n", Defect_a, temp_Df_struct[j].angle.ToString("F3"));
+                }
+                else if (defect_mode == 2)
+                {
+                    grt.AppendFormat("{0}={1}\n", Defect_centerx, temp_Co_struct[j].cenx.ToString("F3"));
+                    grt.AppendFormat("{0}={1}\n", Defect_centery, temp_Co_struct[j].ceny.ToString("F3"));
+                    grt.AppendFormat("{0}={1}\n", Defect_w, temp_Co_struct[j].width.ToString("F3"));
+                    grt.AppendFormat("{0}={1}\n", Defect_h, temp_Co_struct[j].height.ToString("F3"));
+                    grt.AppendFormat("{0}={1}\n", Defect_a, temp_Co_struct[j].angle.ToString("F3"));
+                }
+                else
+                {
+                    grt.AppendFormat("{0}={1}\n", Defect_centerx, temp_BL_struct[j].cenx.ToString("F3"));
+                    grt.AppendFormat("{0}={1}\n", Defect_centery, temp_BL_struct[j].ceny.ToString("F3"));
+                    grt.AppendFormat("{0}={1}\n", Defect_w, temp_BL_struct[j].width.ToString("F3"));
+                    grt.AppendFormat("{0}={1}\n", Defect_h, temp_BL_struct[j].height.ToString("F3"));
+                    grt.AppendFormat("{0}={1}\n", Defect_a, temp_BL_struct[j].angle.ToString("F3"));
+                }
+
+                grt.AppendFormat("{0}={1}\n", _IN_at_BF, temp_Bf_struct[j].In.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _IN_at_DF, temp_Df_struct[j].In.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _IN_at_CX, temp_Co_struct[j].In.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _IN_at_BL, temp_BL_struct[j].In.ToString("F3"));
+                                                      
+                grt.AppendFormat("{0}={1}\n", _OUT_at_BF, temp_Bf_struct[j].Out.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _OUT_at_DF, temp_Df_struct[j].Out.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _OUT_at_CX, temp_Co_struct[j].Out.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _OUT_at_BL, temp_BL_struct[j].Out.ToString("F3"));
+                                                      
+                grt.AppendFormat("{0}={1}\n", _Defect_Location_BF, temp_Bf_struct[j].Defect_Location.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _Defect_Location_DF, temp_Df_struct[j].Defect_Location.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _Defect_Location_CX, temp_Co_struct[j].Defect_Location.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _Defect_Location_BL, temp_BL_struct[j].Defect_Location.ToString("F3"));
+                                                      
+                grt.AppendFormat("{0}={1}\n", _Pixel_num_BF, temp_Bf_struct[j].Pixel_num.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _Pixel_num_DF, temp_Df_struct[j].Pixel_num.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _Pixel_num_CX, temp_Co_struct[j].Pixel_num.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _Pixel_num_BL, temp_BL_struct[j].Pixel_num.ToString("F3"));
+                                                      
+                grt.AppendFormat("{0}={1}\n", _Average_Distance_BF, temp_Bf_struct[j].Average_Distance.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _Average_Distance_DF, temp_Df_struct[j].Average_Distance.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _Average_Distance_CX, temp_Co_struct[j].Average_Distance.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _Average_Distance_BL, temp_BL_struct[j].Average_Distance.ToString("F3"));
+                                                      
+                grt.AppendFormat("{0}={1}\n", _Centroid_Distance_BF, temp_Bf_struct[j].Centroid_Distance.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _Centroid_Distance_DF, temp_Df_struct[j].Centroid_Distance.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _Centroid_Distance_CX, temp_Co_struct[j].Centroid_Distance.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _Centroid_Distance_BL, temp_BL_struct[j].Centroid_Distance.ToString("F3"));
+                                                    
+                grt.AppendFormat("{0}={1}\n", _Long_Axis_BF, temp_Bf_struct[j].Long_Axis_len.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _Long_Axis_DF, temp_Df_struct[j].Long_Axis_len.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _Long_Axis_CX, temp_Co_struct[j].Long_Axis_len.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _Long_Axis_BL, temp_BL_struct[j].Long_Axis_len.ToString("F3"));
+                                                      
+                grt.AppendFormat("{0}={1}\n", _Short_Axis_BF, temp_Bf_struct[j].Short_Axis_len.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _Short_Axis_DF, temp_Df_struct[j].Short_Axis_len.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _Short_Axis_CX, temp_Co_struct[j].Short_Axis_len.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _Short_Axis_BL, temp_BL_struct[j].Short_Axis_len.ToString("F3"));
+                                                      
+                grt.AppendFormat("{0}={1}\n", _Average_R_BF, temp_Bf_struct[j].Avg_R.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _Average_R_DF, temp_Df_struct[j].Avg_R.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _Average_R_CX, temp_Co_struct[j].Avg_R.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _Average_R_BL, temp_BL_struct[j].Avg_R.ToString("F3"));
+                                                      
+                grt.AppendFormat("{0}={1}\n", _Average_G_BF, temp_Bf_struct[j].Avg_G.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _Average_G_DF, temp_Df_struct[j].Avg_G.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _Average_G_CX, temp_Co_struct[j].Avg_G.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _Average_G_BL, temp_BL_struct[j].Avg_G.ToString("F3"));
+                                                      
+                grt.AppendFormat("{0}={1}\n", _Average_B_BF, temp_Bf_struct[j].Avg_B.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _Average_B_DF, temp_Df_struct[j].Avg_B.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _Average_B_CX, temp_Co_struct[j].Avg_B.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _Average_B_BL, temp_BL_struct[j].Avg_B.ToString("F3"));
+                                                      
+                grt.AppendFormat("{0}={1}\n", _Average_I_BF, temp_Bf_struct[j].Avg_I.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _Average_I_DF, temp_Df_struct[j].Avg_I.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _Average_I_CX, temp_Co_struct[j].Avg_I.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _Average_I_BL, temp_BL_struct[j].Avg_I.ToString("F3"));
             }
         }
 
@@ -3570,7 +4267,7 @@ namespace CheckPreformance
         private void CheckPerform_btn_Click(object sender, RoutedEventArgs e)
         {
 
-            RootAdderss = @"\\192.168.2.170\Insert\###_BatchTest_Image_Set\KPTK\고배율위치\깨짐\CVD_Gold\WNMGCQ_GT\Rename";
+            RootAdderss = @"X:\###_BatchTest_Image_Set\KPTK\고배율위치\깨짐\CVD_Gold\groundtruth\Rename";
             //Writer = new StreamWriter(string.Format("{0}\\Perfomance.csv", RootAdderss), true, Encoding.Default);
             //Writer.WriteLine("이미지,Detect, UnderKill, OverKill, 먼지, 부착, 막벗겨짐, 스크레치, 텍스쳐, 기타");
             CompareWithGT();
@@ -3619,8 +4316,8 @@ namespace CheckPreformance
                 Total_data.BL_Defects = temp_dat.BL_Defects;
 
                 intersection_Defect_(Total_data);
-                string save__name = grt.Directory+"\\"+grt.Name.Split('.')[0] + "_re.txt";
-                saveGrt_withFeature_(save__name, Total_data);
+                string save__name = grt.Directory+"\\"+grt.Name.Split('.')[0] + "_re2.txt";
+                saveGrt_withFeature_bulider(save__name, Total_data);
 
 
                //*CheckCompareResult(temp_GT, temp_dat);
