@@ -937,12 +937,7 @@ namespace CheckPreformance
                 HTuple deg = new HTuple(d.angle);
                 HOperatorSet.GenEmptyObj(out temp_rect);
 
-                HTuple len1, len2;
-
-                HOperatorSet.TupleMax2(d.height / 2, d.width / 2, out len1);
-                HOperatorSet.TupleMin2(d.height / 2, d.width / 2, out len2);
-
-                HOperatorSet.GenRectangle2(out temp_rect, d.ceny, d.cenx, deg.TupleRad(), len1, len2);
+                HOperatorSet.GenRectangle2(out temp_rect, d.ceny, d.cenx, -deg.TupleRad(), d.width/2, d.height/2);
                 HOperatorSet.Union2(DefectRegion, temp_rect, out DefectRegion);
             }
             if (info.BF_Defects != null)
@@ -951,7 +946,7 @@ namespace CheckPreformance
                 {
                     HTuple deg = new HTuple(d.angle);
                     HOperatorSet.GenEmptyObj(out temp_rect);
-                    HOperatorSet.GenRectangle2(out temp_rect, d.ceny, d.cenx, deg.TupleRad(), d.height / 2, d.width / 2);
+                    HOperatorSet.GenRectangle2(out temp_rect, d.ceny, d.cenx, -deg.TupleRad(), d.width / 2, d.height / 2);
                     HOperatorSet.Union2(DefectRegion_BF, temp_rect, out DefectRegion_BF);
                 }
             }
@@ -961,7 +956,7 @@ namespace CheckPreformance
                 {
                     HTuple deg = new HTuple(d.angle);
                     HOperatorSet.GenEmptyObj(out temp_rect);
-                    HOperatorSet.GenRectangle2(out temp_rect, d.ceny, d.cenx, deg.TupleRad(), d.height / 2, d.width / 2);
+                    HOperatorSet.GenRectangle2(out temp_rect, d.ceny, d.cenx, -deg.TupleRad(), d.width / 2, d.height / 2);
                     HOperatorSet.Union2(DefectRegion_DF, temp_rect, out DefectRegion_DF);
                 }
             }
@@ -971,7 +966,7 @@ namespace CheckPreformance
                 {
                     HTuple deg = new HTuple(d.angle);
                     HOperatorSet.GenEmptyObj(out temp_rect);
-                    HOperatorSet.GenRectangle2(out temp_rect, d.ceny, d.cenx, deg.TupleRad(), d.height / 2, d.width / 2);
+                    HOperatorSet.GenRectangle2(out temp_rect, d.ceny, d.cenx, -deg.TupleRad(), d.width / 2, d.height / 2);
                     HOperatorSet.Union2(DefectRegion_CO, temp_rect, out DefectRegion_CO);
                 }
             }
@@ -981,7 +976,7 @@ namespace CheckPreformance
                 {
                     HTuple deg = new HTuple(d.angle);
                     HOperatorSet.GenEmptyObj(out temp_rect);
-                    HOperatorSet.GenRectangle2(out temp_rect, d.ceny, d.cenx, deg.TupleRad(), d.height / 2, d.width / 2);
+                    HOperatorSet.GenRectangle2(out temp_rect, d.ceny, d.cenx, -deg.TupleRad(), d.width / 2, d.height / 2);
                     HOperatorSet.Union2(DefectRegion_BL, temp_rect, out DefectRegion_BL);
                 }
             }
@@ -1072,12 +1067,47 @@ namespace CheckPreformance
                 info.False_BL_Defects = new List<Structure.Defect_struct>();
 
 
+                //HObject test_rect;
+                //HOperatorSet.GenEmptyObj(out test_rect);
+
+                //    for (int i = 0; i < info.True_Defects.Count; i++)
+                //    {
+                //        Structure.Defect_struct real_d = info.True_Defects[i];
+                //        HOperatorSet.GenEmptyObj(out RealDefect_rgn);
+                //        //if (real_d.height >= real_d.width)
+                //        //{ HOperatorSet.GenRectangle2(out RealDefect_rgn, real_d.ceny, real_d.cenx, new HTuple(real_d.angle).TupleRad(), real_d.height / 2, real_d.width / 2); }
+                //        //else
+                //        { HOperatorSet.GenRectangle2(out RealDefect_rgn, real_d.ceny, real_d.cenx, -new HTuple(real_d.angle).TupleRad(), real_d.width / 2, real_d.height / 2); }
+                //    HOperatorSet.Union2(test_rect, RealDefect_rgn, out test_rect);
+                //    }
+
+                //HOperatorSet.WriteObject(test_rect, "test.hobj");
+
+                //HOperatorSet.GenEmptyObj(out test_rect);
+
+                //for (int i = 0; i < info.False_Defects.Count; i++)
+                //{
+                //    Structure.Defect_struct real_d = info.False_Defects[i];
+                //    HOperatorSet.GenEmptyObj(out RealDefect_rgn);
+                //    //if (real_d.height >= real_d.width)
+                //    //{ HOperatorSet.GenRectangle2(out RealDefect_rgn, real_d.ceny, real_d.cenx, new HTuple(real_d.angle).TupleRad(), real_d.height / 2, real_d.width / 2); }
+                //    //else
+                //    { HOperatorSet.GenRectangle2(out RealDefect_rgn, real_d.ceny, real_d.cenx, -new HTuple(real_d.angle).TupleRad(), real_d.width / 2, real_d.height / 2); }
+                //    HOperatorSet.Union2(test_rect, RealDefect_rgn, out test_rect);
+                //}
+
+                //HOperatorSet.WriteObject(test_rect, "test2.hobj");
+
+
                 // foreach (Structure.Defect_struct real_d in info.True_Defects)
                 for (int i = 0; i < info.True_Defects.Count; i++)
                 {
                     Structure.Defect_struct real_d = info.True_Defects[i];
                     HOperatorSet.GenEmptyObj(out RealDefect_rgn);
-                    HOperatorSet.GenRectangle2(out RealDefect_rgn, real_d.ceny, real_d.cenx, new HTuple(real_d.angle).TupleRad(), real_d.height / 2, real_d.width / 2);
+                    //if (real_d.height >= real_d.width)
+                    //{ HOperatorSet.GenRectangle2(out RealDefect_rgn, real_d.ceny, real_d.cenx, new HTuple(real_d.angle).TupleRad(), real_d.height / 2, real_d.width / 2); }
+                    //else
+                    { HOperatorSet.GenRectangle2(out RealDefect_rgn, real_d.ceny, real_d.cenx,-new HTuple(real_d.angle).TupleRad(), real_d.width / 2, real_d.height / 2); }
                     int bf_exist = 0;
                     int df_exist = 0;
                     int cx_exist = 0;
@@ -1087,7 +1117,14 @@ namespace CheckPreformance
                     {
                         HTuple deg = new HTuple(d.angle);
                         HOperatorSet.GenEmptyObj(out temp_rect);
-                        HOperatorSet.GenRectangle2(out temp_rect, d.ceny, d.cenx, deg.TupleRad(), d.height / 2, d.width / 2);
+                        //if (d.height >= d.width)
+                        //{
+                        //    HOperatorSet.GenRectangle2(out temp_rect, d.ceny, d.cenx, deg.TupleRad(), d.height / 2, d.width / 2);
+                        //}
+                        //else
+                        {
+                            HOperatorSet.GenRectangle2(out temp_rect, d.ceny, d.cenx, -deg.TupleRad(), d.width / 2, d.height / 2);
+                        }
                         HOperatorSet.GenEmptyObj(out intersection_rgn);
                         HOperatorSet.Intersection(RealDefect_rgn, temp_rect, out intersection_rgn);
                         HOperatorSet.RegionFeatures(intersection_rgn, "area", out blob_area);
@@ -1106,7 +1143,14 @@ namespace CheckPreformance
                     {
                         HTuple deg = new HTuple(d.angle);
                         HOperatorSet.GenEmptyObj(out temp_rect);
-                        HOperatorSet.GenRectangle2(out temp_rect, d.ceny, d.cenx, deg.TupleRad(), d.height / 2, d.width / 2);
+                        //if (d.height >= d.width)
+                        //{
+                        //    HOperatorSet.GenRectangle2(out temp_rect, d.ceny, d.cenx, deg.TupleRad(), d.height / 2, d.width / 2);
+                        //}
+                        //else
+                        {
+                            HOperatorSet.GenRectangle2(out temp_rect, d.ceny, d.cenx, -deg.TupleRad(), d.width / 2, d.height / 2);
+                        }
                         HOperatorSet.GenEmptyObj(out intersection_rgn);
                         HOperatorSet.Intersection(RealDefect_rgn, temp_rect, out intersection_rgn);
                         HOperatorSet.RegionFeatures(intersection_rgn, "area", out blob_area);
@@ -1124,7 +1168,14 @@ namespace CheckPreformance
                     {
                         HTuple deg = new HTuple(d.angle);
                         HOperatorSet.GenEmptyObj(out temp_rect);
-                        HOperatorSet.GenRectangle2(out temp_rect, d.ceny, d.cenx, deg.TupleRad(), d.height / 2, d.width / 2);
+                        //if (d.height >= d.width)
+                        //{
+                        //    HOperatorSet.GenRectangle2(out temp_rect, d.ceny, d.cenx, deg.TupleRad(), d.height / 2, d.width / 2);
+                        //}
+                        //else
+                        {
+                            HOperatorSet.GenRectangle2(out temp_rect, d.ceny, d.cenx, -deg.TupleRad(), d.width / 2, d.height / 2);
+                        }
                         HOperatorSet.GenEmptyObj(out intersection_rgn);
                         HOperatorSet.Intersection(RealDefect_rgn, temp_rect, out intersection_rgn);
                         HOperatorSet.RegionFeatures(intersection_rgn, "area", out blob_area);
@@ -1142,7 +1193,14 @@ namespace CheckPreformance
                     {
                         HTuple deg = new HTuple(d.angle);
                         HOperatorSet.GenEmptyObj(out temp_rect);
-                        HOperatorSet.GenRectangle2(out temp_rect, d.ceny, d.cenx, deg.TupleRad(), d.height / 2, d.width / 2);
+                        //if (d.height >= d.width)
+                        //{
+                        //    HOperatorSet.GenRectangle2(out temp_rect, d.ceny, d.cenx, deg.TupleRad(), d.height / 2, d.width / 2);
+                        //}
+                        //else
+                        {
+                            HOperatorSet.GenRectangle2(out temp_rect, d.ceny, d.cenx, -deg.TupleRad(), d.width / 2, d.height / 2);
+                        }
                         HOperatorSet.GenEmptyObj(out intersection_rgn);
                         HOperatorSet.Intersection(RealDefect_rgn, temp_rect, out intersection_rgn);
                         HOperatorSet.RegionFeatures(intersection_rgn, "area", out blob_area);
@@ -1175,13 +1233,28 @@ namespace CheckPreformance
 
                     Structure.Defect_struct real_d = info.False_Defects[i];
                     HOperatorSet.GenEmptyObj(out FasleDefct_rgn);
-                    HOperatorSet.GenRectangle2(out FasleDefct_rgn, real_d.ceny, real_d.cenx, new HTuple(real_d.angle).TupleRad(), real_d.height / 2, real_d.width / 2);
+                    //if (real_d.height >= real_d.width)
+                    //{
+                    //    HOperatorSet.GenRectangle2(out FasleDefct_rgn, real_d.ceny, real_d.cenx, new HTuple(real_d.angle).TupleRad(), real_d.height / 2, real_d.width / 2);
+                    //}
+                    //else
+                    {
+                        HOperatorSet.GenRectangle2(out FasleDefct_rgn, real_d.ceny, real_d.cenx, -new HTuple(real_d.angle).TupleRad(), real_d.width / 2, real_d.height / 2);
+                    }
+                    //HOperatorSet.GenRectangle2(out FasleDefct_rgn, real_d.ceny, real_d.cenx, new HTuple(real_d.angle).TupleRad(), real_d.height / 2, real_d.width / 2);
 
                     foreach (Structure.Defect_struct d in info.BF_Defects)
                     {
                         HTuple deg = new HTuple(d.angle);
                         HOperatorSet.GenEmptyObj(out temp_rect);
-                        HOperatorSet.GenRectangle2(out temp_rect, d.ceny, d.cenx, deg.TupleRad(), d.height / 2, d.width / 2);
+                        //if (d.height >= d.width)
+                        //{
+                        //    HOperatorSet.GenRectangle2(out temp_rect, d.ceny, d.cenx, deg.TupleRad(), d.height / 2, d.width / 2);
+                        //}
+                        //else
+                        {
+                            HOperatorSet.GenRectangle2(out temp_rect, d.ceny, d.cenx, -deg.TupleRad(), d.width / 2, d.height / 2);
+                        }
                         HOperatorSet.GenEmptyObj(out intersection_rgn);
                         HOperatorSet.Intersection(FasleDefct_rgn, temp_rect, out intersection_rgn);
                         HOperatorSet.RegionFeatures(intersection_rgn, "area", out blob_area);
@@ -1199,7 +1272,14 @@ namespace CheckPreformance
                     {
                         HTuple deg = new HTuple(d.angle);
                         HOperatorSet.GenEmptyObj(out temp_rect);
-                        HOperatorSet.GenRectangle2(out temp_rect, d.ceny, d.cenx, deg.TupleRad(), d.height / 2, d.width / 2);
+                        //if (d.height >= d.width)
+                        //{
+                        //    HOperatorSet.GenRectangle2(out temp_rect, d.ceny, d.cenx, deg.TupleRad(), d.height / 2, d.width / 2);
+                        //}
+                        //else
+                        {
+                            HOperatorSet.GenRectangle2(out temp_rect, d.ceny, d.cenx, -deg.TupleRad(), d.width / 2, d.height / 2);
+                        }
                         HOperatorSet.GenEmptyObj(out intersection_rgn);
                         HOperatorSet.Intersection(FasleDefct_rgn, temp_rect, out intersection_rgn);
                         HOperatorSet.RegionFeatures(intersection_rgn, "area", out blob_area);
@@ -1217,7 +1297,14 @@ namespace CheckPreformance
                     {
                         HTuple deg = new HTuple(d.angle);
                         HOperatorSet.GenEmptyObj(out temp_rect);
-                        HOperatorSet.GenRectangle2(out temp_rect, d.ceny, d.cenx, deg.TupleRad(), d.height / 2, d.width / 2);
+                        //if (d.height >= d.width)
+                        //{
+                        //    HOperatorSet.GenRectangle2(out temp_rect, d.ceny, d.cenx, deg.TupleRad(), d.height / 2, d.width / 2);
+                        //}
+                        //else
+                        {
+                            HOperatorSet.GenRectangle2(out temp_rect, d.ceny, d.cenx, -deg.TupleRad(), d.width / 2, d.height / 2);
+                        }
                         HOperatorSet.GenEmptyObj(out intersection_rgn);
                         HOperatorSet.Intersection(FasleDefct_rgn, temp_rect, out intersection_rgn);
                         HOperatorSet.RegionFeatures(intersection_rgn, "area", out blob_area);
@@ -1234,7 +1321,14 @@ namespace CheckPreformance
                     {
                         HTuple deg = new HTuple(d.angle);
                         HOperatorSet.GenEmptyObj(out temp_rect);
-                        HOperatorSet.GenRectangle2(out temp_rect, d.ceny, d.cenx, deg.TupleRad(), d.height / 2, d.width / 2);
+                        //if (d.height >= d.width)
+                        //{
+                        //    HOperatorSet.GenRectangle2(out temp_rect, d.ceny, d.cenx, deg.TupleRad(), d.height / 2, d.width / 2);
+                        //}
+                        //else
+                        {
+                            HOperatorSet.GenRectangle2(out temp_rect, d.ceny, d.cenx, -deg.TupleRad(), d.width / 2, d.height / 2);
+                        }
                         HOperatorSet.GenEmptyObj(out intersection_rgn);
                         HOperatorSet.Intersection(FasleDefct_rgn, temp_rect, out intersection_rgn);
                         HOperatorSet.RegionFeatures(intersection_rgn, "area", out blob_area);
@@ -1267,7 +1361,7 @@ namespace CheckPreformance
 
             HOperatorSet.GenEmptyObj(out temp_rect);
             HTuple deg = new HTuple(defect.angle);
-            HOperatorSet.GenRectangle2(out temp_rect, defect.ceny, defect.cenx, deg.TupleRad(), defect.height/2, defect.width/2);
+            HOperatorSet.GenRectangle2(out temp_rect, defect.ceny, defect.cenx, -deg.TupleRad(), defect.width/2, defect.height/2);
 
             return temp_rect;
         }
@@ -4267,9 +4361,10 @@ namespace CheckPreformance
         private void CheckPerform_btn_Click(object sender, RoutedEventArgs e)
         {
 
-            RootAdderss = @"X:\###_BatchTest_Image_Set\KPTK\고배율위치\깨짐\CVD_Gold\groundtruth\Rename";
+            RootAdderss = @"\\192.168.1.170\Insert\###_BatchTest_Image_Set\KPTK\고배율위치\깨짐\CVD_Gold\groundtruth\Rename";
             //Writer = new StreamWriter(string.Format("{0}\\Perfomance.csv", RootAdderss), true, Encoding.Default);
             //Writer.WriteLine("이미지,Detect, UnderKill, OverKill, 먼지, 부착, 막벗겨짐, 스크레치, 텍스쳐, 기타");
+      
             CompareWithGT();
             //Writer.Close();
         }
