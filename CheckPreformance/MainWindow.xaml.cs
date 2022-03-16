@@ -86,6 +86,7 @@ namespace CheckPreformance
                 cmb_DC.Items.Add((Structure.Defect_Classification)(i + 1));
             }
 
+            change_markingImg();
 
             // Halcon_Window.MouseLeftButtonDown+= HWindowControl1_HMouseDown;
             Halcon_Window.HMouseDown += HWindowControl1_HMouseDown;
@@ -94,6 +95,7 @@ namespace CheckPreformance
             this.KeyDown += MainWindow_KeyDown;
 
             ModeSet();
+
         }
 
         private void ModeSet()
@@ -653,6 +655,8 @@ namespace CheckPreformance
                     temp.Avg_R = result.GetDouble("DF", string.Format("DEFECT{0}_Avg_R", i));
                     temp.Avg_G = result.GetDouble("DF", string.Format("DEFECT{0}_Avg_G", i));
                     temp.Avg_B = result.GetDouble("DF", string.Format("DEFECT{0}_Avg_B", i));
+                    temp.Avg_H = result.GetDouble("DF", string.Format("DEFECT{0}_Avg_H", i));
+                    temp.Avg_S = result.GetDouble("DF", string.Format("DEFECT{0}_Avg_S", i));
                     temp.Avg_I = result.GetDouble("DF", string.Format("DEFECT{0}_Avg_I", i));
 
                     info.DF_Defects.Add(temp);
@@ -693,6 +697,8 @@ namespace CheckPreformance
                     temp.Avg_R = result.GetDouble("BF", string.Format("DEFECT{0}_Avg_R", i));
                     temp.Avg_G = result.GetDouble("BF", string.Format("DEFECT{0}_Avg_G", i));
                     temp.Avg_B = result.GetDouble("BF", string.Format("DEFECT{0}_Avg_B", i));
+                    temp.Avg_H= result.GetDouble("BF", string.Format("DEFECT{0}_Avg_H", i));
+                    temp.Avg_S = result.GetDouble("BF", string.Format("DEFECT{0}_Avg_S", i));
                     temp.Avg_I = result.GetDouble("BF", string.Format("DEFECT{0}_Avg_I", i));
 
                     info.BF_Defects.Add(temp);
@@ -734,6 +740,8 @@ namespace CheckPreformance
                     temp.Avg_R = result.GetDouble("CO", string.Format("DEFECT{0}_Avg_R", i));
                     temp.Avg_G = result.GetDouble("CO", string.Format("DEFECT{0}_Avg_G", i));
                     temp.Avg_B = result.GetDouble("CO", string.Format("DEFECT{0}_Avg_B", i));
+                    temp.Avg_H = result.GetDouble("CO", string.Format("DEFECT{0}_Avg_H", i));
+                    temp.Avg_S = result.GetDouble("CO", string.Format("DEFECT{0}_Avg_S", i));
                     temp.Avg_I = result.GetDouble("CO", string.Format("DEFECT{0}_Avg_I", i));
 
                     info.CO_Defects.Add(temp);
@@ -775,6 +783,8 @@ namespace CheckPreformance
                     temp.Avg_R = result.GetDouble("BL", string.Format("DEFECT{0}_Avg_R", i));
                     temp.Avg_G = result.GetDouble("BL", string.Format("DEFECT{0}_Avg_G", i));
                     temp.Avg_B = result.GetDouble("BL", string.Format("DEFECT{0}_Avg_B", i));
+                    temp.Avg_H = result.GetDouble("BL", string.Format("DEFECT{0}_Avg_H", i));
+                    temp.Avg_S = result.GetDouble("BL", string.Format("DEFECT{0}_Avg_S", i));
                     temp.Avg_I = result.GetDouble("BL", string.Format("DEFECT{0}_Avg_I", i));
 
                     info.BL_Defects.Add(temp);
@@ -1981,6 +1991,17 @@ namespace CheckPreformance
                 string _Average_B_CX = string.Format("Blob{0}_Average_B_CX", i);
                 string _Average_B_BL = string.Format("Blob{0}_Average_B_BL", i);
 
+
+                string _Average_H_BF = string.Format("Blob{0}_Average_H_BF", i);
+                string _Average_H_DF = string.Format("Blob{0}_Average_H_DF", i);
+                string _Average_H_CX = string.Format("Blob{0}_Average_H_CX", i);
+                string _Average_H_BL = string.Format("Blob{0}_Average_H_BL", i);
+
+                string _Average_S_BF = string.Format("Blob{0}_Average_S_BF", i);
+                string _Average_S_DF = string.Format("Blob{0}_Average_S_DF", i);
+                string _Average_S_CX = string.Format("Blob{0}_Average_S_CX", i);
+                string _Average_S_BL = string.Format("Blob{0}_Average_S_BL", i);
+
                 string _Average_I_BF = string.Format("Blob{0}_Average_I_BF", i);
                 string _Average_I_DF = string.Format("Blob{0}_Average_I_DF", i);
                 string _Average_I_CX = string.Format("Blob{0}_Average_I_CX", i);
@@ -2043,6 +2064,17 @@ namespace CheckPreformance
                 grt.SetString("Blob_info", _Short_Axis_CX, TrueDefect[i].Real_CO_Defects[0].Short_Axis_len.ToString("F3"));
                 grt.SetString("Blob_info", _Short_Axis_BL, TrueDefect[i].Real_BL_Defects[0].Short_Axis_len.ToString("F3"));
 
+                grt.SetString("Blob_info", _Long_Axis_angle_BF, TrueDefect[i].Real_BF_Defects[0].Long_Axis_angle.ToString("F3"));
+                grt.SetString("Blob_info", _Long_Axis_angle_DF, TrueDefect[i].Real_DF_Defects[0].Long_Axis_angle.ToString("F3"));
+                grt.SetString("Blob_info", _Long_Axis_angle_CX, TrueDefect[i].Real_CO_Defects[0].Long_Axis_angle.ToString("F3"));
+                grt.SetString("Blob_info", _Long_Axis_angle_BL, TrueDefect[i].Real_BL_Defects[0].Long_Axis_angle.ToString("F3"));
+
+                grt.SetString("Blob_info", _Short_Axis_angle_BF, TrueDefect[i].Real_BF_Defects[0].Short_Axis_angle.ToString("F3"));
+                grt.SetString("Blob_info", _Short_Axis_angle_DF, TrueDefect[i].Real_DF_Defects[0].Short_Axis_angle.ToString("F3"));
+                grt.SetString("Blob_info", _Short_Axis_angle_CX, TrueDefect[i].Real_CO_Defects[0].Short_Axis_angle.ToString("F3"));
+                grt.SetString("Blob_info", _Short_Axis_angle_BL, TrueDefect[i].Real_BL_Defects[0].Short_Axis_angle.ToString("F3"));
+
+
                 grt.SetString("Blob_info", _Average_R_BF, TrueDefect[i].Real_BF_Defects[0].Avg_R.ToString("F3"));
                 grt.SetString("Blob_info", _Average_R_DF, TrueDefect[i].Real_DF_Defects[0].Avg_R.ToString("F3"));
                 grt.SetString("Blob_info", _Average_R_CX, TrueDefect[i].Real_CO_Defects[0].Avg_R.ToString("F3"));
@@ -2057,6 +2089,16 @@ namespace CheckPreformance
                 grt.SetString("Blob_info", _Average_B_DF, TrueDefect[i].Real_DF_Defects[0].Avg_B.ToString("F3"));
                 grt.SetString("Blob_info", _Average_B_CX, TrueDefect[i].Real_CO_Defects[0].Avg_B.ToString("F3"));
                 grt.SetString("Blob_info", _Average_B_BL, TrueDefect[i].Real_BL_Defects[0].Avg_B.ToString("F3"));
+
+                grt.SetString("Blob_info", _Average_H_BF, TrueDefect[i].Real_BF_Defects[0].Avg_H.ToString("F3"));
+                grt.SetString("Blob_info", _Average_H_DF, TrueDefect[i].Real_DF_Defects[0].Avg_H.ToString("F3"));
+                grt.SetString("Blob_info", _Average_H_CX, TrueDefect[i].Real_CO_Defects[0].Avg_H.ToString("F3"));
+                grt.SetString("Blob_info", _Average_H_BL, TrueDefect[i].Real_BL_Defects[0].Avg_H.ToString("F3"));
+
+                grt.SetString("Blob_info", _Average_S_BF, TrueDefect[i].Real_BF_Defects[0].Avg_S.ToString("F3"));
+                grt.SetString("Blob_info", _Average_S_DF, TrueDefect[i].Real_DF_Defects[0].Avg_S.ToString("F3"));
+                grt.SetString("Blob_info", _Average_S_CX, TrueDefect[i].Real_CO_Defects[0].Avg_S.ToString("F3"));
+                grt.SetString("Blob_info", _Average_S_BL, TrueDefect[i].Real_BL_Defects[0].Avg_S.ToString("F3"));
 
 
                 grt.SetString("Blob_info", _Average_I_BF, TrueDefect[i].Real_BF_Defects[0].Avg_I.ToString("F3"));
@@ -2145,6 +2187,16 @@ namespace CheckPreformance
                 string _Average_B_CX = string.Format("Blob{0}_Average_B_CX", i);
                 string _Average_B_BL = string.Format("Blob{0}_Average_B_BL", i);
 
+                string _Average_H_BF = string.Format("Blob{0}_Average_H_BF", i);
+                string _Average_H_DF = string.Format("Blob{0}_Average_H_DF", i);
+                string _Average_H_CX = string.Format("Blob{0}_Average_H_CX", i);
+                string _Average_H_BL = string.Format("Blob{0}_Average_H_BL", i);
+
+                string _Average_S_BF = string.Format("Blob{0}_Average_S_BF", i);
+                string _Average_S_DF = string.Format("Blob{0}_Average_S_DF", i);
+                string _Average_S_CX = string.Format("Blob{0}_Average_S_CX", i);
+                string _Average_S_BL = string.Format("Blob{0}_Average_S_BL", i);
+
                 string _Average_I_BF = string.Format("Blob{0}_Average_I_BF", i);
                 string _Average_I_DF = string.Format("Blob{0}_Average_I_DF", i);
                 string _Average_I_CX = string.Format("Blob{0}_Average_I_CX", i);
@@ -2208,6 +2260,17 @@ namespace CheckPreformance
                 grt.SetString("Blob_info", _Short_Axis_CX, TrueDefect[i].Real_CO_Defects[0].Short_Axis_len.ToString("F3"));
                 grt.SetString("Blob_info", _Short_Axis_BL, TrueDefect[i].Real_BL_Defects[0].Short_Axis_len.ToString("F3"));
 
+                grt.SetString("Blob_info", _Long_Axis_angle_BF, TrueDefect[i].Real_BF_Defects[0].Long_Axis_angle.ToString("F3"));
+                grt.SetString("Blob_info", _Long_Axis_angle_DF, TrueDefect[i].Real_DF_Defects[0].Long_Axis_angle.ToString("F3"));
+                grt.SetString("Blob_info", _Long_Axis_angle_CX, TrueDefect[i].Real_CO_Defects[0].Long_Axis_angle.ToString("F3"));
+                grt.SetString("Blob_info", _Long_Axis_angle_BL, TrueDefect[i].Real_BL_Defects[0].Long_Axis_angle.ToString("F3"));
+
+                grt.SetString("Blob_info", _Short_Axis_angle_BF, TrueDefect[i].Real_BF_Defects[0].Short_Axis_angle.ToString("F3"));
+                grt.SetString("Blob_info", _Short_Axis_angle_DF, TrueDefect[i].Real_DF_Defects[0].Short_Axis_angle.ToString("F3"));
+                grt.SetString("Blob_info", _Short_Axis_angle_CX, TrueDefect[i].Real_CO_Defects[0].Short_Axis_angle.ToString("F3"));
+                grt.SetString("Blob_info", _Short_Axis_angle_BL, TrueDefect[i].Real_BL_Defects[0].Short_Axis_angle.ToString("F3"));
+
+
                 grt.SetString("Blob_info", _Average_R_BF, TrueDefect[i].Real_BF_Defects[0].Avg_R.ToString("F3"));
                 grt.SetString("Blob_info", _Average_R_DF, TrueDefect[i].Real_DF_Defects[0].Avg_R.ToString("F3"));
                 grt.SetString("Blob_info", _Average_R_CX, TrueDefect[i].Real_CO_Defects[0].Avg_R.ToString("F3"));
@@ -2222,6 +2285,19 @@ namespace CheckPreformance
                 grt.SetString("Blob_info", _Average_B_DF, TrueDefect[i].Real_DF_Defects[0].Avg_B.ToString("F3"));
                 grt.SetString("Blob_info", _Average_B_CX, TrueDefect[i].Real_CO_Defects[0].Avg_B.ToString("F3"));
                 grt.SetString("Blob_info", _Average_B_BL, TrueDefect[i].Real_BL_Defects[0].Avg_B.ToString("F3"));
+
+
+                grt.SetString("Blob_info", _Average_H_BF, TrueDefect[i].Real_BF_Defects[0].Avg_H.ToString("F3"));
+                grt.SetString("Blob_info", _Average_H_DF, TrueDefect[i].Real_DF_Defects[0].Avg_H.ToString("F3"));
+                grt.SetString("Blob_info", _Average_H_CX, TrueDefect[i].Real_CO_Defects[0].Avg_H.ToString("F3"));
+                grt.SetString("Blob_info", _Average_H_BL, TrueDefect[i].Real_BL_Defects[0].Avg_H.ToString("F3"));
+
+                grt.SetString("Blob_info", _Average_S_BF, TrueDefect[i].Real_BF_Defects[0].Avg_S.ToString("F3"));
+                grt.SetString("Blob_info", _Average_S_DF, TrueDefect[i].Real_DF_Defects[0].Avg_S.ToString("F3"));
+                grt.SetString("Blob_info", _Average_S_CX, TrueDefect[i].Real_CO_Defects[0].Avg_S.ToString("F3"));
+                grt.SetString("Blob_info", _Average_S_BL, TrueDefect[i].Real_BL_Defects[0].Avg_S.ToString("F3"));
+
+
 
                 grt.SetString("Blob_info", _Average_I_BF, TrueDefect[i].Real_BF_Defects[0].Avg_I.ToString("F3"));
                 grt.SetString("Blob_info", _Average_I_DF, TrueDefect[i].Real_DF_Defects[0].Avg_I.ToString("F3"));
@@ -2332,6 +2408,16 @@ namespace CheckPreformance
                     string _Average_B_CX = string.Format("Blob{0}_Average_B_CX", i);
                     string _Average_B_BL = string.Format("Blob{0}_Average_B_BL", i);
 
+                    string _Average_H_BF = string.Format("Blob{0}_Average_H_BF", i);
+                    string _Average_H_DF = string.Format("Blob{0}_Average_H_DF", i);
+                    string _Average_H_CX = string.Format("Blob{0}_Average_H_CX", i);
+                    string _Average_H_BL = string.Format("Blob{0}_Average_H_BL", i);
+
+                    string _Average_S_BF = string.Format("Blob{0}_Average_S_BF", i);
+                    string _Average_S_DF = string.Format("Blob{0}_Average_S_DF", i);
+                    string _Average_S_CX = string.Format("Blob{0}_Average_S_CX", i);
+                    string _Average_S_BL = string.Format("Blob{0}_Average_S_BL", i);
+
                     string _Average_I_BF = string.Format("Blob{0}_Average_I_BF", i);
                     string _Average_I_DF = string.Format("Blob{0}_Average_I_DF", i);
                     string _Average_I_CX = string.Format("Blob{0}_Average_I_CX", i);
@@ -2394,6 +2480,15 @@ namespace CheckPreformance
                     grt.SetString("Blob_info", _Short_Axis_CX, temp_Co_struct.Short_Axis_len.ToString("F3"));
 
 
+                    grt.SetString("Blob_info", _Long_Axis_angle_BF, temp_Bf_struct.Long_Axis_angle. ToString("F3"));
+                    grt.SetString("Blob_info", _Long_Axis_angle_DF, temp_Df_struct.Long_Axis_angle.ToString("F3"));
+                    grt.SetString("Blob_info", _Long_Axis_angle_CX, temp_Co_struct.Long_Axis_angle.ToString("F3"));
+
+                    grt.SetString("Blob_info", _Short_Axis_angle_BF, temp_Bf_struct.Short_Axis_angle.ToString("F3"));
+                    grt.SetString("Blob_info", _Short_Axis_angle_DF, temp_Df_struct.Short_Axis_angle.ToString("F3"));
+                    grt.SetString("Blob_info", _Short_Axis_angle_CX, temp_Co_struct.Short_Axis_angle.ToString("F3"));
+
+
                     grt.SetString("Blob_info", _Average_R_BF, temp_Bf_struct.Avg_R.ToString("F3"));
                     grt.SetString("Blob_info", _Average_R_DF, temp_Df_struct.Avg_R.ToString("F3"));
                     grt.SetString("Blob_info", _Average_R_CX, temp_Co_struct.Avg_R.ToString("F3"));
@@ -2405,6 +2500,14 @@ namespace CheckPreformance
                     grt.SetString("Blob_info", _Average_B_BF, temp_Bf_struct.Avg_B.ToString("F3"));
                     grt.SetString("Blob_info", _Average_B_DF, temp_Df_struct.Avg_B.ToString("F3"));
                     grt.SetString("Blob_info", _Average_B_CX, temp_Co_struct.Avg_B.ToString("F3"));
+
+                    grt.SetString("Blob_info", _Average_H_BF, temp_Bf_struct.Avg_H.ToString("F3"));
+                    grt.SetString("Blob_info", _Average_H_DF, temp_Df_struct.Avg_H.ToString("F3"));
+                    grt.SetString("Blob_info", _Average_H_CX, temp_Co_struct.Avg_H.ToString("F3"));
+
+                    grt.SetString("Blob_info", _Average_S_BF, temp_Bf_struct.Avg_S.ToString("F3"));
+                    grt.SetString("Blob_info", _Average_S_DF, temp_Df_struct.Avg_S.ToString("F3"));
+                    grt.SetString("Blob_info", _Average_S_CX, temp_Co_struct.Avg_S.ToString("F3"));
 
                     grt.SetString("Blob_info", _Average_I_BF, temp_Bf_struct.Avg_I.ToString("F3"));
                     grt.SetString("Blob_info", _Average_I_DF, temp_Df_struct.Avg_I.ToString("F3"));
@@ -2494,6 +2597,17 @@ namespace CheckPreformance
                     string _Average_B_CX = string.Format("Blob{0}_Average_B_CX", i);
                     string _Average_B_BL = string.Format("Blob{0}_Average_B_BL", i);
 
+                    string _Average_H_BF = string.Format("Blob{0}_Average_H_BF", i);
+                    string _Average_H_DF = string.Format("Blob{0}_Average_H_DF", i);
+                    string _Average_H_CX = string.Format("Blob{0}_Average_H_CX", i);
+                    string _Average_H_BL = string.Format("Blob{0}_Average_H_BL", i);
+
+                    string _Average_S_BF = string.Format("Blob{0}_Average_S_BF", i);
+                    string _Average_S_DF = string.Format("Blob{0}_Average_S_DF", i);
+                    string _Average_S_CX = string.Format("Blob{0}_Average_S_CX", i);
+                    string _Average_S_BL = string.Format("Blob{0}_Average_S_BL", i);
+
+
                     string _Average_I_BF = string.Format("Blob{0}_Average_I_BF", i);
                     string _Average_I_DF = string.Format("Blob{0}_Average_I_DF", i);
                     string _Average_I_CX = string.Format("Blob{0}_Average_I_CX", i);
@@ -2552,6 +2666,14 @@ namespace CheckPreformance
                     grt.SetString("Blob_info", _Short_Axis_DF, temp_Df_struct.Short_Axis_len.ToString("F3"));
                     grt.SetString("Blob_info", _Short_Axis_CX, temp_Co_struct.Short_Axis_len.ToString("F3"));
 
+                    grt.SetString("Blob_info", _Long_Axis_angle_BF, temp_Bf_struct.Long_Axis_angle.ToString("F3"));
+                    grt.SetString("Blob_info", _Long_Axis_angle_DF, temp_Df_struct.Long_Axis_angle.ToString("F3"));
+                    grt.SetString("Blob_info", _Long_Axis_angle_CX, temp_Co_struct.Long_Axis_angle.ToString("F3"));
+
+                    grt.SetString("Blob_info", _Short_Axis_angle_BF, temp_Bf_struct.Short_Axis_angle.ToString("F3"));
+                    grt.SetString("Blob_info", _Short_Axis_angle_DF, temp_Df_struct.Short_Axis_angle.ToString("F3"));
+                    grt.SetString("Blob_info", _Short_Axis_angle_CX, temp_Co_struct.Short_Axis_angle.ToString("F3"));
+
 
                     grt.SetString("Blob_info", _Average_R_BF, temp_Bf_struct.Avg_R.ToString("F3"));
                     grt.SetString("Blob_info", _Average_R_DF, temp_Df_struct.Avg_R.ToString("F3"));
@@ -2564,6 +2686,15 @@ namespace CheckPreformance
                     grt.SetString("Blob_info", _Average_B_BF, temp_Bf_struct.Avg_B.ToString("F3"));
                     grt.SetString("Blob_info", _Average_B_DF, temp_Df_struct.Avg_B.ToString("F3"));
                     grt.SetString("Blob_info", _Average_B_CX, temp_Co_struct.Avg_B.ToString("F3"));
+
+                    grt.SetString("Blob_info", _Average_H_BF, temp_Bf_struct.Avg_H.ToString("F3"));
+                    grt.SetString("Blob_info", _Average_H_DF, temp_Df_struct.Avg_H.ToString("F3"));
+                    grt.SetString("Blob_info", _Average_H_CX, temp_Co_struct.Avg_H.ToString("F3"));
+
+                    grt.SetString("Blob_info", _Average_S_BF, temp_Bf_struct.Avg_S.ToString("F3"));
+                    grt.SetString("Blob_info", _Average_S_DF, temp_Df_struct.Avg_S.ToString("F3"));
+                    grt.SetString("Blob_info", _Average_S_CX, temp_Co_struct.Avg_S.ToString("F3"));
+
 
                     grt.SetString("Blob_info", _Average_I_BF, temp_Bf_struct.Avg_I.ToString("F3"));
                     grt.SetString("Blob_info", _Average_I_DF, temp_Df_struct.Avg_I.ToString("F3"));
@@ -2636,6 +2767,15 @@ namespace CheckPreformance
                 string _Average_B_DF = string.Format("Blob{0}_Average_B_DF", i);
                 string _Average_B_CX = string.Format("Blob{0}_Average_B_CX", i);
 
+
+                string _Average_H_BF = string.Format("Blob{0}_Average_H_BF", i);
+                string _Average_H_DF = string.Format("Blob{0}_Average_H_DF", i);
+                string _Average_H_CX = string.Format("Blob{0}_Average_H_CX", i);
+
+                string _Average_S_BF = string.Format("Blob{0}_Average_S_BF", i);
+                string _Average_S_DF = string.Format("Blob{0}_Average_S_DF", i);
+                string _Average_S_CX = string.Format("Blob{0}_Average_S_CX", i);
+
                 string _Average_I_BF = string.Format("Blob{0}_Average_I_BF", i);
                 string _Average_I_DF = string.Format("Blob{0}_Average_I_DF", i);
                 string _Average_I_CX = string.Format("Blob{0}_Average_I_CX", i);
@@ -2702,6 +2842,15 @@ namespace CheckPreformance
                 grt.SetString("Blob_info", _Average_B_BF, "0.000");
                 grt.SetString("Blob_info", _Average_B_DF, "0.000");
                 grt.SetString("Blob_info", _Average_B_CX, "0.000");
+
+                grt.SetString("Blob_info", _Average_H_BF, "0.000");
+                grt.SetString("Blob_info", _Average_H_DF, "0.000");
+                grt.SetString("Blob_info", _Average_H_CX, "0.000");
+
+                grt.SetString("Blob_info", _Average_S_BF, "0.000");
+                grt.SetString("Blob_info", _Average_S_DF, "0.000");
+                grt.SetString("Blob_info", _Average_S_CX, "0.000");
+
 
                 grt.SetString("Blob_info", _Average_I_BF, "0.000");
                 grt.SetString("Blob_info", _Average_I_DF, "0.000");
@@ -2917,6 +3066,17 @@ namespace CheckPreformance
                     string _Average_B_CX = string.Format("Blob{0}_Average_B_CX", i);
                     string _Average_B_BL = string.Format("Blob{0}_Average_B_BL", i);
 
+
+                    string _Average_H_BF = string.Format("Blob{0}_Average_H_BF", i);
+                    string _Average_H_DF = string.Format("Blob{0}_Average_H_DF", i);
+                    string _Average_H_CX = string.Format("Blob{0}_Average_H_CX", i);
+                    string _Average_H_BL = string.Format("Blob{0}_Average_H_BL", i);
+
+                    string _Average_S_BF = string.Format("Blob{0}_Average_S_BF", i);
+                    string _Average_S_DF = string.Format("Blob{0}_Average_S_DF", i);
+                    string _Average_S_CX = string.Format("Blob{0}_Average_S_CX", i);
+                    string _Average_S_BL = string.Format("Blob{0}_Average_S_BL", i);
+
                     string _Average_I_BF = string.Format("Blob{0}_Average_I_BF", i);
                     string _Average_I_DF = string.Format("Blob{0}_Average_I_DF", i);
                     string _Average_I_CX = string.Format("Blob{0}_Average_I_CX", i);
@@ -3036,6 +3196,16 @@ namespace CheckPreformance
                     grt.SetString("Blob_info", _Average_B_DF, "0.000");
                     grt.SetString("Blob_info", _Average_B_CX, "0.000");
                     grt.SetString("Blob_info", _Average_B_BL, "0.000");
+
+                    grt.SetString("Blob_info", _Average_H_BF, "0.000");
+                    grt.SetString("Blob_info", _Average_H_DF, "0.000");
+                    grt.SetString("Blob_info", _Average_H_CX, "0.000");
+                    grt.SetString("Blob_info", _Average_H_BL, "0.000");
+
+                    grt.SetString("Blob_info", _Average_S_BF, "0.000");
+                    grt.SetString("Blob_info", _Average_S_DF, "0.000");
+                    grt.SetString("Blob_info", _Average_S_CX, "0.000");
+                    grt.SetString("Blob_info", _Average_S_BL, "0.000");
 
                     grt.SetString("Blob_info", _Average_I_BF, "0.000");
                     grt.SetString("Blob_info", _Average_I_DF, "0.000");
@@ -3294,6 +3464,17 @@ namespace CheckPreformance
                     string _Average_B_CX = string.Format("Blob{0}_Average_B_CX", i);
                     string _Average_B_BL = string.Format("Blob{0}_Average_B_BL", i);
 
+                    string _Average_H_BF = string.Format("Blob{0}_Average_H_BF", i);
+                    string _Average_H_DF = string.Format("Blob{0}_Average_H_DF", i);
+                    string _Average_H_CX = string.Format("Blob{0}_Average_H_CX", i);
+                    string _Average_H_BL = string.Format("Blob{0}_Average_H_BL", i);
+
+                    string _Average_S_BF = string.Format("Blob{0}_Average_S_BF", i);
+                    string _Average_S_DF = string.Format("Blob{0}_Average_S_DF", i);
+                    string _Average_S_CX = string.Format("Blob{0}_Average_S_CX", i);
+                    string _Average_S_BL = string.Format("Blob{0}_Average_S_BL", i);
+
+
                     string _Average_I_BF = string.Format("Blob{0}_Average_I_BF", i);
                     string _Average_I_DF = string.Format("Blob{0}_Average_I_DF", i);
                     string _Average_I_CX = string.Format("Blob{0}_Average_I_CX", i);
@@ -3403,7 +3584,22 @@ namespace CheckPreformance
                     grt.AppendFormat("{0}={1}\n", _Short_Axis_DF, "0.000");
                     grt.AppendFormat("{0}={1}\n", _Short_Axis_CX, "0.000");
                     grt.AppendFormat("{0}={1}\n", _Short_Axis_BL, "0.000");
-                                                          
+                
+                    grt.AppendFormat("{0}={1}\n", _Short_Axis_BF, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Short_Axis_DF, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Short_Axis_CX, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Short_Axis_BL, "0.000");
+
+                    grt.AppendFormat("{0}={1}\n", _Long_Axis_angle_BF, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Long_Axis_angle_DF, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Long_Axis_angle_CX, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Long_Axis_angle_BL, "0.000");
+
+                    grt.AppendFormat("{0}={1}\n", _Short_Axis_angle_BF, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Short_Axis_angle_DF, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Short_Axis_angle_CX, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Short_Axis_angle_BL, "0.000");
+
                     grt.AppendFormat("{0}={1}\n", _Average_R_BF, "0.000");
                     grt.AppendFormat("{0}={1}\n", _Average_R_DF, "0.000");
                     grt.AppendFormat("{0}={1}\n", _Average_R_CX, "0.000");
@@ -3418,7 +3614,17 @@ namespace CheckPreformance
                     grt.AppendFormat("{0}={1}\n", _Average_B_DF, "0.000");
                     grt.AppendFormat("{0}={1}\n", _Average_B_CX, "0.000");
                     grt.AppendFormat("{0}={1}\n", _Average_B_BL, "0.000");
-                                                          
+
+                    grt.AppendFormat("{0}={1}\n", _Average_H_BF, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Average_H_DF, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Average_H_CX, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Average_H_BL, "0.000");
+
+                    grt.AppendFormat("{0}={1}\n", _Average_S_BF, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Average_S_DF, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Average_S_CX, "0.000");
+                    grt.AppendFormat("{0}={1}\n", _Average_S_BL, "0.000");
+
                     grt.AppendFormat("{0}={1}\n", _Average_I_BF, "0.000");
                     grt.AppendFormat("{0}={1}\n", _Average_I_DF, "0.000");
                     grt.AppendFormat("{0}={1}\n", _Average_I_CX, "0.000");
@@ -3613,6 +3819,16 @@ namespace CheckPreformance
                 string _Average_B_CX = string.Format("Blob{0}_Average_B_CX",  i+j);
                 string _Average_B_BL = string.Format("Blob{0}_Average_B_BL", i + j);
 
+                string _Average_H_BF = string.Format("Blob{0}_Average_H_BF", i + j);
+                string _Average_H_DF = string.Format("Blob{0}_Average_H_DF", i + j);
+                string _Average_H_CX = string.Format("Blob{0}_Average_H_CX", i + j);
+                string _Average_H_BL = string.Format("Blob{0}_Average_H_BL", i + j);
+
+                string _Average_S_BF = string.Format("Blob{0}_Average_S_BF", i + j);
+                string _Average_S_DF = string.Format("Blob{0}_Average_S_DF", i + j);
+                string _Average_S_CX = string.Format("Blob{0}_Average_S_CX", i + j);
+                string _Average_S_BL = string.Format("Blob{0}_Average_S_BL", i + j);
+
                 string _Average_I_BF = string.Format("Blob{0}_Average_I_BF",  i+j);
                 string _Average_I_DF = string.Format("Blob{0}_Average_I_DF",  i+j);
                 string _Average_I_CX = string.Format("Blob{0}_Average_I_CX",  i+j);
@@ -3705,6 +3921,15 @@ namespace CheckPreformance
                 grt.SetString("Blob_info", _Short_Axis_CX, temp_Co_struct[j].Short_Axis_len.ToString("F3"));
                 grt.SetString("Blob_info", _Short_Axis_BL, temp_BL_struct[j].Short_Axis_len.ToString("F3"));
 
+                grt.SetString("Blob_info", _Long_Axis_angle_BF, temp_Bf_struct[j].Long_Axis_angle.ToString("F3"));
+                grt.SetString("Blob_info", _Long_Axis_angle_DF, temp_Df_struct[j].Long_Axis_angle.ToString("F3"));
+                grt.SetString("Blob_info", _Long_Axis_angle_CX, temp_Co_struct[j].Long_Axis_angle.ToString("F3"));
+                grt.SetString("Blob_info", _Long_Axis_angle_BL, temp_BL_struct[j].Long_Axis_angle.ToString("F3"));
+
+                grt.SetString("Blob_info", _Short_Axis_angle_BF, temp_Bf_struct[j].Short_Axis_angle.ToString("F3"));
+                grt.SetString("Blob_info", _Short_Axis_angle_DF, temp_Df_struct[j].Short_Axis_angle.ToString("F3"));
+                grt.SetString("Blob_info", _Short_Axis_angle_CX, temp_Co_struct[j].Short_Axis_angle.ToString("F3"));
+                grt.SetString("Blob_info", _Short_Axis_angle_BL, temp_BL_struct[j].Short_Axis_angle.ToString("F3"));
 
                 grt.SetString("Blob_info", _Average_R_BF, temp_Bf_struct[j].Avg_R.ToString("F3"));
                 grt.SetString("Blob_info", _Average_R_DF, temp_Df_struct[j].Avg_R.ToString("F3"));
@@ -3721,6 +3946,16 @@ namespace CheckPreformance
                 grt.SetString("Blob_info", _Average_B_DF, temp_Df_struct[j].Avg_B.ToString("F3"));
                 grt.SetString("Blob_info", _Average_B_CX, temp_Co_struct[j].Avg_B.ToString("F3"));
                 grt.SetString("Blob_info", _Average_B_BL, temp_BL_struct[j].Avg_B.ToString("F3"));
+
+                grt.SetString("Blob_info", _Average_H_BF, temp_Bf_struct[j].Avg_H.ToString("F3"));
+                grt.SetString("Blob_info", _Average_H_DF, temp_Df_struct[j].Avg_H.ToString("F3"));
+                grt.SetString("Blob_info", _Average_H_CX, temp_Co_struct[j].Avg_H.ToString("F3"));
+                grt.SetString("Blob_info", _Average_H_BL, temp_BL_struct[j].Avg_H.ToString("F3"));
+
+                grt.SetString("Blob_info", _Average_S_BF, temp_Bf_struct[j].Avg_S.ToString("F3"));
+                grt.SetString("Blob_info", _Average_S_DF, temp_Df_struct[j].Avg_S.ToString("F3"));
+                grt.SetString("Blob_info", _Average_S_CX, temp_Co_struct[j].Avg_S.ToString("F3"));
+                grt.SetString("Blob_info", _Average_S_BL, temp_BL_struct[j].Avg_S.ToString("F3"));
 
                 grt.SetString("Blob_info", _Average_I_BF, temp_Bf_struct[j].Avg_I.ToString("F3"));
                 grt.SetString("Blob_info", _Average_I_DF, temp_Df_struct[j].Avg_I.ToString("F3"));
@@ -3863,6 +4098,16 @@ namespace CheckPreformance
                 string _Average_B_CX = string.Format("Blob{0}_Average_B_CX", i + j);
                 string _Average_B_BL = string.Format("Blob{0}_Average_B_BL", i + j);
 
+                string _Average_H_BF = string.Format("Blob{0}_Average_H_BF", i + j);
+                string _Average_H_DF = string.Format("Blob{0}_Average_H_DF", i + j);
+                string _Average_H_CX = string.Format("Blob{0}_Average_H_CX", i + j);
+                string _Average_H_BL = string.Format("Blob{0}_Average_H_BL", i + j);
+
+                string _Average_S_BF = string.Format("Blob{0}_Average_S_BF", i + j);
+                string _Average_S_DF = string.Format("Blob{0}_Average_S_DF", i + j);
+                string _Average_S_CX = string.Format("Blob{0}_Average_S_CX", i + j);
+                string _Average_S_BL = string.Format("Blob{0}_Average_S_BL", i + j);
+
                 string _Average_I_BF = string.Format("Blob{0}_Average_I_BF", i + j);
                 string _Average_I_DF = string.Format("Blob{0}_Average_I_DF", i + j);
                 string _Average_I_CX = string.Format("Blob{0}_Average_I_CX", i + j);
@@ -3954,7 +4199,17 @@ namespace CheckPreformance
                 grt.AppendFormat("{0}={1}\n", _Short_Axis_DF, temp_Df_struct[j].Short_Axis_len.ToString("F3"));
                 grt.AppendFormat("{0}={1}\n", _Short_Axis_CX, temp_Co_struct[j].Short_Axis_len.ToString("F3"));
                 grt.AppendFormat("{0}={1}\n", _Short_Axis_BL, temp_BL_struct[j].Short_Axis_len.ToString("F3"));
-                                                      
+
+                grt.AppendFormat("{0}={1}\n", _Long_Axis_angle_BF, temp_Bf_struct[j].Long_Axis_angle.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _Long_Axis_angle_DF, temp_Df_struct[j].Long_Axis_angle.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _Long_Axis_angle_CX, temp_Co_struct[j].Long_Axis_angle.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _Long_Axis_angle_BL, temp_BL_struct[j].Long_Axis_angle.ToString("F3"));
+
+                grt.AppendFormat("{0}={1}\n", _Short_Axis_angle_BF, temp_Bf_struct[j].Short_Axis_angle.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _Short_Axis_angle_DF, temp_Df_struct[j].Short_Axis_angle.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _Short_Axis_angle_CX, temp_Co_struct[j].Short_Axis_angle.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _Short_Axis_angle_BL, temp_BL_struct[j].Short_Axis_angle.ToString("F3"));
+
                 grt.AppendFormat("{0}={1}\n", _Average_R_BF, temp_Bf_struct[j].Avg_R.ToString("F3"));
                 grt.AppendFormat("{0}={1}\n", _Average_R_DF, temp_Df_struct[j].Avg_R.ToString("F3"));
                 grt.AppendFormat("{0}={1}\n", _Average_R_CX, temp_Co_struct[j].Avg_R.ToString("F3"));
@@ -3969,7 +4224,18 @@ namespace CheckPreformance
                 grt.AppendFormat("{0}={1}\n", _Average_B_DF, temp_Df_struct[j].Avg_B.ToString("F3"));
                 grt.AppendFormat("{0}={1}\n", _Average_B_CX, temp_Co_struct[j].Avg_B.ToString("F3"));
                 grt.AppendFormat("{0}={1}\n", _Average_B_BL, temp_BL_struct[j].Avg_B.ToString("F3"));
-                                                      
+
+                grt.AppendFormat("{0}={1}\n", _Average_H_BF, temp_Bf_struct[j].Avg_H.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _Average_H_DF, temp_Df_struct[j].Avg_H.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _Average_H_CX, temp_Co_struct[j].Avg_B.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _Average_H_BL, temp_BL_struct[j].Avg_B.ToString("F3"));
+
+
+                grt.AppendFormat("{0}={1}\n", _Average_S_BF, temp_Bf_struct[j].Avg_B.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _Average_S_DF, temp_Df_struct[j].Avg_B.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _Average_S_CX, temp_Co_struct[j].Avg_B.ToString("F3"));
+                grt.AppendFormat("{0}={1}\n", _Average_S_BL, temp_BL_struct[j].Avg_B.ToString("F3"));
+
                 grt.AppendFormat("{0}={1}\n", _Average_I_BF, temp_Bf_struct[j].Avg_I.ToString("F3"));
                 grt.AppendFormat("{0}={1}\n", _Average_I_DF, temp_Df_struct[j].Avg_I.ToString("F3"));
                 grt.AppendFormat("{0}={1}\n", _Average_I_CX, temp_Co_struct[j].Avg_I.ToString("F3"));
@@ -4886,6 +5152,80 @@ namespace CheckPreformance
                 ImageBuf3_.Dispose();
 
             }
+        }
+
+
+        private void change_markingImg()
+        {
+            string Address = @"\\192.168.1.170\Insert\_Batch이미지\교세라\샘플 테스트진행_20211005\TNMG160408XQ\KPTK_TNMGXQ_defect+ok\Result_dll";
+
+            FileInfo[] dats = new DirectoryInfo(Address).GetFiles("*.dat");
+
+            foreach(FileInfo f in dats)
+            {
+                string filename = f.Name.Split('.')[0];
+                string product_num = filename.Substring(0, filename.Length - 1);
+                string corner_num = filename.Substring(filename.Length - 1, 1);
+
+                IniReader result = new IniReader(f.FullName);
+
+                int Defect_num = result.GetInteger("DF", "DEFECT_NUM");
+
+                string DFname = string.Format("{0}\\{1}DF{2}.jpg",Address,product_num, corner_num);
+
+                if (Defect_num > 0)
+                {
+                    string newDFname = string.Format("{0}\\{1}DF{2}_Marking.jpg", Address, product_num, corner_num);
+
+                    File.Move(DFname, newDFname);
+                }
+                else
+                {
+                    File.Delete(DFname);
+                }
+               
+
+                Defect_num = result.GetInteger("BF", "DEFECT_NUM");
+                string BFname = string.Format("{0}\\{1}BF{2}.jpg", Address, product_num, corner_num);
+                if (Defect_num > 0)
+                {
+                    string newBFname = string.Format("{0}\\{1}BF{2}_Marking.jpg", Address, product_num, corner_num);
+
+                    File.Move(BFname, newBFname);
+                }
+                else
+                {
+                    File.Delete(BFname);
+                }
+
+                Defect_num = result.GetInteger("CO", "DEFECT_NUM");
+                string COname = string.Format("{0}\\{1}CO{2}.jpg", Address, product_num, corner_num);
+                if (Defect_num > 0)
+                {
+                    string newCOname = string.Format("{0}\\{1}CO{2}_Marking.jpg", Address, product_num, corner_num);
+
+                    File.Move(COname, newCOname);
+                }
+                else
+                {
+                    File.Delete(COname);
+                }
+
+                Defect_num = result.GetInteger("BL", "DEFECT_NUM");
+                string BLname = string.Format("{0}\\{1}BL{2}.jpg", Address, product_num, corner_num);
+                if (Defect_num > 0)
+                {
+                    string newBLname = string.Format("{0}\\{1}BL{2}_Marking.jpg", Address, product_num, corner_num);
+
+                    File.Move(BLname, newBLname);
+                }
+                else
+                {
+                    File.Delete(BLname);
+                }
+
+            }
+
         }
     }
 }

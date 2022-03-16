@@ -38,6 +38,8 @@ namespace CheckPreformance
             public double Avg_R;
             public double Avg_G;
             public double Avg_B;
+            public double Avg_H;
+            public double Avg_S;
             public double Avg_I;
             public Defect_Classification Name;
             public bool UnderDefect;
