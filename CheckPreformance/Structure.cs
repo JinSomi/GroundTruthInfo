@@ -48,6 +48,10 @@ namespace CheckPreformance
             public int CX_num;
             public int BL_num;
 
+            /// <summary>
+            /// 알고리즘 수정으로 인한 추가적으로 검출된 결함. 기존에 있었으면 -1, 기존에 없었으면 1;
+            /// </summary>
+            public int newDefect { get; set; }
         }
 
         public enum Defect_Classification
