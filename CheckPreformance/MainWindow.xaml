@@ -50,6 +50,7 @@
             <TextBlock Name="UnderNum_txt" HorizontalAlignment="Left" Margin="45,10,0,0" TextWrapping="Wrap" Text="개수" VerticalAlignment="Top" Height="31" Width="181" Background="#FFE7F3BD"/>
             <ListBox Name="Under_lst" HorizontalAlignment="Left" Height="205" Margin="25,56,0,0" VerticalAlignment="Top" Width="244"/>
         </Grid>
-        <Label Content="Key 조작 : Q(BF), W(DF), E(CO)" HorizontalAlignment="Left" Margin="0,475,0,0" VerticalAlignment="Top" Height="35" Width="641"/>
+        <Label Content="Key 조작 : Q(BF), W(DF), E(CO)" HorizontalAlignment="Left" Margin="0,475,0,0" VerticalAlignment="Top" Height="35" Width="540"/>
+        <CheckBox Name="chk_tttm" Content="TTTM" HorizontalAlignment="Left" Margin="569,492,0,0" VerticalAlignment="Top" Height="18" Width="72" Checked="change_chk_tttm" Unchecked="change_chk_tttm"/>
     </Grid>
 </Window>

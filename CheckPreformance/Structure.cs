@@ -48,6 +48,16 @@ namespace CheckPreformance
             public int CX_num;
             public int BL_num;
 
+            public string Defect_Location_S;
+            public double Len1;
+            public double Len2;
+            public double Cont_Length;
+            public double Distance_Insert;
+            public double Gray_Mean;
+            public double Gray_Dev;
+            public double Distance_Edge_Width;
+            public double Distance_Edge_Length;
+
             /// <summary>
             /// 알고리즘 수정으로 인한 추가적으로 검출된 결함. 기존에 있었으면 -1, 기존에 없었으면 1;
             /// </summary>
