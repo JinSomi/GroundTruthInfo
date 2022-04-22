@@ -95,7 +95,7 @@ namespace CheckPreformance
             this.KeyDown += MainWindow_KeyDown;
 
             ModeSet();
-
+           tttm_info(@"\\192.168.1.170\Insert\HIMF25\TTTM\TTTM1\TTTM1\새 폴더");
         }
 
         private void ModeSet()
@@ -4141,7 +4141,7 @@ namespace CheckPreformance
 
 
             StringBuilder grt = new StringBuilder();// new IniReader(SaveAddress);
-            grt.AppendFormat("DEFECT");
+            grt.AppendFormat("[DEFECT]\n");
             grt.AppendFormat("{0}={1}\n", "DEFECT_NUM", Defects.True_Defects.Count.ToString());
             for (int i = 0; i < Defects.True_Defects.Count; i++)
             {
@@ -4163,7 +4163,7 @@ namespace CheckPreformance
                 string FEATURE6_DISTANCE_EDGE_WIDTH = string.Format("Defect{0}_FEATURE6_DISTANCE_EDGE_WIDTH", i);
                 string FEATURE6_DISTANCE_EDGE_LENGTH = string.Format("Defect{0}_FEATURE6_DISTANCE_EDGE_LENGTH", i);
 
-                grt.AppendFormat("{0}={1}\n", Defect_centerx, Defects.True_Defects[i].Defect_Location_S);
+                grt.AppendFormat("{0}={1}\n", "Name", Defects.True_Defects[i].Defect_Location_S);
                 grt.AppendFormat("{0}={1}\n", Defect_centerx, Defects.True_Defects[i].cenx.ToString("F3"));
                 grt.AppendFormat("{0}={1}\n", Defect_centery, Defects.True_Defects[i].ceny.ToString("F3"));
                 grt.AppendFormat("{0}={1}\n", Defect_w, Defects.True_Defects[i].width.ToString("F3"));
@@ -6004,6 +6004,8 @@ namespace CheckPreformance
                 Prev_Btn.Click += TTTM_Prev_Btn_Click;
                 Next_Btn.Click -= Prev_Btn_Click;
                 Next_Btn.Click += TTTM_Prev_Btn_Click;
+                cmb_ImgList.SelectionChanged -= Prev_Btn_Click;
+                cmb_ImgList.SelectionChanged += TTTM_Prev_Btn_Click;
             }
             else
             {
@@ -6011,6 +6013,8 @@ namespace CheckPreformance
                 Prev_Btn.Click -= TTTM_Prev_Btn_Click;
                 Next_Btn.Click += Prev_Btn_Click;
                 Next_Btn.Click -= TTTM_Prev_Btn_Click;
+                cmb_ImgList.SelectionChanged += Prev_Btn_Click;
+                cmb_ImgList.SelectionChanged -= TTTM_Prev_Btn_Click;
             }
         }
 
@@ -6170,10 +6174,106 @@ namespace CheckPreformance
             }
 
         }
+        private void tttm_info(string FolderPath)
+        {
+           
+            FileInfo[] txt_files = new DirectoryInfo(FolderPath).GetFiles("*.dat");
+            IniDataReader readrer;
+            int i = 0;
+            string Position = string.Format("Defect{0}_Name", i);
+            string Defect_centerx = string.Format("Defect{0}_CENTER_X", i);
+            string Defect_centery = string.Format("Defect{0}_CENTER_Y", i);
+            string Defect_w = string.Format("Defect{0}_WIDTH", i);
+            string Defect_h = string.Format("Defect{0}_HEIGHT", i);
+            string Defect_a = string.Format("Defect{0}_ANGLE", i);
+
+            string FEATURE1_DISTANCE_INTERSECT = string.Format("Defect{0}_FEATURE1_DISTANCE_INTERSECT", i);
+            string FEATURE3_AREA = string.Format("Defect{0}_FEATURE3_AREA", i);
+            string FEATURE4_LEN1 = string.Format("Defect{0}_FEATURE4_LEN1", i);
+            string FEATURE4_LEN2 = string.Format("Defect{0}_FEATURE4_LEN2", i);
+            string FEATURE4_CONT_LENGTH = string.Format("Defect{0}_FEATURE4_CONT_LENGTH", i);
+            string FEATURE5_DISTANCE_INSERT = string.Format("Defect{0}_FEATURE5_DISTANCE_INSERT", i);
+            string FEATURE7_GRAY_MEAN = string.Format("Defect{0}_FEATURE7_GRAY_MEAN", i);
+            string FEATURE7_GRAY_DEVIATION = string.Format("Defect{0}_FEATURE7_GRAY_DEVIATION", i);
+            string FEATURE6_DISTANCE_EDGE_WIDTH = string.Format("Defect{0}_FEATURE6_DISTANCE_EDGE_WIDTH", i);
+            string FEATURE6_DISTANCE_EDGE_LENGTH = string.Format("Defect{0}_FEATURE6_DISTANCE_EDGE_LENGTH", i);
+
+            string Section = "DEFECT";
+
+            StreamWriter SW = new StreamWriter(FolderPath + "\\result.csv", true, Encoding.Default);
+            SW.WriteLine(string.Format("{0},{1},{2},{3},{4}, {5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15}",
+               "name", "position","cen_x", "cen_y", "w", "h",
+               "Distance_Intersect", "area", "Len1", "Len2", "Cont_Length", "Distance_Insert", "G_Mean", "G_Dev", "EDGE_W", "EDGE_L"));
+
+            //foreach (FileInfo f in txt_files)
+            //{
+            //    StreamReader rfile = new StreamReader(f.FullName);
+            //    StreamWriter wfile = new StreamWriter(f.FullName.Replace("txt","dat"));
+
+            //    List<string> datas = new List<string>();
+
+            //    while (!rfile.EndOfStream)
+            //    {
+            //        datas.Add( rfile.ReadLine());
+            //    }
+
+            // int idx=datas.FindIndex(x => x.Contains("CENTER_X"));
+
+            //    string name= datas[idx].Split('=')[1];
+            //    string temp = datas[idx].Split('=')[0].Split('_')[0];
+            //    datas[idx] = string.Format(temp + "_Name=" + name);
+
+            //    idx = datas.FindIndex(x => x.Contains("NUM"));
+
+            //    datas[idx] = datas[idx].Replace("DEFECTDEFECT_NUM", "DEFECT_NUM");
 
 
+            //    wfile.WriteLine("[DEFECT]");
+            //    foreach (string s in datas)
+            //    {
+                
+            //        wfile.WriteLine(s);
+            //    }
 
-            private void change_markingImg()
+            //    wfile.Close();
+            //    rfile.Close();
+            //}
+
+            foreach (FileInfo f in txt_files)
+            {
+                readrer = new IniDataReader(f.FullName);
+                int num = readrer.GetInteger(Section, "DEFECT_NUM");
+
+                string name = f.Name.Split('.')[0];
+
+                string position = readrer.GetString(Section, Position);
+                double cen_x = readrer.GetDouble(Section, Defect_centerx);
+                double cen_y = readrer.GetDouble(Section, Defect_centery);
+                double w = readrer.GetDouble(Section, Defect_w);
+                double h = readrer.GetDouble(Section, Defect_h);
+                double Distance_Intersect = readrer.GetDouble(Section, FEATURE1_DISTANCE_INTERSECT);
+                double area = readrer.GetDouble(Section, FEATURE3_AREA);
+                double Len1 = readrer.GetDouble(Section, FEATURE4_LEN1);
+                double Len2 = readrer.GetDouble(Section, FEATURE4_LEN2);
+                double Cont_Length = readrer.GetDouble(Section, FEATURE4_CONT_LENGTH);
+                double Distance_Insert = readrer.GetDouble(Section, FEATURE5_DISTANCE_INSERT);
+                double G_Mean = readrer.GetDouble(Section, FEATURE7_GRAY_MEAN);
+                double G_Dev = readrer.GetDouble(Section, FEATURE7_GRAY_DEVIATION);
+                double EDGE_W = readrer.GetDouble(Section, FEATURE6_DISTANCE_EDGE_WIDTH);
+                double EDGE_L = readrer.GetDouble(Section, FEATURE6_DISTANCE_EDGE_LENGTH);
+
+
+                SW.WriteLine(string.Format("{0},{1},{2},{3},{4}, {5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15}",
+             name,position, cen_x, cen_y, w, h,
+            Distance_Intersect, area, Len1, Len2, Cont_Length, Distance_Insert, G_Mean, G_Dev, EDGE_W, EDGE_L));
+            }
+
+
+            SW.Close();
+        }
+
+
+        private void change_markingImg()
         {
             string Address = @"\\192.168.1.170\Insert\_Batch이미지\교세라\샘플 테스트진행_20211005\TNMG160408XQ\KPTK_TNMGXQ_defect+ok\Result_dll";
 
