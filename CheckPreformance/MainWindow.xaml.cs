@@ -95,7 +95,7 @@ namespace CheckPreformance
             this.KeyDown += MainWindow_KeyDown;
 
             ModeSet();
-           tttm_info(@"\\192.168.1.170\Insert\HIMF25\TTTM\TTTM1\TTTM1\새 폴더");
+         //  tttm_info(@"\\192.168.1.170\Insert\HIMF25\TTTM\TTTM1\TTTM1\새 폴더2");
         }
 
         private void ModeSet()
@@ -271,9 +271,9 @@ namespace CheckPreformance
             {
                 if (JPEG_Mode == 1)
                 {
-                    if (Directory.Exists(Address + "\\TopMicDefect"))
+                    if (Directory.Exists(Address + "\\MicroDefect"))
                     {
-                        datFiles = new DirectoryInfo(Address + "\\TopMicDefect").GetFiles("*.dat").OrderBy(x => x.Name).ToArray();
+                        datFiles = new DirectoryInfo(Address + "\\MicroDefect").GetFiles("*.dat").OrderBy(x => x.Name).ToArray();
                         infos = new List<Structure.ResultInfo>();
                         RootAdderss = Address;
                         foreach (FileInfo f in datFiles)
@@ -282,7 +282,7 @@ namespace CheckPreformance
                             temp.datName = f;
                             string name_temp = f.Name.Split('.')[0];
                             string corner = name_temp.Substring(name_temp.Length - 1);
-                            string name = name_temp.Substring(0, name_temp.Length - 3);
+                            string name = name_temp.Substring(0, name_temp.Length - 1);
                             //temp.CH0 = new FileInfo(string.Format("{0}\\TopMicDefect\\{1}Micro{2}Ch0.bmp", Address, name, corner));
                             //temp.CH1 = new FileInfo(string.Format("{0}\\TopMicDefect\\{1}Micro{2}Ch1.bmp", Address, name, corner));
                             //temp.CH2 = new FileInfo(string.Format("{0}\\TopMicDefect\\{1}Micro{2}Ch2.bmp", Address, name, corner));
@@ -290,16 +290,16 @@ namespace CheckPreformance
 
 
 
-                            temp.ImageName_bf = string.Format("{0}\\TopMicDefect\\{1}BF{2}.bmp", Address, name, corner);
-                            temp.ImageName_df = string.Format("{0}\\TopMicDefect\\{1}DF{2}.bmp", Address, name, corner);
-                            temp.ImageName_co = string.Format("{0}\\TopMicDefect\\{1}CO{2}.bmp", Address, name, corner);
-                            temp.ImageName_bl = string.Format("{0}\\TopMicDefect\\{1}BL{2}.bmp", Address, name, corner);
+                            temp.ImageName_bf = string.Format("{0}\\MicroDefect\\{1}BF{2}.bmp", Address, name, corner);
+                            temp.ImageName_df = string.Format("{0}\\MicroDefect\\{1}DF{2}.bmp", Address, name, corner);
+                            temp.ImageName_co = string.Format("{0}\\MicroDefect\\{1}CO{2}.bmp", Address, name, corner);
+                            temp.ImageName_bl = string.Format("{0}\\MicroDefect\\{1}BL{2}.bmp", Address, name, corner);
 
 
-                            //temp.ImageName_bf_defect = string.Format("{0}BF{1}_Marking.bmp", name, corner);
-                            //temp.ImageName_df_defect = string.Format("{0}DF{1}_Marking.bmp", name, corner);
-                            //temp.ImageName_co_defect = string.Format("{0}CO{1}_Marking.bmp", name, corner);
-                            //temp.ImageName_bl_defect = string.Format("{0}BL{1}_Marking.bmp", name, corner);
+                            temp.ImageName_bf_defect = string.Format("{0}BF{1}_Marking.bmp", name, corner);
+                            temp.ImageName_df_defect = string.Format("{0}DF{1}_Marking.bmp", name, corner);
+                            temp.ImageName_co_defect = string.Format("{0}CO{1}_Marking.bmp", name, corner);
+                            temp.ImageName_bl_defect = string.Format("{0}BL{1}_Marking.bmp", name, corner);
 
                             if (Golden_Mode != 1)
                             {
@@ -472,7 +472,7 @@ namespace CheckPreformance
                         {
                             HOperatorSet.ReadImage(out BaseImage_BF, infos[Current_i].ImageName_bf);
                             HOperatorSet.ReadImage(out BaseImage_DF, infos[Current_i].ImageName_df);
-                           if(File.Exists(infos[Current_i].ImageName_co)) HOperatorSet.ReadImage(out BaseImage_BF, infos[Current_i].ImageName_co);
+                           if(File.Exists(infos[Current_i].ImageName_co)) HOperatorSet.ReadImage(out BaseImage_CO, infos[Current_i].ImageName_co);
                         }
                     }
                     else
@@ -2096,30 +2096,56 @@ namespace CheckPreformance
                     //intersection_Defect(infos[befor_i]);
                     if (Write_Mode == 1)
                     {
-                        d_BF = p_BF.Clone() as Bitmap;
-                        d_DF = p_DF.Clone() as Bitmap;
-                        d_CO = p_CO.Clone() as Bitmap;
-                        d_BL = p_BL.Clone() as Bitmap;
+                        if (JPEG_Mode != 1)
+                        {
+                            d_BF = p_BF.Clone() as Bitmap;
+                            d_DF = p_DF.Clone() as Bitmap;
+                            d_CO = p_CO.Clone() as Bitmap;
+                            d_BL = p_BL.Clone() as Bitmap;
 
-                        DrawDefects_onRawImg(d_BF, infos[befor_i].True_BF_Defects, 0);
-                        DrawDefects_onRawImg(d_DF, infos[befor_i].True_DF_Defects, 1);
-                        DrawDefects_onRawImg(d_CO, infos[befor_i].True_CO_Defects, 2);
-                        DrawDefects_onRawImg(d_BL, infos[befor_i].True_BL_Defects, 3);
+                            DrawDefects_onRawImg(d_BF, infos[befor_i].True_BF_Defects, 0);
+                            DrawDefects_onRawImg(d_DF, infos[befor_i].True_DF_Defects, 1);
+                            DrawDefects_onRawImg(d_CO, infos[befor_i].True_CO_Defects, 2);
+                            DrawDefects_onRawImg(d_BL, infos[befor_i].True_BL_Defects, 3);
 
-                        DrawDefects_onRawImg(d_BF, infos[befor_i].False_BF_Defects, 0, false);
-                        DrawDefects_onRawImg(d_DF, infos[befor_i].False_DF_Defects, 1, false);
-                        DrawDefects_onRawImg(d_CO, infos[befor_i].False_CO_Defects, 2, false);
-                        DrawDefects_onRawImg(d_BL, infos[befor_i].False_BL_Defects, 3, false);
+                            DrawDefects_onRawImg(d_BF, infos[befor_i].False_BF_Defects, 0, false);
+                            DrawDefects_onRawImg(d_DF, infos[befor_i].False_DF_Defects, 1, false);
+                            DrawDefects_onRawImg(d_CO, infos[befor_i].False_CO_Defects, 2, false);
+                            DrawDefects_onRawImg(d_BL, infos[befor_i].False_BL_Defects, 3, false);
 
-                        p_BF.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_bf, ImageFormat.Bmp);
-                        p_DF.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_df, ImageFormat.Bmp);
-                        p_CO.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_co, ImageFormat.Bmp);
-                        p_BL.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_bl, ImageFormat.Bmp);
+                            p_BF.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_bf, ImageFormat.Bmp);
+                            p_DF.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_df, ImageFormat.Bmp);
+                            p_CO.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_co, ImageFormat.Bmp);
+                            p_BL.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_bl, ImageFormat.Bmp);
 
-                        if (infos[befor_i].BF_Defects.Count != 0) d_BF.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_bf_defect.Replace("bmp", "jpg"), ImageFormat.Jpeg);
-                        if (infos[befor_i].DF_Defects.Count != 0) d_DF.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_df_defect.Replace("bmp", "jpg"), ImageFormat.Jpeg);
-                        if (infos[befor_i].CO_Defects.Count != 0) d_CO.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_co_defect.Replace("bmp", "jpg"), ImageFormat.Jpeg);
-                        if (infos[befor_i].BL_Defects.Count != 0) d_BL.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_bl_defect.Replace("bmp", "jpg"), ImageFormat.Jpeg);
+                            if (infos[befor_i].BF_Defects.Count != 0) d_BF.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_bf_defect.Replace("bmp", "jpg"), ImageFormat.Jpeg);
+                            if (infos[befor_i].DF_Defects.Count != 0) d_DF.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_df_defect.Replace("bmp", "jpg"), ImageFormat.Jpeg);
+                            if (infos[befor_i].CO_Defects.Count != 0) d_CO.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_co_defect.Replace("bmp", "jpg"), ImageFormat.Jpeg);
+                            if (infos[befor_i].BL_Defects.Count != 0) d_BL.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_bl_defect.Replace("bmp", "jpg"), ImageFormat.Jpeg);
+                        }
+                        else
+                        {
+                            d_BF = new Bitmap(infos[befor_i].ImageName_bf);
+                            d_DF = new Bitmap(infos[befor_i].ImageName_df);
+                            d_CO = new Bitmap(infos[befor_i].ImageName_co);
+                            d_BL = new Bitmap(infos[befor_i].ImageName_bl);
+
+                            DrawDefects_onRawImg(d_BF, infos[befor_i].True_BF_Defects, 0);
+                            DrawDefects_onRawImg(d_DF, infos[befor_i].True_DF_Defects, 1);
+                            DrawDefects_onRawImg(d_CO, infos[befor_i].True_CO_Defects, 2);
+                            DrawDefects_onRawImg(d_BL, infos[befor_i].True_BL_Defects, 3);
+
+                            DrawDefects_onRawImg(d_BF, infos[befor_i].False_BF_Defects, 0, false);
+                            DrawDefects_onRawImg(d_DF, infos[befor_i].False_DF_Defects, 1, false);
+                            DrawDefects_onRawImg(d_CO, infos[befor_i].False_CO_Defects, 2, false);
+                            DrawDefects_onRawImg(d_BL, infos[befor_i].False_BL_Defects, 3, false);
+
+                            if (infos[befor_i].BF_Defects.Count != 0) d_BF.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_bf_defect.Replace("bmp", "jpg"), ImageFormat.Jpeg);
+                            if (infos[befor_i].DF_Defects.Count != 0) d_DF.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_df_defect.Replace("bmp", "jpg"), ImageFormat.Jpeg);
+                            if (infos[befor_i].CO_Defects.Count != 0) d_CO.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_co_defect.Replace("bmp", "jpg"), ImageFormat.Jpeg);
+                            if (infos[befor_i].BL_Defects.Count != 0) d_BL.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_bl_defect.Replace("bmp", "jpg"), ImageFormat.Jpeg);
+                        }
+
                     }
                     //saveGrt(infos[befor_i]);
 
@@ -2135,11 +2161,14 @@ namespace CheckPreformance
 
                             if (Write_Mode == 1)
                             {
-                                p_BF.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_bf, ImageFormat.Bmp);
-                                p_DF.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_df, ImageFormat.Bmp);
-                                p_CO.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_co, ImageFormat.Bmp);
-                                p_BL.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_bl, ImageFormat.Bmp);
-                                //d_BF.Save(RootAdderss + "\\OK_Image\\" + infos[befor_i].ImageName_bf_defect, ImageFormat.Bmp);
+                                if (JPEG_Mode != 1)
+                                {
+                                    p_BF.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_bf, ImageFormat.Bmp);
+                                    p_DF.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_df, ImageFormat.Bmp);
+                                    p_CO.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_co, ImageFormat.Bmp);
+                                    p_BL.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_bl, ImageFormat.Bmp);
+                                    //d_BF.Save(RootAdderss + "\\OK_Image\\" + infos[befor_i].ImageName_bf_defect, ImageFormat.Bmp);
+                                }
                             }
 
                             if (infos[befor_i].True_Defects.Count() + infos[befor_i].False_Defects.Count() > 0) saveGrt_withFeature_bulider(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].datName.Name.Replace("dat", "txt"), infos[befor_i]);
@@ -2211,10 +2240,21 @@ namespace CheckPreformance
                         {
                             intersection_Defect_(infos[befor_i]);
                             //intersection_Defect(infos[befor_i]);
-                            d_BF = p_BF.Clone() as Bitmap;
-                            d_DF = p_DF.Clone() as Bitmap;
-                            d_CO = p_CO.Clone() as Bitmap;
-                            d_BL = p_CO.Clone() as Bitmap;
+
+                            if (JPEG_Mode != 1)
+                            {
+                                d_BF = p_BF.Clone() as Bitmap;
+                                d_DF = p_DF.Clone() as Bitmap;
+                                d_CO = p_CO.Clone() as Bitmap;
+                                d_BL = p_CO.Clone() as Bitmap;
+                            }
+                            else
+                            {
+                                d_BF = new Bitmap(infos[befor_i].ImageName_bf);
+                                d_DF = new Bitmap(infos[befor_i].ImageName_df);
+                                d_CO = new Bitmap(infos[befor_i].ImageName_co);
+                                d_BL = new Bitmap(infos[befor_i].ImageName_bl);
+                            }
 
                             DrawDefects_onRawImg(d_BF, infos[befor_i].True_BF_Defects, 0);
                             DrawDefects_onRawImg(d_DF, infos[befor_i].True_DF_Defects, 1);
@@ -2228,10 +2268,14 @@ namespace CheckPreformance
 
                             if (!Directory.Exists(RootAdderss + "\\" + ModelName + "\\")) Directory.CreateDirectory(RootAdderss + "\\" + ModelName);
 
-                            p_BF.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_bf, ImageFormat.Bmp);
-                            p_DF.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_df, ImageFormat.Bmp);
-                            p_CO.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_co, ImageFormat.Bmp);
-                            p_BL.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_bl, ImageFormat.Bmp);
+                            if (JPEG_Mode != 1)
+                            {
+                                p_BF.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_bf, ImageFormat.Bmp);
+                                p_DF.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_df, ImageFormat.Bmp);
+                                p_CO.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_co, ImageFormat.Bmp);
+                                p_BL.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_bl, ImageFormat.Bmp);
+                            }
+
                             if (infos[befor_i].BF_Defects.Count != 0) d_BF.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_bf_defect.Replace("bmp","jpg"), ImageFormat.Jpeg);
                             if (infos[befor_i].DF_Defects.Count != 0) d_DF.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_df_defect.Replace("bmp", "jpg"), ImageFormat.Jpeg);
                             if (infos[befor_i].CO_Defects.Count != 0) d_CO.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_co_defect.Replace("bmp", "jpg"), ImageFormat.Jpeg);
@@ -2255,7 +2299,7 @@ namespace CheckPreformance
                 {
                     HOperatorSet.ReadImage(out BaseImage_BF, infos[Current_i].ImageName_bf);
                     HOperatorSet.ReadImage(out BaseImage_DF, infos[Current_i].ImageName_df);
-                    if (File.Exists(infos[Current_i].ImageName_co)) HOperatorSet.ReadImage(out BaseImage_BF, infos[Current_i].ImageName_co);
+                    if (File.Exists(infos[Current_i].ImageName_co)) HOperatorSet.ReadImage(out BaseImage_CO, infos[Current_i].ImageName_co);
                 }
 
              
@@ -6177,7 +6221,7 @@ namespace CheckPreformance
         private void tttm_info(string FolderPath)
         {
            
-            FileInfo[] txt_files = new DirectoryInfo(FolderPath).GetFiles("*.dat");
+            FileInfo[] txt_files = new DirectoryInfo(FolderPath).GetFiles("*.txt");
             IniDataReader readrer;
             int i = 0;
             string Position = string.Format("Defect{0}_Name", i);
