@@ -95,7 +95,10 @@ namespace CheckPreformance
             this.KeyDown += MainWindow_KeyDown;
 
             ModeSet();
-         
+
+            CropImage();
+
+
         }
 
         private void ModeSet()
@@ -6127,34 +6130,14 @@ namespace CheckPreformance
                             infos[befor_i].Defects[list_i] = temp_struct;
                             //infos[befor_i].True_Defects.Add(infos[befor_i].Defects[list_i]);
                         }
-                        //else
-                        //{
-                        //    Structure.Defect_struct temp_struct = infos[befor_i].Defects[newind];
-                        //    if (temp_struct.UnderDefect == false)
-                        //    {
-                        //       // temp_struct.Name = (Structure.Defect_Classification)Enum.Parse(typeof(Structure.Defect_Classification), Defects_lst.Items[newind].ToString().Split('-')[1]);
-                        //        temp_struct.GroundTruth = -1;
-                        //        infos[befor_i].False_Defects.Add(temp_struct);
-                        //        infos[befor_i].Defects[list_i] = temp_struct;
-                        //    }
-                        //    else
-                        //    {
-                        //       // temp_struct.Name = (Structure.Defect_Classification)Enum.Parse(typeof(Structure.Defect_Classification), Defects_lst.Items[newind].ToString().Split('-')[1]);
-                        //        temp_struct.GroundTruth = 2;
-                        //        infos[befor_i].Under_Defects.Add(temp_struct);
-                        //        infos[befor_i].Defects[list_i] = temp_struct;
-                        //    }
-                        //    //infos[befor_i].False_Defects.Add(infos[befor_i].Defects[list_i]);
-                        //}
+                       
                     }
-                   // if (Write_Mode == 1) intersection_Defect_(infos[befor_i]);
-
+                   
                     if (!Directory.Exists(RootAdderss + "\\" + ModelName)) Directory.CreateDirectory(RootAdderss + "\\" + ModelName);
 
                    saveGrt_withFeature_bulider_tttm(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].datName.Name.Replace("dat", "txt"), infos[befor_i]);
 
-                    //intersection_Defect(infos[befor_i]);
-                    if (Write_Mode == 1)
+                  if (Write_Mode == 1)
                     {
                         if (JPEG_Mode != 1)
                         {
@@ -6164,10 +6147,7 @@ namespace CheckPreformance
                             d_BL = p_BL.Clone() as Bitmap;
 
                             DrawDefects_onRawImg(d_BF, infos[befor_i].True_Defects, 0);
-                            //DrawDefects_onRawImg(d_DF, infos[befor_i].True_DF_Defects, 1);
-                            //DrawDefects_onRawImg(d_CO, infos[befor_i].True_CO_Defects, 2);
-                            //DrawDefects_onRawImg(d_BL, infos[befor_i].True_BL_Defects, 3);
-
+                         
 
                             p_BF.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_bf, ImageFormat.Bmp);
                             p_DF.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_df, ImageFormat.Bmp);
@@ -6175,10 +6155,7 @@ namespace CheckPreformance
                             p_BL.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_bl, ImageFormat.Bmp);
 
                             if (infos[befor_i].True_Defects.Count != 0) d_BF.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_bf_defect.Replace("bmp", "jpg"), ImageFormat.Jpeg);
-                            //if (infos[befor_i].DF_Defects.Count != 0) d_DF.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_df_defect.Replace("bmp", "jpg"), ImageFormat.Jpeg);
-                            //if (infos[befor_i].CO_Defects.Count != 0) d_CO.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_co_defect.Replace("bmp", "jpg"), ImageFormat.Jpeg);
-                            //if (infos[befor_i].BL_Defects.Count != 0) d_BL.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_bl_defect.Replace("bmp", "jpg"), ImageFormat.Jpeg);
-                        }
+                            }
                         else
                         {
                             d_BF = new Bitmap(infos[befor_i].ImageName_bf);
@@ -6188,9 +6165,7 @@ namespace CheckPreformance
                             if (infos[befor_i].True_Defects.Count != 0) d_BF.Save(RootAdderss + "\\" + ModelName + "\\" + infos[befor_i].ImageName_bf_defect.Replace("bmp", "jpg"), ImageFormat.Jpeg);
                         }
                     }
-                    //saveGrt(infos[befor_i]);
-
-
+                 
                 }
               
 
@@ -6260,39 +6235,7 @@ namespace CheckPreformance
                "name", "position","cen_x", "cen_y", "w", "h",
                "Distance_Intersect", "area", "Len1", "Len2", "Cont_Length", "Distance_Insert", "G_Mean", "G_Dev", "EDGE_W", "EDGE_L"));
 
-            //foreach (FileInfo f in txt_files)
-            //{
-            //    StreamReader rfile = new StreamReader(f.FullName);
-            //    StreamWriter wfile = new StreamWriter(f.FullName.Replace("txt","dat"));
-
-            //    List<string> datas = new List<string>();
-
-            //    while (!rfile.EndOfStream)
-            //    {
-            //        datas.Add( rfile.ReadLine());
-            //    }
-
-            // int idx=datas.FindIndex(x => x.Contains("CENTER_X"));
-
-            //    string name= datas[idx].Split('=')[1];
-            //    string temp = datas[idx].Split('=')[0].Split('_')[0];
-            //    datas[idx] = string.Format(temp + "_Name=" + name);
-
-            //    idx = datas.FindIndex(x => x.Contains("NUM"));
-
-            //    datas[idx] = datas[idx].Replace("DEFECTDEFECT_NUM", "DEFECT_NUM");
-
-
-            //    wfile.WriteLine("[DEFECT]");
-            //    foreach (string s in datas)
-            //    {
-                
-            //        wfile.WriteLine(s);
-            //    }
-
-            //    wfile.Close();
-            //    rfile.Close();
-            //}
+          
 
             foreach (FileInfo f in txt_files)
             {
@@ -6404,6 +6347,286 @@ namespace CheckPreformance
                 }
 
             }
+
+        }
+
+        private void CropImage()
+        {
+            string GrtAdderess = @"X:\1. Train Set\CNMG120408HQ_CA5525\Feautre data 수정3";
+            string ImageFolder = @"\\192.168.1.170\Insert\###_BatchTest_Image_Set\KPTK\고배율위치\깨짐\CVD_Gold\groundtruth\Result_dll";
+
+            FileInfo[] GrtFiles = new DirectoryInfo(GrtAdderess).GetFiles("*.txt");
+
+            Structure.ResultInfo info;//= new Structure.ResultInfo();
+
+            string tempname;
+
+            Directory.CreateDirectory(ImageFolder + "\\TrueDefect");
+            Directory.CreateDirectory(ImageFolder + "\\FalseDefect");
+
+            foreach (FileInfo grt in GrtFiles)
+            {
+                info =  new Structure.ResultInfo();
+
+                info.datName = grt;
+
+                GetBlobInfo(ref info);
+
+             
+                tempname = grt.Name.Split('_')[0];
+                string imgname = tempname.Substring(0, tempname.Length - 1);
+                string cornernum = tempname.Substring(tempname.Length - 1, 1);
+               
+             
+
+                info.ImageName_bf = "\\" + imgname + "BF" + cornernum ;//+ ".bmp";
+                info.ImageName_df = "\\" + imgname + "DF" + cornernum ;//+ ".bmp";
+                info.ImageName_co = "\\" + imgname + "CO" + cornernum;//+ ".bmp";
+                info.ImageName_bl = "\\" + imgname + "BL" + cornernum; //+ ".bmp";
+
+                getCropimg(info.True_BF_Defects, ImageFolder+info.ImageName_bf, ImageFolder+"\\TrueDefect" + info.ImageName_bf);
+                getCropimg(info.False_BF_Defects, ImageFolder + info.ImageName_bf, ImageFolder + "\\FalseDefect" + info.ImageName_bf);
+                getCropimg(info.True_DF_Defects, ImageFolder + info.ImageName_df, ImageFolder + "\\TrueDefect" + info.ImageName_df);
+                getCropimg(info.False_DF_Defects, ImageFolder + info.ImageName_df, ImageFolder + "\\FalseDefect" + info.ImageName_df);
+                getCropimg(info.True_CO_Defects, ImageFolder + info.ImageName_co, ImageFolder + "\\TrueDefect" + info.ImageName_co);
+                getCropimg(info.False_CO_Defects, ImageFolder + info.ImageName_co, ImageFolder + "\\FalseDefect" + info.ImageName_co);
+                getCropimg(info.True_BL_Defects, ImageFolder + info.ImageName_bl, ImageFolder + "\\TrueDefect" + info.ImageName_bl);
+                getCropimg(info.False_BL_Defects, ImageFolder + info.ImageName_bl, ImageFolder + "\\FalseDefect" + info.ImageName_bl);
+            }
+        }
+
+
+
+
+        private void getCropimg(List<Structure.Defect_struct> info,string Imagefullname , string SavePath)
+        {
+            Bitmap Src = null;
+            Rectangle cropRect;
+            string cropimageName;
+            int cropSize = 100;
+
+            Bitmap cropimg = new Bitmap(cropSize, cropSize, PixelFormat.Format24bppRgb);
+            foreach (Structure.Defect_struct defect in info)
+            {
+
+                cropSize = 100;
+
+                if (Src == null)
+                {
+                    Src = new Bitmap(Imagefullname + ".bmp");
+
+                    if (defect.width > 100 || defect.height>100)
+                    {
+                        //float newwidth = defect.width > 100 ? Src.Width * ((float)cropSize / (float)defect.width) : Src.Width;
+                        //float newheight = defect.height > 100 ? Src.Height * ((float)cropSize / (float)defect.height) : Src.Height;
+                        //Bitmap resizeimg= resizeImage(Src, (int)newwidth, (int)newheight);
+                        //Src.Dispose();
+                        //Src = resizeimg.Clone() as Bitmap;
+                        //resizeimg.Dispose();
+                        cropSize = defect.width > defect.height ? defect.width : defect.height;
+                    }
+
+                }
+
+                cropRect = new Rectangle(defect.cenx - cropSize/2, defect.ceny - cropSize/2, cropSize, cropSize);
+
+                Rectangle dstrect = new Rectangle(System.Drawing.Point.Empty, cropRect.Size);
+
+                using (Graphics dstg = Graphics.FromImage(cropimg))
+                {
+                    dstg.DrawImage(Src, dstrect, cropRect, GraphicsUnit.Pixel);
+                }
+
+                if (defect.width > 100 || defect.height > 100)
+                {
+                    Bitmap resizeimg = resizeImage(cropimg, (int)100, (int)100);
+                    cropimg.Dispose();
+                    cropimg = resizeimg.Clone() as Bitmap;
+                    resizeimg.Dispose();
+                }
+
+
+                    cropimageName = string.Format("{0}_Blob{1}.bmp", SavePath, defect.Blobs_num);
+                cropimg.Save(cropimageName, ImageFormat.Bmp);
+
+              
+            }
+            if(Src!=null) Src.Dispose();
+            cropimg.Dispose();
+        }
+
+        private Bitmap resizeImage(Bitmap Src, int newWidth, int newHeight)
+        {
+          
+            int sourceWidth = Src.Width;
+            int sourceHeight = Src.Height;
+
+            //Consider vertical pics
+            if (sourceWidth < sourceHeight)
+            {
+                int buff = newWidth;
+
+                newWidth = newHeight;
+                newHeight = buff;
+            }
+
+            int sourceX = 0, sourceY = 0, destX = 0, destY = 0;
+            float nPercent = 0, nPercentW = 0, nPercentH = 0;
+
+            nPercentW = ((float)newWidth / (float)sourceWidth);
+            nPercentH = ((float)newHeight / (float)sourceHeight);
+            if (nPercentH < nPercentW)
+            {
+                nPercent = nPercentH;
+                destX = System.Convert.ToInt16((newWidth -
+                          (sourceWidth * nPercent)) / 2);
+            }
+            else
+            {
+                nPercent = nPercentW;
+                destY = System.Convert.ToInt16((newHeight -
+                          (sourceHeight * nPercent)) / 2);
+            }
+
+            int destWidth = (int)(sourceWidth * nPercent);
+            int destHeight = (int)(sourceHeight * nPercent);
+
+
+            Bitmap bmPhoto = new Bitmap(newWidth, newHeight,
+                          PixelFormat.Format24bppRgb);
+
+            bmPhoto.SetResolution(Src.HorizontalResolution,
+                         Src.VerticalResolution);
+
+            Graphics grPhoto = Graphics.FromImage(bmPhoto);
+            grPhoto.Clear(System.Drawing.Color.Black);
+            grPhoto.InterpolationMode =
+                System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+
+            grPhoto.DrawImage(Src,
+                new Rectangle(destX, destY, destWidth, destHeight),
+                new Rectangle(sourceX, sourceY, sourceWidth, sourceHeight),
+                GraphicsUnit.Pixel);
+
+            grPhoto.Dispose();
+       
+            return bmPhoto;
+        }
+
+
+        private void GetBlobInfo(ref Structure.ResultInfo resultinfo)
+        {
+
+            IniDataReader test = new IniDataReader(resultinfo.datName.FullName);
+            string[] testttt = test.GetAllKeys("ImageResult");
+            string testt = testttt[testttt.Length - 1].Split('_')[0];
+            int Defect_num = 0;
+            if (testt.Contains("Defect")) Defect_num = Convert.ToInt32(testt.Substring(6, testt.Length - 6));
+            else Defect_num = -1;
+            resultinfo.True_Defects = new List<Structure.Defect_struct>();
+            resultinfo.False_Defects = new List<Structure.Defect_struct>();
+            resultinfo.Under_Defects = new List<Structure.Defect_struct>();
+            resultinfo.Defects = new List<Structure.Defect_struct>();
+            resultinfo.False_BF_Defects = new List<Structure.Defect_struct>();
+            resultinfo.False_BL_Defects = new List<Structure.Defect_struct>();
+            resultinfo.False_CO_Defects = new List<Structure.Defect_struct>();
+            resultinfo.False_DF_Defects = new List<Structure.Defect_struct>();
+
+            resultinfo.True_BF_Defects = new List<Structure.Defect_struct>();
+            resultinfo.True_BL_Defects = new List<Structure.Defect_struct>();
+            resultinfo.True_CO_Defects = new List<Structure.Defect_struct>();
+            resultinfo.True_DF_Defects = new List<Structure.Defect_struct>();
+
+            if (Defect_num > -1)
+            {
+                for (int i = 0; i < Defect_num + 1; i++)
+                {
+
+                    string section = "ImageResult";
+                    string Defect_centerx = string.Format("Defect{0}_CENTER_X", i);
+                    string Defect_centery = string.Format("Defect{0}_CENTER_Y", i);
+                    string Defect_w = string.Format("Defect{0}_WIDTH", i);
+                    string Defect_h = string.Format("Defect{0}_HEIGHT", i);
+                    string Defect_a = string.Format("Defect{0}_ANGLE", i);
+                    string Classification = string.Format("Defect{0}_Classification", i);
+                    string True_Defect_ = string.Format("Defect{0}_TrueDefect", i);
+
+                    Structure.Defect_struct defec_ = new Structure.Defect_struct();
+                    defec_.cenx = Convert.ToInt32(test.GetDouble(section, string.Format("Defect{0}_CENTER_X", i)));
+                    defec_.ceny = Convert.ToInt32(test.GetDouble(section, string.Format("Defect{0}_CENTER_Y", i)));
+                    defec_.width = Convert.ToInt32(test.GetDouble(section, string.Format("Defect{0}_WIDTH", i)));
+                    defec_.height = Convert.ToInt32(test.GetDouble(section, string.Format("Defect{0}_HEIGHT", i)));
+                    defec_.angle = Convert.ToInt32(test.GetDouble(section, string.Format("Defect{0}_ANGLE", i)));
+                    defec_.Name = (Structure.Defect_Classification)Enum.ToObject(typeof(Structure.Defect_Classification), Convert.ToInt32(test.GetDouble(section, string.Format("Defect{0}_Classification", i))));
+                    defec_.GroundTruth = Convert.ToInt32(test.GetDouble(section, string.Format("Defect{0}_TrueDefect", i)));
+
+
+                    if (defec_.GroundTruth == 1) resultinfo.True_Defects.Add(defec_);
+                    else if (defec_.GroundTruth == -1) resultinfo.False_Defects.Add(defec_);
+                    else
+                    {
+                        defec_.UnderDefect = true;
+                        resultinfo.Under_Defects.Add(defec_);
+                    }
+                    resultinfo.Defects.Add(defec_);
+
+                }
+            }
+
+            testttt = test.GetAllKeys("Blob_Info");
+            testt = testttt[testttt.Length - 1].Split('_')[0];
+            Defect_num = 0;
+            if (testt.Contains("Blob")) Defect_num = Convert.ToInt32(testt.Substring(4, testt.Length - 4));
+            else Defect_num = -1;
+
+            #region Blob 정보 
+            for (int i = 0; i < Defect_num+1; i++)
+            {
+                string section = "Blob_Info";
+                string True_Defect = string.Format("Blob{0}_TrueDefect", i);
+                string BF = string.Format("Blob{0}_BF", i);
+                string DF = string.Format("Blob{0}_DF", i);
+                string CX = string.Format("Blob{0}_CX", i);
+                string BL = string.Format("Blob{0}_BL", i);
+
+                string Center_X = string.Format("Blob{0}_CENTER_X", i);
+                string Center_Y = string.Format("Blob{0}_CENTER_Y", i);
+
+                string Width = string.Format("Blob{0}_WIDTH", i);
+                string Height = string.Format("Blob{0}_HEIGHT", i);
+                string Angle = string.Format("Blob{0}_ANGLE", i);
+
+                Structure.Defect_struct defec_ = new Structure.Defect_struct();
+                defec_.GroundTruth = Convert.ToInt32(test.GetDouble(section, True_Defect));
+                defec_.cenx = Convert.ToInt32(test.GetDouble(section, Center_X));
+                defec_.ceny = Convert.ToInt32(test.GetDouble(section, Center_Y));
+                defec_.width = Convert.ToInt32(test.GetDouble(section, Width));
+                defec_.height = Convert.ToInt32(test.GetDouble(section, Height));
+                defec_.angle = Convert.ToInt32(test.GetDouble(section, Angle));
+
+                int exist_bf = Convert.ToInt32(test.GetDouble(section, BF));
+                int exist_df = Convert.ToInt32(test.GetDouble(section, DF));
+                int exist_co = Convert.ToInt32(test.GetDouble(section, CX));
+                int exist_bl = Convert.ToInt32(test.GetDouble(section, BL));
+                defec_.Blobs_num = i;
+                if (defec_.GroundTruth == 1)
+                {
+                    if (exist_bf == 1) resultinfo.True_BF_Defects.Add(defec_);
+                    if (exist_df == 1) resultinfo.True_DF_Defects.Add(defec_);
+                    if (exist_co == 1) resultinfo.True_CO_Defects.Add(defec_);
+                    if (exist_bl == 1) resultinfo.True_BL_Defects.Add(defec_);
+                }
+                else
+                {
+                    if (exist_bf == 1) resultinfo.False_BF_Defects.Add(defec_);
+                    if (exist_df == 1) resultinfo.False_DF_Defects.Add(defec_);
+                    if (exist_co == 1) resultinfo.False_CO_Defects.Add(defec_);
+                    if (exist_bl == 1) resultinfo.False_BL_Defects.Add(defec_);
+                }
+                resultinfo.Detect_num = i;
+                resultinfo.Defects.Add(defec_);
+            }
+            #endregion
 
         }
     }
