@@ -6406,6 +6406,9 @@ namespace CheckPreformance
             int cropSize = 100;
 
             Bitmap cropimg = new Bitmap(cropSize, cropSize, PixelFormat.Format24bppRgb);
+            Bitmap I_cropimg = new Bitmap(cropSize, cropSize, PixelFormat.Format8bppIndexed);
+            Bitmap I_Src = null; 
+
             foreach (Structure.Defect_struct defect in info)
             {
 
@@ -6414,15 +6417,34 @@ namespace CheckPreformance
                 if (Src == null)
                 {
                     Src = new Bitmap(Imagefullname + ".bmp");
+                    BitmapData D_src = Src.LockBits(new Rectangle(0, 0, Src.Width, Src.Height), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
+                    HObject h_src;// = new HImage("byte", Src.Width, Src.Height, D_src.Scan0);
+                    HOperatorSet.GenImageInterleaved(out h_src, D_src.Scan0, "bgr", Src.Width, Src.Height, -1, "byte", Src.Width, Src.Height, 0, 0, -1, 0);
+                    Src.UnlockBits(D_src);
+
+                    HObject ho_R, ho_G, ho_B;
+                    HObject ho_I, ho_S, ho_H;
+                    HOperatorSet.Decompose3(h_src, out ho_R, out ho_G, out ho_B);
+                    HOperatorSet.TransFromRgb(ho_R, ho_G, ho_B, out ho_I, out ho_H, out ho_S, "ihs");
+
+                    HTuple ptr;
+                    HTuple type, w, h;
+                    HOperatorSet.GetImagePointer1(ho_I, out ptr, out type, out w, out h);
+                    IntPtr iPtr = new IntPtr(ptr);
+                    I_Src = new Bitmap(Src.Width, Src.Height, Src.Width, PixelFormat.Format8bppIndexed, iPtr);
+
+
+                    h_src.Dispose();
+                    ho_R.Dispose();
+                    ho_G.Dispose();
+                    ho_B.Dispose();
+                    ho_H.Dispose();
+                    ho_S.Dispose();
+                    ho_I.Dispose();
+
 
                     if (defect.width > 100 || defect.height>100)
                     {
-                        //float newwidth = defect.width > 100 ? Src.Width * ((float)cropSize / (float)defect.width) : Src.Width;
-                        //float newheight = defect.height > 100 ? Src.Height * ((float)cropSize / (float)defect.height) : Src.Height;
-                        //Bitmap resizeimg= resizeImage(Src, (int)newwidth, (int)newheight);
-                        //Src.Dispose();
-                        //Src = resizeimg.Clone() as Bitmap;
-                        //resizeimg.Dispose();
                         cropSize = defect.width > defect.height ? defect.width : defect.height;
                     }
 
@@ -6436,20 +6458,31 @@ namespace CheckPreformance
                 {
                     dstg.DrawImage(Src, dstrect, cropRect, GraphicsUnit.Pixel);
                 }
-
-                if (defect.width > 100 || defect.height > 100)
+                using (Graphics dstg = Graphics.FromImage(I_cropimg))
                 {
-                    Bitmap resizeimg = resizeImage(cropimg, (int)100, (int)100);
-                    cropimg.Dispose();
-                    cropimg = resizeimg.Clone() as Bitmap;
-                    resizeimg.Dispose();
+                    dstg.DrawImage(I_Src, dstrect, cropRect, GraphicsUnit.Pixel);
                 }
+
+
+                    if (defect.width > 100 || defect.height > 100)
+                    {
+                        Bitmap resizeimg = resizeImage(cropimg, (int)100, (int)100);
+                        cropimg.Dispose();
+                        cropimg = resizeimg.Clone() as Bitmap;
+                    resizeimg = resizeImage(I_cropimg, (int)100, (int)100);
+                    I_cropimg.Dispose();
+                    I_cropimg = resizeimg.Clone() as Bitmap;
+                    resizeimg.Dispose();
+
+
+                    }
 
 
                     cropimageName = string.Format("{0}_Blob{1}.bmp", SavePath, defect.Blobs_num);
                 cropimg.Save(cropimageName, ImageFormat.Bmp);
+                cropimageName = string.Format("{0}_Blob{1}_I.bmp", SavePath, defect.Blobs_num);
+                I_cropimg.Save(cropimageName, ImageFormat.Bmp);
 
-              
             }
             if(Src!=null) Src.Dispose();
             cropimg.Dispose();
