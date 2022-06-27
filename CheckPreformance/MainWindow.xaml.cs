@@ -6364,9 +6364,14 @@ namespace CheckPreformance
             Directory.CreateDirectory(ImageFolder + "\\TrueDefect");
             Directory.CreateDirectory(ImageFolder + "\\FalseDefect");
 
-            foreach (FileInfo grt in GrtFiles)
+           // foreach (FileInfo grt in GrtFiles
+           for(int i=101;i<GrtFiles.Length-1; i++)
             {
+                FileInfo grt = GrtFiles[i];
+
                 info =  new Structure.ResultInfo();
+
+                Console.WriteLine(string.Format("{0} 시작", grt.Name));
 
                 info.datName = grt;
 
@@ -6411,16 +6416,21 @@ namespace CheckPreformance
             
             int cropSize_st = 128;
             int cropSize = cropSize_st;
+            int Defect_resize = 64;
 
             Bitmap cropimg = new Bitmap(cropSize, cropSize, PixelFormat.Format24bppRgb);
-            Bitmap domainimg= new Bitmap(cropSize, cropSize, PixelFormat.Format8bppIndexed);
+            Bitmap black_domainimg= new Bitmap(cropSize, cropSize, PixelFormat.Format8bppIndexed);
+            Bitmap white_domainimg = new Bitmap(cropSize, cropSize, PixelFormat.Format8bppIndexed);
 
-        
             ColorPalette palette;
             HObject Defect_Region;
             HObject Ho_Src;
+            HObject Black_domain, White_domain;
             HOperatorSet.GenEmptyObj(out Defect_Region);
             HOperatorSet.GenEmptyObj(out Ho_Src);
+            HOperatorSet.GenEmptyObj(out Black_domain);
+            HOperatorSet.GenEmptyObj(out White_domain);
+
 
             using (Bitmap bmp = new Bitmap(1, 1, PixelFormat.Format8bppIndexed))
             {
@@ -6444,19 +6454,30 @@ namespace CheckPreformance
                     HOperatorSet.ReadObject(out Defect_Region, ObjName);
                     HOperatorSet.Union1(Defect_Region, out Defect_Region);
 
-                    domainimg = ReduceDomainImage(Ho_Src, Defect_Region);
-
-                    domainimg.Save(string.Format("{0}_BlobImg.bmp", Imagefullname), ImageFormat.Bmp);
-
-                   
+                    try
+                    {
+                        ReduceDomainImage(Ho_Src, Defect_Region, ref Black_domain, ref White_domain);
+                        black_domainimg = Himagetobmp(Black_domain);
+                        white_domainimg = Himagetobmp(White_domain);
+                        black_domainimg.Save(string.Format("{0}_BlobImg_Black.bmp", Imagefullname), ImageFormat.Bmp);
+                        white_domainimg.Save(string.Format("{0}_BlobImg_White.bmp", Imagefullname), ImageFormat.Bmp);
+                    }
+                    catch
+                    {
+                        Console.WriteLine(string.Format("-------------------------{0} 실패"), Imagefullname);
+                    }
                 }
 
                 if (defect.width > cropSize_st || defect.height > cropSize_st)
                 {
-                    cropSize = defect.width > defect.height ? defect.width : defect.height;
+                    int defect_size = defect.width > defect.height ? defect.width : defect.height;
+                    double resizeFactor =   (double) (defect_size/Defect_resize);
+                    cropSize =Convert.ToInt32( defect_size + Defect_resize * resizeFactor);
+                    
                 }
 
                 cropRect = new Rectangle(defect.cenx - cropSize/2, defect.ceny - cropSize/2, cropSize, cropSize);
+                cropimg = new Bitmap(cropSize, cropSize, PixelFormat.Format24bppRgb);
 
                 Rectangle dstrect = new Rectangle(System.Drawing.Point.Empty, cropRect.Size);
 
@@ -6476,10 +6497,18 @@ namespace CheckPreformance
                 cropimageName = string.Format("{0}_Blob{1}_{2}.bmp", SavePath, defect.Blobs_num, (Structure.Defect_Classification)Enum.Parse(typeof(Structure.Defect_Classification),defect.Name.ToString()));
                 cropimg.Save(cropimageName, ImageFormat.Bmp);
 
-
+                cropimg = new Bitmap(cropSize, cropSize, PixelFormat.Format24bppRgb);
                 using (Graphics dstg = Graphics.FromImage(cropimg))
                 {
-                    dstg.DrawImage(domainimg, dstrect, cropRect, GraphicsUnit.Pixel);
+                    if (defect.Avg_I > 127)
+                    {
+                        dstg.DrawImage(black_domainimg, dstrect, cropRect, GraphicsUnit.Pixel);
+                    }
+                    else
+                    {
+                        dstg.DrawImage(white_domainimg, dstrect, cropRect, GraphicsUnit.Pixel);
+                    }
+                  
                 }
 
                 if (defect.width > cropSize_st || defect.height > cropSize_st)
@@ -6527,17 +6556,21 @@ namespace CheckPreformance
             }
             if(Src!=null) Src.Dispose();
             cropimg.Dispose();
-            domainimg.Dispose();
             Ho_Src.Dispose();
             Defect_Region.Dispose();
+            Black_domain.Dispose();
+            White_domain.Dispose();
+            black_domainimg.Dispose();
+            white_domainimg.Dispose();
 
         }
-        private Bitmap ReduceDomainImage(HObject ho_Src, HObject Blob_region)
+        private void ReduceDomainImage(HObject ho_Src, HObject Blob_region, ref HObject Black_domain, ref HObject White_domain)
         {
             HObject bin_img;
             HTuple Widht, Height;
             HObject ho_I1, ho_I2, ho_I3;
             HObject ho_I1a, ho_I2a, ho_I3a;
+            //HObject ho_domainSrc;
 
             HOperatorSet.GetImageSize(ho_Src, out Widht, out Height);
             HOperatorSet.RegionToBin(Blob_region, out bin_img, 255, 0, Widht, Height);
@@ -6547,7 +6580,19 @@ namespace CheckPreformance
             HOperatorSet.BitAnd(ho_I2, bin_img, out ho_I2a);
             HOperatorSet.BitAnd(ho_I3, bin_img, out ho_I3a);
 
-            HOperatorSet.Compose3(ho_I1a, ho_I2a, ho_I3a, out ho_Src);
+            HOperatorSet.Compose3(ho_I1a, ho_I2a, ho_I3a, out Black_domain);
+
+        
+
+            HOperatorSet.RegionToBin(Blob_region, out bin_img, 0, 255, Widht, Height);
+
+            HOperatorSet.AddImage(ho_I1, bin_img, out ho_I1a,1,0);
+            HOperatorSet.AddImage(ho_I2, bin_img, out ho_I2a,1,0);
+            HOperatorSet.AddImage(ho_I3, bin_img, out ho_I3a,1,0);
+
+            HOperatorSet.Compose3(ho_I1a, ho_I2a, ho_I3a, out White_domain);
+
+      
 
             ho_I1.Dispose();
             ho_I2.Dispose();
@@ -6557,7 +6602,7 @@ namespace CheckPreformance
             ho_I3a.Dispose();
             bin_img.Dispose();
 
-            return Himagetobmp(ho_Src);
+            //return Himagetobmp(ho_domainSrc);
         }
 
         private Bitmap Himagetobmp(HObject hImage)
@@ -6752,6 +6797,7 @@ namespace CheckPreformance
                 string Height = string.Format("Blob{0}_HEIGHT", i);
                 string Angle = string.Format("Blob{0}_ANGLE", i);
                 string Classification = string.Format("Blob{0}_Classification", i);
+                string Average_I=string.Format("Blob{0}_Average_I", i);
 
                 Structure.Defect_struct defec_ = new Structure.Defect_struct();
                 defec_.GroundTruth = Convert.ToInt32(test.GetDouble(section, True_Defect));
@@ -6761,11 +6807,21 @@ namespace CheckPreformance
                 defec_.height = Convert.ToInt32(test.GetDouble(section, Height));
                 defec_.angle = Convert.ToInt32(test.GetDouble(section, Angle));
                 defec_.Name = (Structure.Defect_Classification)Enum.ToObject(typeof(Structure.Defect_Classification), Convert.ToInt32(test.GetDouble(section, Classification)));
+                
 
                 int exist_bf = Convert.ToInt32(test.GetDouble(section, BF));
                 int exist_df = Convert.ToInt32(test.GetDouble(section, DF));
                 int exist_co = Convert.ToInt32(test.GetDouble(section, CX));
                 int exist_bl = Convert.ToInt32(test.GetDouble(section, BL));
+
+
+
+                if (exist_bf == 1) defec_.Avg_I = test.GetDouble(section, Average_I + "BF");
+                if (exist_df == 1) defec_.Avg_I = test.GetDouble(section, Average_I + "DF");
+                if (exist_co == 1)defec_.Avg_I = test.GetDouble(section, Average_I + "CX");
+                if (exist_bl == 1) defec_.Avg_I = test.GetDouble(section, Average_I + "BL");
+
+
                 defec_.Blobs_num = i;
                 if (defec_.GroundTruth == 1)
                 {
