@@ -23,6 +23,10 @@ using System.Windows.Media;
 using PixelFormat = System.Drawing.Imaging.PixelFormat;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using OpenCvSharp;
+using OpenCvSharp.Blob;
+using OpenCvSharp.Extensions;
+using OpenCvSharp.CPlusPlus;
 
 namespace CheckPreformance
 {
@@ -31,7 +35,7 @@ namespace CheckPreformance
     /// <summary>
     /// MainWindow.xaml에 대한 상호 작용 논리
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : System.Windows.Window
     {
 
 
@@ -6355,6 +6359,7 @@ namespace CheckPreformance
             string GrtAdderess = @"C:\Users\WTA\Desktop\inha\inha";
             string ImageFolder = @"C:\Users\WTA\Desktop\inha\MicroDefect";
 
+
             FileInfo[] GrtFiles = new DirectoryInfo(GrtAdderess).GetFiles("*.txt");
 
             Structure.ResultInfo info;//= new Structure.ResultInfo();
@@ -6364,12 +6369,12 @@ namespace CheckPreformance
             Directory.CreateDirectory(ImageFolder + "\\TrueDefect");
             Directory.CreateDirectory(ImageFolder + "\\FalseDefect");
 
-           // foreach (FileInfo grt in GrtFiles
-           for(int i=101;i<GrtFiles.Length-1; i++)
+            // foreach (FileInfo grt in GrtFiles
+            for (int i = 0; i < GrtFiles.Length - 1; i++)
             {
                 FileInfo grt = GrtFiles[i];
 
-                info =  new Structure.ResultInfo();
+                info = new Structure.ResultInfo();
 
                 Console.WriteLine(string.Format("{0} 시작", grt.Name));
 
@@ -6382,26 +6387,25 @@ namespace CheckPreformance
                 tempname = grt.Name.Split('.')[0];
                 string imgname = tempname.Substring(0, tempname.Length - 1);
                 string cornernum = tempname.Substring(tempname.Length - 1, 1);
-               
-             
 
-                info.ImageName_bf = "\\" + imgname + "BF" + cornernum ;//+ ".bmp";
-                info.ImageName_df = "\\" + imgname + "DF" + cornernum ;//+ ".bmp";
+                info.ImageName_bf = "\\" + imgname + "BF" + cornernum;//+ ".bmp";
+                info.ImageName_df = "\\" + imgname + "DF" + cornernum;//+ ".bmp";
                 info.ImageName_co = "\\" + imgname + "CO" + cornernum;//+ ".bmp";
                 info.ImageName_bl = "\\" + imgname + "BL" + cornernum; //+ ".bmp";
-                info.ImageName_bf_defect = ImageFolder+"\\" + imgname + cornernum + "_BF.hobj";
-                info.ImageName_df_defect = ImageFolder+"\\" + imgname + cornernum + "_DF.hobj";
-                info.ImageName_co_defect =ImageFolder+ "\\" + imgname + cornernum + "_CO.hobj";
-                info.ImageName_bl_defect = ImageFolder+"\\" + imgname + cornernum + "_BL.hobj";
+                info.ImageName_bf_defect = ImageFolder + "\\" + imgname + cornernum + "_BF.hobj";
+                info.ImageName_df_defect = ImageFolder + "\\" + imgname + cornernum + "_DF.hobj";
+                info.ImageName_co_defect = ImageFolder + "\\" + imgname + cornernum + "_CO.hobj";
+                info.ImageName_bl_defect = ImageFolder + "\\" + imgname + cornernum + "_BL.hobj";
 
-                getCropimg(info.True_BF_Defects, ImageFolder+info.ImageName_bf, info.ImageName_bf_defect, ImageFolder+"\\TrueDefect" + info.ImageName_bf);
-                getCropimg(info.False_BF_Defects, ImageFolder + info.ImageName_bf, info.ImageName_bf_defect , ImageFolder + "\\FalseDefect" + info.ImageName_bf);
-                getCropimg(info.True_DF_Defects, ImageFolder + info.ImageName_df,  info.ImageName_df_defect ,ImageFolder + "\\TrueDefect" + info.ImageName_df);
-                getCropimg(info.False_DF_Defects, ImageFolder + info.ImageName_df, info.ImageName_df_defect ,ImageFolder + "\\FalseDefect" + info.ImageName_df);
-                getCropimg(info.True_CO_Defects, ImageFolder + info.ImageName_co, info.ImageName_co_defect ,ImageFolder + "\\TrueDefect" + info.ImageName_co);
-                getCropimg(info.False_CO_Defects, ImageFolder + info.ImageName_co, info.ImageName_co_defect ,ImageFolder + "\\FalseDefect" + info.ImageName_co);
-                getCropimg(info.True_BL_Defects, ImageFolder + info.ImageName_bl, info.ImageName_bl_defect ,ImageFolder + "\\TrueDefect" + info.ImageName_bl);
-                getCropimg(info.False_BL_Defects, ImageFolder + info.ImageName_bl, info.ImageName_bl_defect , ImageFolder + "\\FalseDefect" + info.ImageName_bl);
+                getCropimg_(info.False_DF_Defects, ImageFolder + info.ImageName_df, info.ImageName_df_defect, ImageFolder + "\\FalseDefect" + info.ImageName_df);
+                getCropimg_(info.True_BF_Defects, ImageFolder + info.ImageName_bf, info.ImageName_bf_defect, ImageFolder + "\\TrueDefect" + info.ImageName_bf);
+                getCropimg_(info.False_BF_Defects, ImageFolder + info.ImageName_bf, info.ImageName_bf_defect, ImageFolder + "\\FalseDefect" + info.ImageName_bf);
+                getCropimg_(info.True_DF_Defects, ImageFolder + info.ImageName_df, info.ImageName_df_defect, ImageFolder + "\\TrueDefect" + info.ImageName_df);
+                
+                getCropimg_(info.True_CO_Defects, ImageFolder + info.ImageName_co, info.ImageName_co_defect, ImageFolder + "\\TrueDefect" + info.ImageName_co);
+                getCropimg_(info.False_CO_Defects, ImageFolder + info.ImageName_co, info.ImageName_co_defect, ImageFolder + "\\FalseDefect" + info.ImageName_co);
+                getCropimg_(info.True_BL_Defects, ImageFolder + info.ImageName_bl, info.ImageName_bl_defect, ImageFolder + "\\TrueDefect" + info.ImageName_bl);
+                getCropimg_(info.False_BL_Defects, ImageFolder + info.ImageName_bl, info.ImageName_bl_defect, ImageFolder + "\\FalseDefect" + info.ImageName_bl);
             }
         }
 
@@ -6452,20 +6456,20 @@ namespace CheckPreformance
                     Src = new Bitmap(Imagefullname + ".bmp");
                     HOperatorSet.ReadImage(out Ho_Src, Imagefullname + ".bmp");
                     HOperatorSet.ReadObject(out Defect_Region, ObjName);
-                    HOperatorSet.Union1(Defect_Region, out Defect_Region);
+                    HOperatorSet.Connection(Defect_Region, out Defect_Region);
 
-                    try
-                    {
-                        ReduceDomainImage(Ho_Src, Defect_Region, ref Black_domain, ref White_domain);
-                        black_domainimg = Himagetobmp(Black_domain);
-                        white_domainimg = Himagetobmp(White_domain);
-                        black_domainimg.Save(string.Format("{0}_BlobImg_Black.bmp", Imagefullname), ImageFormat.Bmp);
-                        white_domainimg.Save(string.Format("{0}_BlobImg_White.bmp", Imagefullname), ImageFormat.Bmp);
-                    }
-                    catch
-                    {
-                        Console.WriteLine(string.Format("-------------------------{0} 실패"), Imagefullname);
-                    }
+                    //try
+                    //{
+                    //    ReduceDomainImage(Ho_Src, Defect_Region, ref Black_domain, ref White_domain);
+                    //    black_domainimg = Himagetobmp(Black_domain);
+                    //    white_domainimg = Himagetobmp(White_domain);
+                    //    black_domainimg.Save(string.Format("{0}_BlobImg_Black.bmp", Imagefullname), ImageFormat.Bmp);
+                    //    white_domainimg.Save(string.Format("{0}_BlobImg_White.bmp", Imagefullname), ImageFormat.Bmp);
+                    //}
+                    //catch
+                    //{
+                    //    Console.WriteLine(string.Format("-------------------------{0} 실패", Imagefullname));
+                    //}
                 }
 
                 if (defect.width > cropSize_st || defect.height > cropSize_st)
@@ -6497,59 +6501,50 @@ namespace CheckPreformance
                 cropimageName = string.Format("{0}_Blob{1}_{2}.bmp", SavePath, defect.Blobs_num, (Structure.Defect_Classification)Enum.Parse(typeof(Structure.Defect_Classification),defect.Name.ToString()));
                 cropimg.Save(cropimageName, ImageFormat.Bmp);
 
-                cropimg = new Bitmap(cropSize, cropSize, PixelFormat.Format24bppRgb);
-                using (Graphics dstg = Graphics.FromImage(cropimg))
+
+
+                //cropimg = new Bitmap(cropSize, cropSize, PixelFormat.Format24bppRgb);
+                //using (Graphics dstg = Graphics.FromImage(cropimg))
+                //{
+                //    if (defect.Avg_I > 127)
+                //    {
+                //        dstg.DrawImage(black_domainimg, dstrect, cropRect, GraphicsUnit.Pixel);
+                //    }
+                //    else
+                //    {
+                //        dstg.DrawImage(white_domainimg, dstrect, cropRect, GraphicsUnit.Pixel);
+                //    }
+
+                //}
+
+                //if (defect.width > cropSize_st || defect.height > cropSize_st)
+                //{
+                //    Bitmap resizeimg = resizeImage(cropimg, (int)cropSize_st, (int)cropSize_st);
+                //    cropimg.Dispose();
+                //    cropimg = resizeimg.Clone() as Bitmap;
+                //    resizeimg.Dispose();
+                //}
+
+                HObject Select_Rgn;
+                HOperatorSet.SelectRegionPoint(Defect_Region, out Select_Rgn, defect.ceny, defect.cenx);
+                HObject binImg;
+
+                if (defect.Avg_I > 127)
                 {
-                    if (defect.Avg_I > 127)
-                    {
-                        dstg.DrawImage(black_domainimg, dstrect, cropRect, GraphicsUnit.Pixel);
-                    }
-                    else
-                    {
-                        dstg.DrawImage(white_domainimg, dstrect, cropRect, GraphicsUnit.Pixel);
-                    }
-                  
+                    HOperatorSet.RegionToBin(Select_Rgn, out binImg, 255, 0, Src.Width, Src.Height);
+
+                }
+                else
+                {
+                    HOperatorSet.RegionToBin(Select_Rgn, out binImg, 0, 255, Src.Width, Src.Height);
                 }
 
-                if (defect.width > cropSize_st || defect.height > cropSize_st)
-                {
-                    Bitmap resizeimg = resizeImage(cropimg, (int)cropSize_st, (int)cropSize_st);
-                    cropimg.Dispose();
-                    cropimg = resizeimg.Clone() as Bitmap;
-                    resizeimg.Dispose();
-                }
+
+
 
                 cropimageName = string.Format("{0}_Blob{1}_{2}_Seg.bmp", SavePath, defect.Blobs_num, (Structure.Defect_Classification)Enum.Parse(typeof(Structure.Defect_Classification), defect.Name.ToString()));
                 cropimg.Save(cropimageName, ImageFormat.Bmp);
 
-
-                #region HSI Color Space 변환
-                //{
-                //cropimageName = string.Format("{0}_Blob{1}_I.bmp", SavePath, defect.Blobs_num);
-
-                //    BitmapData D_src = cropimg.LockBits(new Rectangle(0, 0, cropimg.Width, cropimg.Height), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
-                //    HObject h_src;// = new HImage("byte", Src.Width, Src.Height, D_src.Scan0);
-                //    HOperatorSet.GenImageInterleaved(out h_src, D_src.Scan0, "bgr", cropimg.Width, cropimg.Height, -1, "byte", cropimg.Width, cropimg.Height, 0, 0, -1, 0);
-                //    cropimg.UnlockBits(D_src);
-
-
-                //    HOperatorSet.Decompose3(h_src, out ho_R, out ho_G, out ho_B);
-                //    HOperatorSet.TransFromRgb(ho_R, ho_G, ho_B, out ho_I, out ho_H, out ho_S, "ihs");
-
-                //    HOperatorSet.GetImagePointer1(ho_I, out ptr, out type, out w, out h);
-                //    IntPtr iPtr = new IntPtr(ptr);
-                //    I_cropimg = new Bitmap(w, h, w, PixelFormat.Format8bppIndexed, iPtr);
-                //    I_cropimg.Palette = palette;
-
-                //    h_src.Dispose();
-                //    ho_R.Dispose();
-                //    ho_G.Dispose();
-                //    ho_B.Dispose();
-                //    ho_H.Dispose();
-                //    ho_S.Dispose();
-                //I_cropimg.Save(cropimageName, ImageFormat.Bmp);
-                //}
-                #endregion
 
 
 
@@ -6564,6 +6559,213 @@ namespace CheckPreformance
             white_domainimg.Dispose();
 
         }
+
+        private void getCropimg_(List<Structure.Defect_struct> info, string Imagefullname, string ObjName, string SavePath)
+        {
+            Bitmap Src = null;
+            Bitmap Src_Domain = null;
+            Rectangle cropRect;
+            string cropimageName;
+
+            int cropSize_st = 128;
+            int cropSize = cropSize_st;
+            int Defect_resize = 64;
+
+            Bitmap cropimg = new Bitmap(cropSize, cropSize, PixelFormat.Format24bppRgb);
+            Bitmap crop_domain = new Bitmap(cropSize, cropSize, PixelFormat.Format24bppRgb);
+            Bitmap Domain = null;
+            Bitmap Seg_Image = null;
+
+
+
+            foreach (Structure.Defect_struct defect in info)
+            {
+
+                cropSize = cropSize_st;
+
+                if (Src == null)
+                {
+                    Src = new Bitmap(Imagefullname + ".bmp");
+                    Src_Domain = new Bitmap(Imagefullname + "_BlobImg.bmp");
+                }
+
+                if (defect.width > cropSize_st || defect.height > cropSize_st)
+                {
+                    int defect_size = defect.width > defect.height ? defect.width : defect.height;
+                    double resizeFactor = (double)(defect_size / Defect_resize);
+                    cropSize = Convert.ToInt32(defect_size + Defect_resize * resizeFactor);
+
+                }
+
+
+                BlobLabeling(Src_Domain, defect.cenx, defect.ceny,out Domain);
+
+
+
+                cropRect = new Rectangle(defect.cenx - cropSize / 2, defect.ceny - cropSize / 2, cropSize, cropSize);
+                cropimg = new Bitmap(cropSize, cropSize, PixelFormat.Format24bppRgb);
+                crop_domain = new Bitmap(cropSize, cropSize, PixelFormat.Format24bppRgb);
+                Rectangle dstrect = new Rectangle(System.Drawing.Point.Empty, cropRect.Size);
+
+                using (Graphics dstg = Graphics.FromImage(cropimg))
+                {
+                    dstg.DrawImage(Src, dstrect, cropRect, GraphicsUnit.Pixel);
+                }
+
+                using (Graphics dstg = Graphics.FromImage(crop_domain))
+                {
+                    dstg.DrawImage(Domain, dstrect, cropRect, GraphicsUnit.Pixel);
+                }
+                if (defect.Avg_I > 127)
+                {
+                    Get_Segmentation_Image(cropimg, crop_domain, true, out Seg_Image);
+                }
+                else
+                {
+                    Get_Segmentation_Image(cropimg, crop_domain, false, out Seg_Image);
+                }
+
+
+
+                if (defect.width > cropSize_st || defect.height > cropSize_st)
+                {
+                    Bitmap resizeimg = resizeImage(cropimg, (int)cropSize_st, (int)cropSize_st);
+                    cropimg.Dispose();
+                    cropimg = resizeimg.Clone() as Bitmap;
+                    resizeimg.Dispose();
+
+                    resizeimg = resizeImage(Seg_Image, (int)cropSize_st, (int)cropSize_st);
+                    Seg_Image.Dispose();
+                    Seg_Image = resizeimg.Clone() as Bitmap;
+                    resizeimg.Dispose();
+
+                }
+
+                cropimageName = string.Format("{0}_Blob{1}_{2}.bmp", SavePath, defect.Blobs_num, (Structure.Defect_Classification)Enum.Parse(typeof(Structure.Defect_Classification), defect.Name.ToString()));
+                cropimg.Save(cropimageName, ImageFormat.Bmp);
+
+
+                cropimageName = string.Format("{0}_Blob{1}_{2}_Seg.bmp", SavePath, defect.Blobs_num, (Structure.Defect_Classification)Enum.Parse(typeof(Structure.Defect_Classification), defect.Name.ToString()));
+                Seg_Image.Save(cropimageName, ImageFormat.Bmp);
+
+
+            }
+            if (Src != null) Src.Dispose();
+            if (Src_Domain != null) Src_Domain.Dispose();
+            if (cropimg != null) cropimg.Dispose();
+            if (crop_domain != null) crop_domain.Dispose();
+            if (Seg_Image != null) Seg_Image.Dispose();
+            if (Domain != null) Domain.Dispose();
+
+        }
+
+        private void BlobLabeling(Bitmap Domain, int Defect_cenx, int Defect_ceny, out Bitmap Dst)
+        {
+            IplImage bin = new IplImage(Domain.Width, Domain.Height , BitDepth.U8, 1);
+            BitmapData domainData = Domain.LockBits(new Rectangle(0, 0, Domain.Width, Domain.Height), ImageLockMode.ReadOnly, PixelFormat.Format8bppIndexed);
+            IplImage src = IplImage.FromPixelData(Domain.Width, Domain.Height, 1, domainData.Scan0);
+            IplImage select_domain = new IplImage(Domain.Width, Domain.Height, BitDepth.U8, 3);
+
+
+            Cv.Threshold(src, bin, 50, 255, ThresholdType.Binary);
+            CvBlobs blobs = new CvBlobs();
+            blobs.Label(bin);
+
+
+            foreach (KeyValuePair<int, CvBlob> b in blobs)
+            {
+                CvBlob cvblob = b.Value;
+
+                CvContourChainCode cc = cvblob.Contour;
+                CvContourPolygon cp = cc.ConvertToPolygon();
+             
+                CvPoint[] contourPts = cp.ToArray();
+           
+                int minx = contourPts.Min(a => a.X);
+                int miny = contourPts.Min(a => a.Y);
+                int maxx = contourPts.Max(a => a.X);
+                int maxy = contourPts.Max(a => a.Y);
+
+                if (Defect_cenx > minx && Defect_cenx < maxx
+                    && Defect_ceny > miny && Defect_ceny < maxy)
+                {
+                   
+                    List<CvPoint[]> ListOfListOfPoint = new List<CvPoint[]>();
+                    ListOfListOfPoint.Add(contourPts);
+
+                    Cv.FillPoly(select_domain, ListOfListOfPoint.ToArray(), CvColor.White);
+                }
+            }
+
+          
+            Dst = select_domain.ToBitmap();
+            Domain.UnlockBits(domainData);
+            bin.Dispose();
+            src.Dispose();
+            select_domain.Dispose();
+
+        }
+
+        private void  Get_Segmentation_Image(Bitmap src, Bitmap domain, bool useBlackDomain, out Bitmap Seg_Img)
+        {
+            IplImage I_src, I_domain;
+            IplImage I_r, I_g, I_b;
+            IplImage I_r_and, I_g_and, I_b_and;
+            IplImage bin;
+            IplImage ReducedImg;
+
+
+            I_src = src.ToIplImage();
+            I_domain = domain.ToIplImage();
+            bin = new IplImage(I_src.Size, BitDepth.U8, 1);
+            ReducedImg = new IplImage(I_src.Size, BitDepth.U8, 3);
+            Cv.CvtColor(I_domain, bin, ColorConversion.BgrToGray);
+
+
+            I_r = new IplImage(I_src.Size, BitDepth.U8, 1);
+            I_g = new IplImage(I_src.Size, BitDepth.U8, 1);
+            I_b = new IplImage(I_src.Size, BitDepth.U8, 1);
+
+
+            I_r_and = new IplImage(I_src.Size, BitDepth.U8, 1);
+            I_g_and = new IplImage(I_src.Size, BitDepth.U8, 1);
+            I_b_and = new IplImage(I_src.Size, BitDepth.U8, 1);
+
+            Cv.Split(I_src, I_b, I_g, I_r, null);
+
+            if (useBlackDomain)
+            {
+
+                Cv.And(I_b, bin, I_b_and);
+                Cv.And(I_g, bin, I_g_and);
+                Cv.And(I_r, bin, I_r_and);
+                Cv.Merge(I_b_and, I_g_and, I_r_and, null, ReducedImg);
+            }
+            else
+            {
+                Cv.Threshold(bin, bin, 50, 255, ThresholdType.BinaryInv);
+                Cv.Add(I_b, bin, I_b_and);
+                Cv.Add(I_g, bin, I_g_and);
+                Cv.Add(I_r, bin, I_r_and);
+                Cv.Merge(I_b_and, I_g_and, I_r_and, null, ReducedImg);
+            }
+
+            Seg_Img = ReducedImg.ToBitmap();
+
+            I_r.Dispose();
+            I_g.Dispose();
+            I_b.Dispose();
+            I_r_and.Dispose();
+            I_g_and.Dispose();
+            I_b_and.Dispose();
+            bin.Dispose();
+            ReducedImg.Dispose();
+            I_src.Dispose();
+            I_domain.Dispose();
+
+        }
+
+
         private void ReduceDomainImage(HObject ho_Src, HObject Blob_region, ref HObject Black_domain, ref HObject White_domain)
         {
             HObject bin_img;
